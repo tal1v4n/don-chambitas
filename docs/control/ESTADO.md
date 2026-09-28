@@ -445,12 +445,27 @@ explicados al final de `MODELO-ER.md`.
 
 ## Siguiente en la cola
 
-`S2-T08` — Almacenamiento seguro de la sesión y el token (DataStore cifrado)
-(prioridad 700, sprint 2, depende de: S2-T05, hecha)
+`S2-T10` — Pantalla de recuperación de contraseña
+(prioridad 700, sprint 2, sin dependencias)
 
-**No tiene ticket.** `DEC-30` ya fijó el alcance: un `SessionManager` cifrado
-para `supabase-kt` y quitar `Sesion.tokenAcceso`. El ticket tiene que proponer
-la biblioteca de cifrado, porque agregarla al stack lo decide el líder.
+**El líder le subió la prioridad el 2026-09-27**, de 600 a 700, porque urge
+cerrar la recuperación de contraseña. `S2-T08` bajó a 650 y `S2-T09` a 600.
+El ticket ya está escrito: `docs/tareas/S2-T10.md`.
+
+**Antes de cerrarla hay que leer un dato en la consola.** La cadena de
+vigencia del enlace dice "24 horas", pero nadie lo verificó: `S2-T07` debía
+hacerlo y no lo hizo, y el valor de fábrica de Supabase es de una hora. Solo
+el líder puede leerlo, en *Authentication → Providers → Email*, campo *Email
+OTP Expiration*. Detalle en el paso 6 del ticket.
+
+Con `S2-T10` la recuperación **todavía no queda completa**. Aterrizar en P-18
+y cambiar ahí la contraseña es `S2-T11`, que depende de `S2-T12` (`DEC-31`).
+
+Después sigue `S2-T08` — Almacenamiento seguro de la sesión y el token
+(DataStore cifrado), prioridad 650. **No tiene ticket.** `DEC-30` ya fijó el
+alcance: un `SessionManager` cifrado para `supabase-kt` y quitar
+`Sesion.tokenAcceso`. El ticket tiene que proponer la biblioteca de cifrado,
+porque agregarla al stack lo decide el líder.
 
 ## Los dos huecos de S2-T01, ya cerrados
 
