@@ -26,8 +26,8 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | 3 | 15 | 15 | 0 | 0 | 0 |
 | 4 | 15 | 13 | 0 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
-| 6 | 12 | 12 | 0 | 0 | 0 |
-| **Total** | **86** | **60** | **0** | **2** | **24** |
+| 6 | 13 | 13 | 0 | 0 | 0 |
+| **Total** | **87** | **61** | **0** | **2** | **24** |
 
 > **No queda ninguna tarea bloqueada, ni ningún pendiente abierto.** PEND-01 se
 > resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el 2026-09-22
@@ -165,6 +165,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S6-T10` | 600 | Pruebas internas o cerradas y correccion de observaciones | LMM | pendiente | — |
 | `S6-T11` | 550 | Envío a revisión y publicación en producción | RRC | pendiente | S6-T10 |
 | `S6-T12` | 500 | Documentación final, manual de usuario y entrega | GRI | pendiente | — |
+| `S6-T13` | 450 | SMTP propio en Supabase Auth para que el correo de recuperación llegue a cualquier usuario | — | pendiente | S6-T05 |
 
 ---
 
@@ -188,3 +189,14 @@ siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 > **2026-09-27 · El líder subió `S2-T10` de 600 a 700** porque urge cerrar la
 > recuperación de contraseña. Para no repetir números, `S2-T08` bajó a 650 y
 > `S2-T09` a 600; entre ellas conservan su orden.
+>
+> **2026-10-08 · El líder agregó `S6-T13`**, el SMTP propio. Lo encontró
+> `S2-T10`: el servicio de correo de fábrica de Supabase solo entrega a los
+> miembros del equipo de la organización, y muy pocos correos por hora, así
+> que un usuario real no recibe el enlace de recuperación. Es configuración de
+> la consola, no código: proveedor (Resend, Brevo u otro), remitente, límite de
+> envío en *Rate Limits* y, de paso, la plantilla del correo en español. Las
+> credenciales del SMTP **nunca** entran al repositorio. Va después de
+> `S6-T05` porque se configura en el proyecto de producción; sin responsable
+> nominal todavía. Si hace falta antes de las pruebas cerradas de `S6-T10`, el
+> líder ajusta la prioridad.

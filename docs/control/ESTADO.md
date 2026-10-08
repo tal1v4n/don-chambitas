@@ -47,7 +47,7 @@ de P-04 describen la rama de `S2-T10` mientras no se integre.
 | Tocas "¿Olvidaste tu contraseña?" en P-02 | P-04 real: explicación, correo, "Enviar enlace" y "Volver a iniciar sesión", con una sola barra | — |
 | Pides el enlace con cualquier correo bien escrito | "Revisa tu correo", sin repetir el correo, **exista o no la cuenta** y aunque su correo no pueda recibir | — |
 | Pides el enlace sin red | "Sin conexión" con "Reintentar", y el correo sigue escrito | — |
-| Esperas el correo en una cuenta que no es del equipo | **No llega.** El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización, y muy pocos por hora | Un SMTP propio en la consola; ninguna tarea lo tiene hoy |
+| Esperas el correo en una cuenta que no es del equipo | **No llega.** El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización, y muy pocos por hora | `S6-T13` |
 | Abres el enlace del correo | La aplicación abre y no se cierra. Todavía no te lleva a P-18 | `S2-T11` |
 | Cierras y vuelves a abrir | La sesión real queda guardada por `supabase-kt`, pero P-01 todavía lee el marcador temporal y te manda a P-02 | `S2-T09`, `S2-T15` |
 
@@ -70,7 +70,7 @@ _Ninguna._
 ## Última tarea terminada
 
 **`S2-T10` — Pantalla de recuperación de contraseña.** 2026-10-08.
-Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **sin abrir todavía**. La trabajó el líder con el agente; el responsable nominal es LMM.
+Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **#13**, integrado en `main`. La trabajó el líder con el agente; el responsable nominal es LMM.
 
 - `ui/pantallas/EstadoRecuperarContrasena.kt`, `RecuperarContrasenaViewModel.kt` y `RecuperarContrasenaPantalla.kt`, conforme a la sección 4 de `DISENO-AUTENTICACION.md`: formulario y confirmación en la misma pantalla, el correo normalizado solo al enviar, "Reintentar" solo en `RED`, `SERVIDOR` y `DESCONOCIDO`, y `Done` del teclado envía.
 - `GrafoNavegacion.kt`: P-04 sustituye su marcador, regresa con `popBackStack` y entra a `RUTAS_SIN_BARRA_DEL_ANDAMIO`.
@@ -91,7 +91,7 @@ Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **sin abrir todav
 - **Cuenta creada para la prueba:** la del correo del líder, como cliente, nombre "Lider Prueba S2-T10". La contraseña la tiene el líder.
 - **Por qué no llegaba el correo al principio:** esa dirección no tenía cuenta, y sin cuenta Supabase no envía nada.
 - **Dos hallazgos para el líder:**
-  - **El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización**, y muy pocos correos por hora. Un usuario real no recibe el enlace hasta que se configure un SMTP propio en la consola. Ninguna tarea lo tiene; lo más cercano es `S6-T05`.
+  - **El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización**, y muy pocos correos por hora. Un usuario real no recibe el enlace hasta que se configure un SMTP propio en la consola. El líder lo registró el 2026-10-08 como `S6-T13`.
   - **Enter de teclado físico** en P-04 envía la petición y además regresa a P-02, con lo que la petición se cancela. Es el mismo defecto que anotó `S2-T05` en P-03, y probablemente esté en P-02. La tecla de acción del teclado en pantalla funciona bien. No se tocó: arreglarlo solo en P-04 dejaría tres pantallas distintas.
 
 **`S2-T07` — Implementación real de autenticación con Supabase Auth.** 2026-09-27.
