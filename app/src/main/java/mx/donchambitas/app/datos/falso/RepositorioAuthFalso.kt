@@ -55,7 +55,7 @@ class RepositorioAuthFalso @Inject constructor(
             actualizadoEn = ahora
         )
         fuente.usuarios.add(nuevoUsuario)
-        val sesion = Sesion(nuevoUsuario, "token_falso_${nuevoId}")
+        val sesion = Sesion(nuevoUsuario)
         fuente.fijarSesionActiva(sesion)
         return Resultado.Exito(sesion)
     }
@@ -68,7 +68,7 @@ class RepositorioAuthFalso @Inject constructor(
 
         val usuario = fuente.usuarios.firstOrNull { it.correo.equals(correo, ignoreCase = true) }
         return if (usuario != null) {
-            val sesion = Sesion(usuario, "token_falso_${usuario.id}")
+            val sesion = Sesion(usuario)
             fuente.fijarSesionActiva(sesion)
             Resultado.Exito(sesion)
         } else {

@@ -22,12 +22,12 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | Sprint | Tareas | Pendientes | Bloqueadas | Opcionales | Hechas |
 |---|---|---|---|---|---|
 | 1 | 16 | 0 | 0 | 0 | 16 |
-| 2 | 16 | 8 | 0 | 0 | 8 |
+| 2 | 16 | 7 | 0 | 0 | 9 |
 | 3 | 15 | 15 | 0 | 0 | 0 |
 | 4 | 15 | 13 | 0 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
-| 6 | 12 | 12 | 0 | 0 | 0 |
-| **Total** | **86** | **60** | **0** | **2** | **24** |
+| 6 | 13 | 13 | 0 | 0 | 0 |
+| **Total** | **87** | **60** | **0** | **2** | **25** |
 
 > **No queda ninguna tarea bloqueada, ni ningún pendiente abierto.** PEND-01 se
 > resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el 2026-09-22
@@ -71,7 +71,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S2-T05` | 850 | ViewModels y estados de UI del flujo de autenticación | BCJL | hecha | S1-T13 |
 | `S2-T06` | 800 | Contrato de la API de autenticación (endpoints, payloads y errores) | LMM | hecha | — |
 | `S2-T07` | 750 | Implementación real de autenticación con Supabase Auth | RRC | hecha | S2-T06 |
-| `S2-T08` | 650 | Almacenamiento seguro de la sesión y el token (DataStore cifrado) | GRI | pendiente | S2-T05 |
+| `S2-T08` | 650 | Almacenamiento seguro de la sesión y el token (DataStore cifrado) | GRI | hecha | S2-T05 |
 | `S2-T09` | 600 | Manejo de sesión: inicio automatico, cierre de sesión y expiracion | BCJL | pendiente | S2-T08 |
 | `S2-T10` | 700 | Pantalla de recuperación de contraseña | LMM | hecha | — |
 | `S2-T11` | 550 | Diseño y pantalla del perfil de usuario (ver y editar) | RRC | pendiente | S2-T12 |
@@ -165,6 +165,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S6-T10` | 600 | Pruebas internas o cerradas y correccion de observaciones | LMM | pendiente | — |
 | `S6-T11` | 550 | Envío a revisión y publicación en producción | RRC | pendiente | S6-T10 |
 | `S6-T12` | 500 | Documentación final, manual de usuario y entrega | GRI | pendiente | — |
+| `S6-T13` | 450 | SMTP propio en Supabase Auth para que el correo de recuperación llegue a cualquier usuario | — | pendiente | S6-T05 |
 
 ---
 
@@ -175,16 +176,27 @@ criterios de aceptación y cómo probarla.
 
 Los tickets se redactan **al iniciar cada sprint**, no los seis por adelantado:
 detallar hoy el Sprint 5 es trabajo que se va a tirar. Hoy están escritos los
-16 del Sprint 1, los de `S2-T03` a `S2-T07` y el de `S2-T10`. Para los
+16 del Sprint 1, los de `S2-T03` a `S2-T07`, el de `S2-T08` y el de `S2-T10`. Para los
 siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 
 > **Los del Sprint 2 se están redactando tarde, tarea por tarea.** `S2-T01` y
 > `S2-T02` se trabajaron **sin ticket**, por autorización del líder del
 > 2026-09-21, dejando su alcance escrito en el propio entregable. Desde
 > `S2-T03` sí hay ticket: el líder ordenó el 2026-09-22 redactarlo antes de
-> tomar la tarea. Las 8 restantes del Sprint 2 siguen sin ticket; cada una lo
+> tomar la tarea. Las 7 restantes del Sprint 2 siguen sin ticket; cada una lo
 > necesita antes de empezar.
 >
 > **2026-09-27 · El líder subió `S2-T10` de 600 a 700** porque urge cerrar la
 > recuperación de contraseña. Para no repetir números, `S2-T08` bajó a 650 y
 > `S2-T09` a 600; entre ellas conservan su orden.
+>
+> **2026-10-08 · El líder agregó `S6-T13`**, el SMTP propio. Lo encontró
+> `S2-T10`: el servicio de correo de fábrica de Supabase solo entrega a los
+> miembros del equipo de la organización, y muy pocos correos por hora, así
+> que un usuario real no recibe el enlace de recuperación. Es configuración de
+> la consola, no código: proveedor (Resend, Brevo u otro), remitente, límite de
+> envío en *Rate Limits* y, de paso, la plantilla del correo en español. Las
+> credenciales del SMTP **nunca** entran al repositorio. Va después de
+> `S6-T05` porque se configura en el proyecto de producción; sin responsable
+> nominal todavía. Si hace falta antes de las pruebas cerradas de `S6-T10`, el
+> líder ajusta la prioridad.

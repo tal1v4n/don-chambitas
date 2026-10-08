@@ -5,10 +5,13 @@ import java.time.Instant
 
 /**
  * Representa la sesion activa de un usuario autenticado.
+ *
+ * Sin token: el de acceso, su refresco y su almacenamiento cifrado los lleva
+ * supabase-kt (DEC-30). Un token en el dominio invita a guardarlo o a
+ * registrarlo en un log.
  */
 data class Sesion(
-    val usuario: Usuario,
-    val tokenAcceso: String = "token_falso_sesion"
+    val usuario: Usuario
 )
 
 /**

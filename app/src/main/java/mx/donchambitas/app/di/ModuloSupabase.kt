@@ -1,8 +1,10 @@
 package mx.donchambitas.app.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -10,6 +12,7 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import javax.inject.Singleton
 import mx.donchambitas.app.BuildConfig
+import mx.donchambitas.app.datos.local.crearAlmacenSesionCifrada
 import mx.donchambitas.app.datos.remoto.supabase.ConfiguracionSupabase
 
 @Module
@@ -23,7 +26,7 @@ object ModuloSupabase {
      */
     @Provides
     @Singleton
-    fun proveerClienteSupabase(): SupabaseClient {
+    fun proveerClienteSupabase(@ApplicationContext contexto: Context): SupabaseClient {
         check(BuildConfig.SUPABASE_URL.isNotBlank() && BuildConfig.SUPABASE_ANON_KEY.isNotBlank()) {
             "Faltan SUPABASE_URL y SUPABASE_ANON_KEY en local.properties. Nunca se suben al repositorio."
         }
@@ -33,6 +36,9 @@ object ModuloSupabase {
                 // enlace de recuperacion pierde type=recovery (CONTRATOS-API.md).
                 scheme = ConfiguracionSupabase.ESQUEMA_ENLACE
                 host = ConfiguracionSupabase.HOST_ENLACE
+                // Por omision supabase-kt guarda la sesion en texto plano en
+                // las SharedPreferences (DEC-30).
+                sessionManager = crearAlmacenSesionCifrada(contexto)
             }
             install(Postgrest)
         }

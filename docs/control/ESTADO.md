@@ -14,7 +14,7 @@
 | Sprint | 2 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 16 |
-| Terminadas | 8 |
+| Terminadas | 9 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -47,9 +47,9 @@ de P-04 describen la rama de `S2-T10` mientras no se integre.
 | Tocas "¿Olvidaste tu contraseña?" en P-02 | P-04 real: explicación, correo, "Enviar enlace" y "Volver a iniciar sesión", con una sola barra | — |
 | Pides el enlace con cualquier correo bien escrito | "Revisa tu correo", sin repetir el correo, **exista o no la cuenta** y aunque su correo no pueda recibir | — |
 | Pides el enlace sin red | "Sin conexión" con "Reintentar", y el correo sigue escrito | — |
-| Esperas el correo en una cuenta que no es del equipo | **No llega.** El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización, y muy pocos por hora | Un SMTP propio en la consola; ninguna tarea lo tiene hoy |
+| Esperas el correo en una cuenta que no es del equipo | **No llega.** El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización, y muy pocos por hora | `S6-T13` |
 | Abres el enlace del correo | La aplicación abre y no se cierra. Todavía no te lleva a P-18 | `S2-T11` |
-| Cierras y vuelves a abrir | La sesión real queda guardada por `supabase-kt`, pero P-01 todavía lee el marcador temporal y te manda a P-02 | `S2-T09`, `S2-T15` |
+| Cierras y vuelves a abrir | La sesión real queda guardada **cifrada** (`S2-T08`), pero P-01 todavía lee el marcador temporal y te manda a P-02. La sesión se carga hasta la primera acción de Auth | `S2-T09`, `S2-T15` |
 
 **El alta ya es real** desde `S2-T07`: la cuenta vive en Supabase Auth y en
 `public.usuarios`, y sobrevive al reinicio. Por `DEC-25` el registro deja
@@ -69,8 +69,34 @@ _Ninguna._
 
 ## Última tarea terminada
 
+**`S2-T08` — Almacenamiento seguro de la sesión y el token.** 2026-10-08.
+Rama `feat/S2-T08-almacenamiento-seguro-sesion`, pull request **sin abrir todavía**. Ticket redactado por el agente el mismo día; el líder eligió la opción A.
+
+- **`datos/local/CifradorSesion.kt`:** AES-256-GCM con una llave que se genera dentro del Android Keystore y nunca sale de ahí. IV nuevo en cada cifrado. Lo que no se puede descifrar devuelve `null`, nunca lanza. Sin dependencia nueva.
+- **`datos/local/AlmacenSesionCifrada.kt`:** el `SessionManager` de `supabase-kt`, sobre el DataStore `sesion_cifrada`. Sustituye al `SettingsSessionManager`, que guardaba la sesión **en texto plano** en `shared_prefs/mx.donchambitas.app_preferences.xml`.
+  - Migra una sola vez la sesión en claro de antes y la borra, así que nadie tiene que volver a entrar.
+  - Un dato indescifrable, ilegible o un archivo dañado cuenta como "sin sesión".
+- **`ModuloSupabase`** le pasa ese almacén a `install(Auth)`.
+- **Respaldo:** la sesión cifrada y las `SharedPreferences` por omisión quedan fuera de la copia de seguridad de Google y de la transferencia entre dispositivos. Antes la sesión en claro sí se respaldaba.
+- **`Sesion.tokenAcceso` ya no existe** (`H-12`, `DEC-30`).
+- `CONTRATOS-API.md` y `ARQUITECTURA.md` al día.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 159 pruebas unitarias (9 nuevas) y 54 instrumentadas (5 nuevas, el cifrador contra el Keystore real), 0 fallas.
+  - **En emulador `Medium_Phone`, instalando encima de la versión de `main` con sesión abierta:**
+    - antes, el token estaba en claro en `shared_prefs`;
+    - después de la primera acción de Auth, la llave en claro desapareció y `sesion_cifrada` tiene la sesión sin `access_token`, sin JWT y sin el correo en claro;
+    - tras cerrar y abrir, "Successfully loaded session from storage";
+    - un inicio de sesión nuevo se guarda cifrado;
+    - con el archivo dañado a mano, Auth da "No session found" y la aplicación no se cierra.
+- **Cuatro desvíos del ticket**, anotados en él:
+  - la migración ocurre con la primera acción de Auth, no al abrir: el cliente es perezoso desde `S2-T07` y P-01 aún no lee la sesión. Con `S2-T09` pasará al abrir;
+  - también se tocaron `FuenteDatosFalsa.kt` y `RepositorioAuthFalso.kt`;
+  - se agregó un manejador de corrupción al DataStore;
+  - que `cerrarSesion()` borre la sesión cifrada se probó en la JVM, porque todavía no hay botón de cerrar sesión (`S2-T11`).
+
 **`S2-T10` — Pantalla de recuperación de contraseña.** 2026-10-08.
-Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **sin abrir todavía**. La trabajó el líder con el agente; el responsable nominal es LMM.
+Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **#13**, integrado en `main`. La trabajó el líder con el agente; el responsable nominal es LMM.
 
 - `ui/pantallas/EstadoRecuperarContrasena.kt`, `RecuperarContrasenaViewModel.kt` y `RecuperarContrasenaPantalla.kt`, conforme a la sección 4 de `DISENO-AUTENTICACION.md`: formulario y confirmación en la misma pantalla, el correo normalizado solo al enviar, "Reintentar" solo en `RED`, `SERVIDOR` y `DESCONOCIDO`, y `Done` del teclado envía.
 - `GrafoNavegacion.kt`: P-04 sustituye su marcador, regresa con `popBackStack` y entra a `RUTAS_SIN_BARRA_DEL_ANDAMIO`.
@@ -91,7 +117,7 @@ Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **sin abrir todav
 - **Cuenta creada para la prueba:** la del correo del líder, como cliente, nombre "Lider Prueba S2-T10". La contraseña la tiene el líder.
 - **Por qué no llegaba el correo al principio:** esa dirección no tenía cuenta, y sin cuenta Supabase no envía nada.
 - **Dos hallazgos para el líder:**
-  - **El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización**, y muy pocos correos por hora. Un usuario real no recibe el enlace hasta que se configure un SMTP propio en la consola. Ninguna tarea lo tiene; lo más cercano es `S6-T05`.
+  - **El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización**, y muy pocos correos por hora. Un usuario real no recibe el enlace hasta que se configure un SMTP propio en la consola. El líder lo registró el 2026-10-08 como `S6-T13`.
   - **Enter de teclado físico** en P-04 envía la petición y además regresa a P-02, con lo que la petición se cancela. Es el mismo defecto que anotó `S2-T05` en P-03, y probablemente esté en P-02. La tecla de acción del teclado en pantalla funciona bien. No se tocó: arreglarlo solo en P-04 dejaría tres pantallas distintas.
 
 **`S2-T07` — Implementación real de autenticación con Supabase Auth.** 2026-09-27.
@@ -472,12 +498,13 @@ explicados al final de `MODELO-ER.md`.
 
 ## Siguiente en la cola
 
-`S2-T08` — Almacenamiento seguro de la sesión y el token (DataStore cifrado)
-(prioridad 650, sprint 2, depende de `S2-T05`, que ya está hecha)
+`S2-T09` — Manejo de sesión: inicio automático, cierre de sesión y expiración
+(prioridad 600, sprint 2, depende de `S2-T08`, que ya está hecha)
 
-**No tiene ticket.** `DEC-30` ya fijó el alcance: un `SessionManager` cifrado
-para `supabase-kt` y quitar `Sesion.tokenAcceso`. El ticket tiene que proponer
-la biblioteca de cifrado, porque agregarla al stack lo decide el líder.
+**No tiene ticket.** Es la que hace que P-01 lea `sesionActual()` en lugar del
+marcador temporal, y con eso la sesión cifrada de `S2-T08` se cargará al abrir
+la aplicación. Qué muestra P-01 si la ficha de `public.usuarios` no se puede
+leer lo deja abierto el contrato (`CONTRATOS-API.md`, "`sesionActual()`").
 
 Con `S2-T10` la recuperación **todavía no queda completa**. Aterrizar en P-18
 y cambiar ahí la contraseña es `S2-T11`, que depende de `S2-T12` (`DEC-31`).

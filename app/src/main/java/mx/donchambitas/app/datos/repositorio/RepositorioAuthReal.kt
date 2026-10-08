@@ -126,7 +126,7 @@ class RepositorioAuthReal @Inject constructor(
                         }
                     }
                     if (usuario != null) {
-                        val sesion = Sesion(usuario, estado.session.accessToken)
+                        val sesion = Sesion(usuario)
                         ultima = sesion
                         emit(sesion)
                     }
@@ -144,7 +144,7 @@ class RepositorioAuthReal @Inject constructor(
         val id = sesionAuth.user?.id ?: auth.currentUserOrNull()?.id
             ?: return Resultado.Error(TipoError.SERVIDOR, "La sesion de Auth no trae usuario")
         return try {
-            Resultado.Exito(Sesion(leerFicha(id), sesionAuth.accessToken))
+            Resultado.Exito(Sesion(leerFicha(id)))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
