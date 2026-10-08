@@ -16,7 +16,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import mx.donchambitas.app.datos.remoto.dto.UsuarioDto
 import mx.donchambitas.app.datos.remoto.supabase.ConfiguracionSupabase
-import mx.donchambitas.app.datos.remoto.supabase.esLimiteDeEnvio
+import mx.donchambitas.app.datos.remoto.supabase.esRechazoQueDelataLaCuenta
 import mx.donchambitas.app.datos.remoto.supabase.traducirErrorAuth
 import mx.donchambitas.app.datos.remoto.supabase.traducirErrorFicha
 import mx.donchambitas.app.dominio.modelo.RolUsuario
@@ -82,7 +82,7 @@ class RepositorioAuthReal @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            if (esLimiteDeEnvio(e)) Resultado.Exito(Unit) else traducirErrorAuth(e)
+            if (esRechazoQueDelataLaCuenta(e)) Resultado.Exito(Unit) else traducirErrorAuth(e)
         }
 
     override suspend fun cambiarContrasena(nueva: String): Resultado<Unit> = ejecutar {

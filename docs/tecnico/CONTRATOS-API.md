@@ -220,6 +220,18 @@ una fuga de información. Eso incluye los rechazos por límite de envío
 - uno por correo solo puede saltar si la cuenta existe;
 - responder distinto delataría la cuenta.
 
+**Y los rechazos del envío del correo** (`email_address_invalid`,
+`email_address_not_authorized`), agregados por `S2-T10` el 2026-10-08.
+Supabase solo intenta mandar el correo si la cuenta existe; un correo sin
+cuenta recibe `200` y nada más. Probado contra el proyecto:
+`ana.rls@prueba.donchambitas.mx`, que tiene cuenta en un dominio que no recibe
+correo, daba `400 email_address_invalid`, y `nadie@prueba.donchambitas.mx`,
+sin cuenta, `200`. Antes P-04 pintaba "Datos incorrectos" en el primero y la
+confirmación en el segundo. `email_address_not_authorized` es el rechazo del
+SMTP de fábrica de Supabase, que solo entrega a los miembros del equipo; no se
+pudo provocar, y se incluye por la misma razón. La función que decide es
+`esRechazoQueDelataLaCuenta`, en `ErroresAuth.kt`.
+
 **No** incluye la falta de red. Si la petición no salió, es `RED` y P-04 lo
 dice (sección 4.4 de `DISENO-AUTENTICACION.md`).
 
@@ -285,7 +297,7 @@ códigos son los de `AuthErrorCode` en 3.0.3 y llegan en
 | `same_password` | `cambiarContrasena` | `VALIDACION`. Qué mensaje pinta P-18 lo decide `S2-T11` |
 | `validation_failed`, `email_address_invalid` | `registrar`, `iniciarSesion` | `VALIDACION`. La interfaz ya validó con la misma expresión que el esquema, así que no debería llegar |
 | `over_request_rate_limit` | `registrar`, `iniciarSesion`, `cambiarContrasena` | `SERVIDOR` |
-| `over_email_send_rate_limit`, `over_request_rate_limit` | `recuperarContrasena` | **Éxito**, ver arriba |
+| `over_email_send_rate_limit`, `over_request_rate_limit`, `email_address_invalid`, `email_address_not_authorized` | `recuperarContrasena` | **Éxito**, ver arriba |
 | `signup_disabled`, `email_provider_disabled` | `registrar`, `iniciarSesion` | `SERVIDOR`. Es configuración nuestra, no del usuario |
 | `unexpected_failure` o `5xx` | todas | `SERVIDOR`. Si el trigger `tg_auth_usuario_creado` falla en un alta, lo esperado es que Auth lo reporte así, como error de base de datos, y **no** con el mensaje del trigger. `S2-T07` lo confirma con una prueba contra el proyecto |
 | La ficha de `public.usuarios` no llega (`RestException` al leerla) | `registrar`, `iniciarSesion` | `SERVIDOR`. Es un defecto nuestro: la crea el trigger en la misma transacción que la credencial |
@@ -300,9 +312,9 @@ códigos son los de `AuthErrorCode` en 3.0.3 y llegan en
 **No se confirmó** cómo reporta Auth la falla del trigger en un alta: no hay
 forma de provocarla desde la aplicación sin romper el esquema.
 
-`email_address_invalid` es un código que el servidor de Auth devuelve pero
-que no está en `AuthErrorCode` de 3.0.3: se compara contra el texto crudo del
-error.
+`email_address_invalid` y `email_address_not_authorized` son códigos que el
+servidor de Auth devuelve pero que no están en `AuthErrorCode` de 3.0.3: se
+comparan contra el texto crudo del error.
 
 **Los mensajes en inglés de Supabase Auth nunca llegan a la pantalla.** Todas
 las pantallas de autenticación pintan el mensaje de `strings.xml` que le toca
