@@ -88,9 +88,27 @@ en `public.usuarios`, así que la `Sesion` se arma en dos pasos:
 | `creado_en` | `timestamptz` | `creadoEn` |
 | `actualizado_en` | `timestamptz` | `actualizadoEn` |
 
-`Sesion.tokenAcceso` se llena con `UserSession.accessToken` y **no se guarda
-en ningún lado**: el token, su refresco y su persistencia los lleva
-`supabase-kt` (ver "Lo que esto no cubre").
+**`Sesion` no lleva token** desde `S2-T08` (`DEC-30`, `H-12`). El token de
+acceso, el de refresco y su persistencia los lleva `supabase-kt`, y la
+aplicación solo decide **dónde** se guardan:
+
+- `install(Auth) { sessionManager = ... }` recibe `AlmacenSesionCifrada`
+  (`datos/local/`), en lugar del `SettingsSessionManager` por omisión, que
+  guardaba la `UserSession` en texto plano en las `SharedPreferences`.
+- La `UserSession` se guarda como JSON cifrado con AES-256-GCM, con una llave
+  generada dentro del Android Keystore (`CifradorKeystore`), en el DataStore
+  `sesion_cifrada`. No hay segunda copia.
+- Lo que no se puede descifrar o leer, o un archivo dañado, cuenta como "sin
+  sesión": se borra y el usuario entra otra vez.
+- La sesión en texto plano de antes de `S2-T08` se migra cifrada la primera vez
+  que se carga, y se borra.
+- `sesion_cifrada` y las `SharedPreferences` por omisión quedan fuera de la
+  copia de seguridad y de la transferencia entre dispositivos: la llave del
+  Keystore no viaja, así que el respaldo no serviría.
+
+**La sesión se carga cuando se crea el cliente de Supabase**, que es perezoso
+desde `S2-T07`: hoy eso ocurre con la primera acción de autenticación. Cuando
+`S2-T09` haga que P-01 lea `sesionActual()`, ocurrirá al abrir la aplicación.
 
 Si el paso 2 falla, la operación devuelve el error del paso 2 según la tabla
 de errores, aunque el paso 1 haya salido bien. Ver la nota de `registrar`.

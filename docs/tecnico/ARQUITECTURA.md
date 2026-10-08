@@ -13,7 +13,7 @@
 | Backend | Supabase (DEC-16) |
 | Red | `supabase-kt`: Postgrest, Auth, Storage, Realtime y Functions (DEC-17) |
 | Serialización | kotlinx.serialization |
-| Local | DataStore para sesión y preferencias |
+| Local | DataStore para preferencias. La sesión de Supabase Auth va en DataStore cifrada con una llave del Android Keystore (`DEC-30`, `S2-T08`) |
 | Imágenes | Coil |
 | Pruebas | JUnit, MockK y Compose UI Test |
 | minSdk | 26 |
