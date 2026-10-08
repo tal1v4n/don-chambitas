@@ -430,7 +430,7 @@ se quedan donde están.
 | 1 | Icono | `Icons.Outlined.MarkEmailRead` a 56 dp | Color `Exito` |
 | 2 | Título | Texto `subtitulo` `Carbon` | "Revisa tu correo" |
 | 3 | Mensaje | Texto `cuerpo` `Cafe` | "Si **ese correo** está registrado, te enviamos un enlace para crear una contraseña nueva" |
-| 4 | Aviso de vigencia | Superficie `Arena`, borde `Borde`, radio 16 dp, relleno 16 dp | "El enlace vence en 24 horas" |
+| 4 | Aviso de vigencia | Superficie `Arena`, borde `Borde`, radio 16 dp, relleno 16 dp | "El enlace vence en 1 hora" |
 
 **El mensaje dice "si ese correo está registrado", y eso no es una cortesía.**
 `recuperarContrasena` siempre devuelve `Exito`, exista o no la cuenta
@@ -443,10 +443,11 @@ Por la misma razón, la pantalla **no repite el correo escrito** en la
 confirmación: leer "te enviamos un enlace a juan@ejemplo.mx" en una pantalla
 que no verificó nada refuerza justo la lectura equivocada.
 
-> **Las 24 horas hay que confirmarlas.** El número viene de `WIREFRAMES.md`,
-> no de la configuración real del proyecto. `S2-T07` debe comparar la cadena
-> contra lo que tenga Supabase Auth y, si no coincide, corregir la cadena. Es
-> un solo recurso de `strings.xml`, en un solo lugar.
+> **Confirmado por `S2-T10` el 2026-10-08: una hora.** El "24 horas" original
+> venía de `WIREFRAMES.md`, no de la configuración. El líder leyó *Email OTP
+> Expiration* en la consola, 3600 segundos, y decidió dejarlo así. Si algún día
+> cambia ese ajuste, cambia `recuperar_vigencia` el mismo día: es un solo
+> recurso de `strings.xml`.
 
 ### 4.3 Contrato de estado
 
@@ -623,7 +624,7 @@ para lo mismo.
 <string name="recuperar_volver">Volver a iniciar sesión</string>
 <string name="recuperar_enviado_titulo">Revisa tu correo</string>
 <string name="recuperar_enviado_mensaje">Si ese correo está registrado, te enviamos un enlace para crear una contraseña nueva</string>
-<string name="recuperar_vigencia">El enlace vence en 24 horas</string>
+<string name="recuperar_vigencia">El enlace vence en 1 hora</string>
 <string name="recuperar_enviado_descripcion">Correo enviado</string>
 
 <!-- Validaciones (S2-T04) -->
