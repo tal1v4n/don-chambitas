@@ -108,6 +108,5 @@ class DatosPruebaTest {
 
         val sesion = DatosPrueba.crearSesion()
         assertNotNull(sesion.usuario)
-        assertEquals("jwt-prueba-token", sesion.tokenAcceso)
     }
 }

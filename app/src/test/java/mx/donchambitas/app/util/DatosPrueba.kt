@@ -267,11 +267,9 @@ object DatosPrueba {
     )
 
     fun crearSesion(
-        usuario: Usuario = crearUsuario(),
-        tokenAcceso: String = "jwt-prueba-token"
+        usuario: Usuario = crearUsuario()
     ): Sesion = Sesion(
-        usuario = usuario,
-        tokenAcceso = tokenAcceso
+        usuario = usuario
     )
 
     fun crearServicioPublico(

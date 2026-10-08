@@ -58,7 +58,7 @@ class RepositorioUsuarioFalso @Inject constructor(
             actualizadoEn = Instant.now()
         )
         fuente.usuarios[index] = actualizado
-        fuente.fijarSesionActiva(Sesion(actualizado, fuente.sesionActiva.value?.tokenAcceso ?: ""))
+        fuente.fijarSesionActiva(Sesion(actualizado))
         return Resultado.Exito(actualizado)
     }
 
@@ -77,7 +77,7 @@ class RepositorioUsuarioFalso @Inject constructor(
         val actual = fuente.usuarios[index]
         val actualizado = actual.copy(fotoUrl = urlFalsa, actualizadoEn = Instant.now())
         fuente.usuarios[index] = actualizado
-        fuente.fijarSesionActiva(Sesion(actualizado, fuente.sesionActiva.value?.tokenAcceso ?: ""))
+        fuente.fijarSesionActiva(Sesion(actualizado))
         return Resultado.Exito(urlFalsa)
     }
 }

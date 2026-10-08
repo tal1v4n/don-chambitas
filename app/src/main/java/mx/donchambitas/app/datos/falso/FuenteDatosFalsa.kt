@@ -518,6 +518,6 @@ class FuenteDatosFalsa @Inject constructor() {
         )
 
         // Sesion por defecto con cliente1
-        fijarSesionActiva(Sesion(cliente1, "token_falso_juan_perez"))
+        fijarSesionActiva(Sesion(cliente1))
     }
 }
