@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-09-27
+**Última actualización:** 2026-10-08
 
 ---
 
@@ -15,7 +15,7 @@
 | Fechas | PENDIENTE |
 | Tareas del sprint | 16 |
 | Terminadas | 7 |
-| En curso | 0 |
+| En curso | 1 |
 | Bloqueadas | 0 |
 
 > Sprint 1 cerrado el 2026-09-20 con sus 16 tareas en `hecha`.
@@ -55,15 +55,13 @@ correo de Supabase Auth desactivada.
 
 ## Tarea en curso
 
-_Ninguna._
-
 | Campo | Valor |
 |---|---|
-| ID | — |
-| Título | — |
-| Quién la tomó | — |
-| Rama | — |
-| Desde | — |
+| ID | `S2-T10` |
+| Título | Pantalla de recuperación de contraseña |
+| Quién la tomó | GRI (líder), con el agente |
+| Rama | `feat/S2-T10-pantalla-recuperar-contrasena` |
+| Desde | 2026-10-08 |
 
 ## Última tarea terminada
 
