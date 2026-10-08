@@ -113,10 +113,19 @@ class ErroresAuthTest {
     }
 
     @Test
-    fun debeContarComoLimiteDeEnvio_soloLosDosLimitesDelContrato() {
-        assertTrue(esLimiteDeEnvio(auth("over_email_send_rate_limit", 429)))
-        assertTrue(esLimiteDeEnvio(auth("over_request_rate_limit", 429)))
-        assertFalse(esLimiteDeEnvio(auth("unexpected_failure", 500)))
-        assertFalse(esLimiteDeEnvio(HttpRequestException("sin red", HttpRequestBuilder())))
+    fun debeContarComoRechazoQueDelataLaCuenta_soloLosCuatroCodigosDelContrato() {
+        assertTrue(esRechazoQueDelataLaCuenta(auth("over_email_send_rate_limit", 429)))
+        assertTrue(esRechazoQueDelataLaCuenta(auth("over_request_rate_limit", 429)))
+        assertTrue(esRechazoQueDelataLaCuenta(auth("email_address_invalid", 400)))
+        assertTrue(esRechazoQueDelataLaCuenta(auth("email_address_not_authorized", 400)))
+        assertFalse(esRechazoQueDelataLaCuenta(auth("unexpected_failure", 500)))
+        assertFalse(esRechazoQueDelataLaCuenta(auth("validation_failed", 400)))
+        assertFalse(esRechazoQueDelataLaCuenta(HttpRequestException("sin red", HttpRequestBuilder())))
+    }
+
+    /** Fuera de recuperarContrasena, email_address_invalid sigue siendo VALIDACION. */
+    @Test
+    fun debeSeguirTraduciendoAValidacion_cuandoElCorreoInvalidoLlegaEnOtraOperacion() {
+        assertEquals(TipoError.VALIDACION, traducirErrorAuth(auth("email_address_invalid", 400)).tipo)
     }
 }

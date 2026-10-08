@@ -82,6 +82,17 @@
     <string name="registro_accion">Crear cuenta</string>
     <string name="registro_ir_iniciar_sesion">¿Ya tienes cuenta? Inicia sesión</string>
 
+    <!-- Pantalla Recuperar contraseña (P-04) -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_explicacion">Escribe tu correo y te enviamos un enlace para crear una contraseña nueva</string>
+    <string name="recuperar_accion">Enviar enlace</string>
+    <string name="recuperar_volver">Volver a iniciar sesión</string>
+    <string name="recuperar_enviado_titulo">Revisa tu correo</string>
+    <string name="recuperar_enviado_mensaje">Si ese correo está registrado, te enviamos un enlace para crear una contraseña nueva</string>
+    <!-- Email OTP Expiration del proyecto: 3600 s, leido por el lider en la consola el 2026-10-08 -->
+    <string name="recuperar_vigencia">El enlace vence en 1 hora</string>
+    <string name="recuperar_enviado_descripcion">Correo enviado</string>
+
     <!-- Mensajes de validación de P-02 y P-03 (los eligen las reglas de S2-T04) -->
     <string name="validacion_rol_sin_elegir">Elige si vienes a contratar o a trabajar</string>
     <string name="validacion_nombre_vacio">Escribe tu nombre</string>

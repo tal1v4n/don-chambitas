@@ -42,7 +42,25 @@ private val CODIGOS_SERVIDOR = setOf(
     "unexpected_failure"
 )
 
-private val CODIGOS_LIMITE_DE_ENVIO = setOf("over_email_send_rate_limit", "over_request_rate_limit")
+/**
+ * Rechazos de recuperarContrasena que se reportan como exito. Los cuatro solo
+ * pueden saltar cuando Supabase ya intento mandar el correo, y solo lo intenta
+ * si la cuenta existe: un correo sin cuenta recibe 200 sin mas.
+ *
+ * - Los dos limites de envio.
+ * - email_address_invalid: la cuenta existe pero su dominio no recibe correo.
+ *   Probado contra el proyecto el 2026-10-08 con una cuenta de
+ *   @prueba.donchambitas.mx, que da 400 mientras un correo sin cuenta da 200.
+ * - email_address_not_authorized: el SMTP de fabrica de Supabase solo entrega
+ *   a los miembros del equipo. Es un codigo de GoTrue que no esta en
+ *   AuthErrorCode de 3.0.3 y no se pudo provocar desde aqui.
+ */
+private val CODIGOS_ENVIO_QUE_DELATA_LA_CUENTA = setOf(
+    "over_email_send_rate_limit",
+    "over_request_rate_limit",
+    "email_address_invalid",
+    "email_address_not_authorized"
+)
 
 private const val PRIMER_CODIGO_SERVIDOR = 500
 private const val ULTIMO_CODIGO_SERVIDOR = 599
@@ -81,9 +99,8 @@ fun traducirErrorFicha(error: Throwable): Resultado.Error = Resultado.Error(
 )
 
 /**
- * Los limites de envio que recuperarContrasena reporta como exito: uno por
- * correo solo salta si la cuenta existe, asi que responder distinto la
- * delataria.
+ * Si recuperarContrasena tiene que reportar este error como exito: responder
+ * distinto delataria que el correo tiene cuenta (HU-04).
  */
-fun esLimiteDeEnvio(error: Throwable): Boolean =
-    error is RestException && error.error in CODIGOS_LIMITE_DE_ENVIO
+fun esRechazoQueDelataLaCuenta(error: Throwable): Boolean =
+    error is RestException && error.error in CODIGOS_ENVIO_QUE_DELATA_LA_CUENTA

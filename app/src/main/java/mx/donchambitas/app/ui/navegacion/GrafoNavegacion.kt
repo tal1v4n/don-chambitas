@@ -54,6 +54,7 @@ import androidx.navigation.compose.rememberNavController
 import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.ui.pantallas.IniciarSesionPantalla
+import mx.donchambitas.app.ui.pantallas.RecuperarContrasenaPantalla
 import mx.donchambitas.app.ui.pantallas.RegistroPantalla
 import mx.donchambitas.app.ui.pantallas.SplashPantalla
 import mx.donchambitas.app.ui.componentes.BotonDestacado
@@ -220,8 +221,8 @@ fun GrafoNavegacion(
  * pantalla real ya resuelve su propia parte de arriba:
  *
  * - P-01 es de pantalla completa por diseño (S1-T15).
- * - P-02 y P-03 traen su propio Scaffold con BarraSuperior, que es lo que pide
- *   la regla 1.1 de DISENO-AUTENTICACION.md.
+ * - P-02, P-03 y P-04 traen su propio Scaffold con BarraSuperior, que es lo
+ *   que pide la regla 1.1 de DISENO-AUTENTICACION.md.
  *
  * Sin esto salen dos barras encimadas, con dos títulos y dos flechas de
  * regreso. El andamio nació cuando los 19 destinos eran MarcadorPantalla y su
@@ -233,7 +234,8 @@ fun GrafoNavegacion(
 private val RUTAS_SIN_BARRA_DEL_ANDAMIO = setOf(
     Ruta.Splash.ruta,
     Ruta.IniciarSesion.ruta,
-    Ruta.Registro.ruta
+    Ruta.Registro.ruta,
+    Ruta.RecuperarContrasena.ruta
 )
 
 /**
@@ -275,15 +277,10 @@ private fun NavGraphBuilder.subgrafoAutenticacion(navController: NavHostControll
         }
 
         composable(Ruta.RecuperarContrasena.ruta) {
-            MarcadorPantalla(
-                ruta = Ruta.RecuperarContrasena,
-                descripcion = "Se pide el correo, se avisa que se envió el enlace. Pantalla que se abre encima (sin barra).",
-                navController = navController,
-                acciones = listOf(
-                    AccionNavegacion("Volver a Iniciar sesión (P-02)") {
-                        navController.popBackStack()
-                    }
-                )
+            // popBackStack y no navigate: navegar a P-02 apilaria P-02 -> P-04
+            // -> P-02 y el boton atras volveria a P-04 (seccion 8).
+            RecuperarContrasenaPantalla(
+                alRegresar = { navController.popBackStack() }
             )
         }
     }

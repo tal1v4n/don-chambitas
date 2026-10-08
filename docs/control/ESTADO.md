@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-09-27
+**Última actualización:** 2026-10-08
 
 ---
 
@@ -14,7 +14,7 @@
 | Sprint | 2 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 16 |
-| Terminadas | 7 |
+| Terminadas | 8 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -22,11 +22,11 @@
 
 ## Qué se puede probar hoy en la aplicación
 
-Léelo antes de instalar el APK y reportar que algo "no funciona". **En la rama
-de `S2-T07`**, `RepositorioAuth` ya está enlazado a `RepositorioAuthReal`:
-P-02 y P-03 hablan con Supabase Auth, y **las cuentas sembradas de
-`FuenteDatosFalsa` ya no sirven para entrar**. En `main`, mientras no se
-integre, sigue la implementación falsa. Esta tabla describe la rama.
+Léelo antes de instalar el APK y reportar que algo "no funciona". Desde que
+`S2-T07` se integró en `main`, `RepositorioAuth` está enlazado a
+`RepositorioAuthReal`: P-02, P-03 y P-04 hablan con Supabase Auth, y **las
+cuentas sembradas de `FuenteDatosFalsa` ya no sirven para entrar**. Las filas
+de P-04 describen la rama de `S2-T10` mientras no se integre.
 
 | Si haces esto | Pasa esto hoy | Lo arregla |
 |---|---|---|
@@ -44,14 +44,16 @@ integre, sigue la implementación falsa. Esta tabla describe la rama.
 | Entras en P-02 con una contraseña de un carácter y una cuenta que existe | **Entra.** Al iniciar sesión solo se exige que no esté vacía (5.2); el mínimo de 8 es del registro | — |
 | Confirmas el registro **con rol** | Crea la cuenta en Supabase Auth y la ficha en `public.usuarios`, y te manda a P-05 o P-10 | — |
 | Te registras con un correo que ya existe | "Correo ya registrado / El correo ya está registrado, inicia sesión", sin "Reintentar" | — |
+| Tocas "¿Olvidaste tu contraseña?" en P-02 | P-04 real: explicación, correo, "Enviar enlace" y "Volver a iniciar sesión", con una sola barra | — |
+| Pides el enlace con cualquier correo bien escrito | "Revisa tu correo", sin repetir el correo, **exista o no la cuenta** y aunque su correo no pueda recibir | — |
+| Pides el enlace sin red | "Sin conexión" con "Reintentar", y el correo sigue escrito | — |
+| Esperas el correo en una cuenta que no es del equipo | **No llega.** El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización, y muy pocos por hora | Un SMTP propio en la consola; ninguna tarea lo tiene hoy |
+| Abres el enlace del correo | La aplicación abre y no se cierra. Todavía no te lleva a P-18 | `S2-T11` |
 | Cierras y vuelves a abrir | La sesión real queda guardada por `supabase-kt`, pero P-01 todavía lee el marcador temporal y te manda a P-02 | `S2-T09`, `S2-T15` |
 
-**El alta todavía no es real.** Escribe en `FuenteDatosFalsa`, que vive en
-memoria: puedes registrarte y entrar, y la cuenta desaparece al reiniciar la
-aplicación. Cuentas de verdad, contra
-Supabase Auth, son `S2-T07`. `H-10` ya se cerró: `DEC-25` decide que el
-registro deja sesión abierta, así que `S2-T07` va con la confirmación por
-correo de Supabase Auth desactivada.
+**El alta ya es real** desde `S2-T07`: la cuenta vive en Supabase Auth y en
+`public.usuarios`, y sobrevive al reinicio. Por `DEC-25` el registro deja
+sesión abierta, con la confirmación por correo desactivada en la consola.
 
 ## Tarea en curso
 
@@ -66,6 +68,31 @@ _Ninguna._
 | Desde | — |
 
 ## Última tarea terminada
+
+**`S2-T10` — Pantalla de recuperación de contraseña.** 2026-10-08.
+Rama `feat/S2-T10-pantalla-recuperar-contrasena`, pull request **sin abrir todavía**. La trabajó el líder con el agente; el responsable nominal es LMM.
+
+- `ui/pantallas/EstadoRecuperarContrasena.kt`, `RecuperarContrasenaViewModel.kt` y `RecuperarContrasenaPantalla.kt`, conforme a la sección 4 de `DISENO-AUTENTICACION.md`: formulario y confirmación en la misma pantalla, el correo normalizado solo al enviar, "Reintentar" solo en `RED`, `SERVIDOR` y `DESCONOCIDO`, y `Done` del teclado envía.
+- `GrafoNavegacion.kt`: P-04 sustituye su marcador, regresa con `popBackStack` y entra a `RUTAS_SIN_BARRA_DEL_ANDAMIO`.
+- `strings.xml`: las ocho cadenas de la sección 7.
+- **Vigencia del enlace: una hora.** El líder leyó *Email OTP Expiration* en la consola, **3600 segundos**, y decidió no cambiarlo. `recuperar_vigencia` dice "El enlace vence en 1 hora", y `DISENO-AUTENTICACION.md` quedó igual.
+- **Corrección de seguridad fuera del ticket, por instrucción del líder.** Con una cuenta de `@prueba.donchambitas.mx`, que no recibe correo, Supabase respondía `400 email_address_invalid`; con un correo sin cuenta, `200`. P-04 pintaba "Datos incorrectos" en el primero y la confirmación en el segundo, así que delataba qué correos tienen cuenta. Ahora `recuperarContrasena` reporta como éxito `email_address_invalid` y `email_address_not_authorized`, como ya hacía con los límites de envío. Toca `ErroresAuth.kt` (`esLimiteDeEnvio` pasa a `esRechazoQueDelataLaCuenta`), `RepositorioAuthReal.kt`, su prueba y `CONTRATOS-API.md`.
+  - **Lo que queda abierto:** si el envío falla con `500` (por ejemplo, un SMTP propio mal configurado), sigue siendo `SERVIDOR`, y eso también solo pasa con cuentas que existen. No se tocó: tratar todo `5xx` como éxito escondería las caídas reales. Lo decide el líder si algún día hay SMTP propio.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 150 pruebas unitarias (14 nuevas) y 49 instrumentadas (10 nuevas), 0 fallas.
+  - **Contra el proyecto de Supabase**, en emulador `Medium_Phone`:
+    - vacío marca el campo y le deja el foco;
+    - `  Ana.RLS@…` y `nadie@…` dan la misma confirmación, sin el correo;
+    - sin red sale "Sin conexión" con el correo escrito, y "Reintentar" funciona con la red de vuelta;
+    - girar no pierde ni el correo ni la vista;
+    - atrás regresa a P-02 y el segundo atrás cierra la aplicación;
+    - **un enlace real llegó** al correo del líder y, abierto en el emulador, la aplicación abrió sin cerrarse.
+- **Cuenta creada para la prueba:** la del correo del líder, como cliente, nombre "Lider Prueba S2-T10". La contraseña la tiene el líder.
+- **Por qué no llegaba el correo al principio:** esa dirección no tenía cuenta, y sin cuenta Supabase no envía nada.
+- **Dos hallazgos para el líder:**
+  - **El SMTP de fábrica de Supabase solo entrega a los miembros del equipo de la organización**, y muy pocos correos por hora. Un usuario real no recibe el enlace hasta que se configure un SMTP propio en la consola. Ninguna tarea lo tiene; lo más cercano es `S6-T05`.
+  - **Enter de teclado físico** en P-04 envía la petición y además regresa a P-02, con lo que la petición se cancela. Es el mismo defecto que anotó `S2-T05` en P-03, y probablemente esté en P-02. La tecla de acción del teclado en pantalla funciona bien. No se tocó: arreglarlo solo en P-04 dejaría tres pantallas distintas.
 
 **`S2-T07` — Implementación real de autenticación con Supabase Auth.** 2026-09-27.
 Rama `feat/S2-T07-autenticacion-supabase-v2` en el remoto, **apilada sobre la de `S2-T06`**, que a su vez va sobre la de `S2-T05`. Pull request **#14**: se integra después de #12 y #13.
@@ -446,11 +473,14 @@ explicados al final de `MODELO-ER.md`.
 ## Siguiente en la cola
 
 `S2-T08` — Almacenamiento seguro de la sesión y el token (DataStore cifrado)
-(prioridad 700, sprint 2, depende de: S2-T05, hecha)
+(prioridad 650, sprint 2, depende de `S2-T05`, que ya está hecha)
 
 **No tiene ticket.** `DEC-30` ya fijó el alcance: un `SessionManager` cifrado
 para `supabase-kt` y quitar `Sesion.tokenAcceso`. El ticket tiene que proponer
 la biblioteca de cifrado, porque agregarla al stack lo decide el líder.
+
+Con `S2-T10` la recuperación **todavía no queda completa**. Aterrizar en P-18
+y cambiar ahí la contraseña es `S2-T11`, que depende de `S2-T12` (`DEC-31`).
 
 ## Los dos huecos de S2-T01, ya cerrados
 
