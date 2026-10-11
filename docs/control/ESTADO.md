@@ -15,7 +15,7 @@
 | Fechas | PENDIENTE |
 | Tareas del sprint | 16 |
 | Terminadas | 11 |
-| En curso | 0 |
+| En curso | 1 |
 | Bloqueadas | 0 |
 
 > Sprint 1 cerrado el 2026-09-20 con sus 16 tareas en `hecha`.
@@ -61,15 +61,15 @@ sesión abierta, con la confirmación por correo desactivada en la consola.
 
 ## Tarea en curso
 
-_Ninguna._
-
 | Campo | Valor |
 |---|---|
-| ID | — |
-| Título | — |
-| Quién la tomó | — |
-| Rama | — |
-| Desde | — |
+| ID | `S2-T11` |
+| Título | Diseño y pantalla del perfil de usuario (ver y editar) |
+| Quién la tomó | Ricardo5690, con el agente |
+| Rama | `feat/S2-T11-pantalla-perfil-usuario`, **apilada sobre la de `S2-T12`**, que va sobre la de `S2-T09` (#15) |
+| Desde | 2026-10-11 |
+
+**Solo está el ticket.** `docs/tareas/S2-T11.md` tiene cuatro decisiones abiertas para el líder; el código empieza cuando las tome.
 
 ## Última tarea terminada
 
