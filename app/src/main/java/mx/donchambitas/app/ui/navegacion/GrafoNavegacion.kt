@@ -36,6 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -55,9 +58,11 @@ import androidx.navigation.compose.rememberNavController
 import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.ui.pantallas.IniciarSesionPantalla
+import mx.donchambitas.app.ui.pantallas.MiCuentaPantalla
 import mx.donchambitas.app.ui.pantallas.RecuperarContrasenaPantalla
 import mx.donchambitas.app.ui.pantallas.RegistroPantalla
 import mx.donchambitas.app.ui.pantallas.SplashPantalla
+import mx.donchambitas.app.ui.pantallas.inicioDelRol
 import mx.donchambitas.app.ui.componentes.BotonDestacado
 import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.BotonSecundario
@@ -106,6 +111,23 @@ fun GrafoNavegacion(
                     popUpTo(0) { inclusive = true }
                 }
             }
+        }
+    }
+
+    // Llegada por el enlace de recuperación (DEC-27): la sesión ya está
+    // abierta. La pantalla de inicio del rol queda como base de la pila y
+    // P-18 se abre encima, en la vista de contraseña. Vale en frío, cuando
+    // todavía está P-01, y con la aplicación abierta en P-02.
+    var llegaPorRecuperacion by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(sesionViewModel) {
+        sesionViewModel.recuperacion.collect { rol ->
+            val inicio = inicioDelRol(rol)
+            marcarSesionSegun(inicio)
+            llegaPorRecuperacion = true
+            navController.navigate(inicio.ruta) {
+                popUpTo(0) { inclusive = true }
+            }
+            navController.navigate(Ruta.MiCuenta.ruta)
         }
     }
 
@@ -227,7 +249,11 @@ fun GrafoNavegacion(
             subgrafoAutenticacion(navController)
             subgrafoCliente(navController)
             subgrafoTrabajador(navController)
-            pantallasCompartidas(navController, alCerrarSesion = sesionViewModel::cerrarSesion)
+            pantallasCompartidas(
+                navController = navController,
+                llegaPorRecuperacion = { llegaPorRecuperacion },
+                alAtenderRecuperacion = { llegaPorRecuperacion = false }
+            )
         }
     }
 }
@@ -239,6 +265,8 @@ fun GrafoNavegacion(
  * - P-01 es de pantalla completa por diseño (S1-T15).
  * - P-02, P-03 y P-04 traen su propio Scaffold con BarraSuperior, que es lo
  *   que pide la regla 1.1 de DISENO-AUTENTICACION.md.
+ * - P-18 también trae la suya, y su título cambia con la vista
+ *   (DISENO-CUENTA.md). La barra inferior sí se queda.
  *
  * Sin esto salen dos barras encimadas, con dos títulos y dos flechas de
  * regreso. El andamio nació cuando los 19 destinos eran MarcadorPantalla y su
@@ -251,7 +279,8 @@ private val RUTAS_SIN_BARRA_DEL_ANDAMIO = setOf(
     Ruta.Splash.ruta,
     Ruta.IniciarSesion.ruta,
     Ruta.Registro.ruta,
-    Ruta.RecuperarContrasena.ruta
+    Ruta.RecuperarContrasena.ruta,
+    Ruta.MiCuenta.ruta
 )
 
 /**
@@ -492,7 +521,8 @@ private fun NavGraphBuilder.subgrafoTrabajador(navController: NavHostController)
  */
 private fun NavGraphBuilder.pantallasCompartidas(
     navController: NavHostController,
-    alCerrarSesion: () -> Unit
+    llegaPorRecuperacion: () -> Boolean,
+    alAtenderRecuperacion: () -> Unit
 ) {
     composable(Ruta.Conversaciones.ruta) {
         MarcadorPantalla(
@@ -544,16 +574,13 @@ private fun NavGraphBuilder.pantallasCompartidas(
     }
 
     composable(Ruta.MiCuenta.ruta) {
-        MarcadorPantalla(
-            ruta = Ruta.MiCuenta,
-            descripcion = "Datos personales, foto, cambiar contraseña, cerrar sesión. Presente en ambas barras inferiores.",
-            navController = navController,
-            acciones = listOf(
-                AccionNavegacion("Mi perfil (solo si Trabajador, P-11)") {
-                    navController.navigate(Ruta.MiPerfil.ruta)
-                },
-                AccionNavegacion("Cerrar sesión (P-02)", alCerrarSesion)
-            )
+        // Cerrar sesión no navega desde aquí: cuando Auth se queda sin
+        // sesión, el aviso de SesionViewModel saca al usuario a P-02.
+        MiCuentaPantalla(
+            alIrAMiPerfil = { navController.navigate(Ruta.MiPerfil.ruta) },
+            alIrAMisPostulaciones = { navController.navigate(Ruta.MisPostulaciones.ruta) },
+            llegaPorRecuperacion = llegaPorRecuperacion(),
+            alAtenderRecuperacion = alAtenderRecuperacion
         )
     }
 

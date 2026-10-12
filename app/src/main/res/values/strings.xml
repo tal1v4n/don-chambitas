@@ -106,4 +106,25 @@
     <string name="validacion_contrasena_corta">Usa al menos 8 caracteres</string>
     <string name="validacion_telefono_vacio">Escribe tu teléfono</string>
     <string name="validacion_telefono_digitos">El teléfono lleva 10 dígitos</string>
+
+    <!-- P-18 Mi cuenta (DISENO-CUENTA.md, seccion 8) -->
+    <string name="cuenta_titulo">Mi cuenta</string>
+    <string name="cuenta_rol_cliente">Cliente</string>
+    <string name="cuenta_rol_trabajador">Trabajador</string>
+    <string name="cuenta_sin_telefono">Sin teléfono</string>
+    <string name="cuenta_iniciales_descripcion">Iniciales de %1$s</string>
+    <string name="cuenta_editar_datos">Editar datos personales</string>
+    <string name="cuenta_cambiar_contrasena">Cambiar contraseña</string>
+    <string name="cuenta_mi_perfil">Mi perfil</string>
+    <string name="cuenta_mis_postulaciones">Mis postulaciones</string>
+    <string name="cuenta_cerrar_sesion">Cerrar sesión</string>
+    <string name="cuenta_cerrar_pregunta">¿Deseas cerrar tu sesión?</string>
+    <string name="cuenta_cancelar">Cancelar</string>
+    <string name="cuenta_guardar">Guardar cambios</string>
+    <string name="cuenta_aviso_datos">Guardamos tus datos</string>
+    <string name="cuenta_contrasena_explicacion">Escribe tu contraseña nueva. No te pedimos la anterior.</string>
+    <string name="cuenta_contrasena_nueva">Contraseña nueva</string>
+    <string name="cuenta_contrasena_guardar">Guardar contraseña</string>
+    <string name="cuenta_contrasena_rechazada">Elige una contraseña distinta a la que ya tenías</string>
+    <string name="cuenta_aviso_contrasena">Tu contraseña quedó actualizada</string>
 </resources>

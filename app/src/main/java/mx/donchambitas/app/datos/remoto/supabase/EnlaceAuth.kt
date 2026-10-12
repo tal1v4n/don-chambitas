@@ -24,6 +24,14 @@ fun esEnlaceConSesion(esquema: String?, host: String?, fragmento: String?): Bool
 }
 
 /**
+ * Si el enlace es el del correo de recuperacion de contrasena. Supabase lo
+ * marca con `type=recovery` en el fragmento, y es lo que le dice a la
+ * aplicacion que tiene que aterrizar en P-18 (DEC-27).
+ */
+fun esEnlaceDeRecuperacion(fragmento: String?): Boolean =
+    fragmento.orEmpty().split("&").any { it == "type=recovery" }
+
+/**
  * Importa la sesion que trae el fragmento del enlace (flujo IMPLICIT).
  *
  * Hace lo mismo que `handleDeeplinks` de supabase-kt 3.0.3, pero dentro de un
