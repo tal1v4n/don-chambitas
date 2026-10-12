@@ -69,7 +69,12 @@ sesión abierta, con la confirmación por correo desactivada en la consola.
 | Rama | `feat/S2-T11-pantalla-perfil-usuario`, **apilada sobre la de `S2-T12`**, que va sobre la de `S2-T09` (#15) |
 | Desde | 2026-10-11 |
 
-**Solo está el ticket.** `docs/tareas/S2-T11.md` tiene cuatro decisiones abiertas para el líder; el código empieza cuando las tome.
+**En pausa desde el 2026-10-11, con el código y las pruebas ya en la rama.** El líder eligió la opción A en las cuatro decisiones del ticket.
+
+- Hecho: `MiCuentaPantalla`, `MiCuentaViewModel`, `EstadoMiCuenta`, la llegada por recuperación (`MainActivity`, `SesionViewModel`, `GrafoNavegacion`, `esEnlaceDeRecuperacion`) y `docs/producto/DISENO-CUENTA.md`. Compila y pasan 207 pruebas unitarias y las 13 instrumentadas nuevas de `MiCuentaPantallaTest`.
+- Probado a mano en emulador `Pixel_10` contra Supabase: ficha de cliente y de trabajador, edición con validación y persistencia, contraseña corta y contraseña repetida, guardar y cerrar sesión sin red, cierre con confirmación, accesos a P-11 y P-14, giro, y la llegada por un enlace de recuperación **simulado con una sesión real** (en frío y con la aplicación en P-02) y por un enlace vencido. El cambio real de contraseña se probó con la cuenta nueva `s2t11.cliente@prueba.donchambitas.mx`, que sigue en el proyecto.
+- Falta: el resultado de la suite instrumentada completa; actualizar `CONTRATOS-API.md` (pasos 4 a 6 del recorrido y la fila de `same_password`) y la nota de `WIREFRAMES.md`; marcar los criterios y anotar los desvíos en el ticket; y el cierre en `INDICE.md` y `BITACORA.md`.
+- No se probó: un enlace que llegue de verdad por correo. Hace falta un buzón real (`S6-T13`).
 
 ## Última tarea terminada
 
