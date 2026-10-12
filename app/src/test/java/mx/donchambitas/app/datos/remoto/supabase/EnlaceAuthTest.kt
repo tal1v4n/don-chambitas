@@ -39,4 +39,18 @@ class EnlaceAuthTest {
         assertFalse(esEnlaceConSesion("donchambitas", host, "access_token=abc"))
         assertFalse(esEnlaceConSesion(esquema, "recuperar", "access_token=abc"))
     }
+
+    @Test
+    fun debeSerDeRecuperacion_cuandoElEnlaceTraeTypeRecovery() {
+        assertTrue(esEnlaceDeRecuperacion("access_token=abc&refresh_token=def&type=recovery"))
+        assertTrue(esEnlaceDeRecuperacion("type=recovery&access_token=abc"))
+    }
+
+    @Test
+    fun noDebeSerDeRecuperacion_cuandoElEnlaceEsDeOtroTipoONoTraeTipo() {
+        assertFalse(esEnlaceDeRecuperacion("access_token=abc&type=signup"))
+        assertFalse(esEnlaceDeRecuperacion("access_token=abc&type=recovery2"))
+        assertFalse(esEnlaceDeRecuperacion("access_token=abc"))
+        assertFalse(esEnlaceDeRecuperacion(null))
+    }
 }

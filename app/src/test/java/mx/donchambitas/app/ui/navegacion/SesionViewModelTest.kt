@@ -1,7 +1,5 @@
 package mx.donchambitas.app.ui.navegacion
 
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,14 +9,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import mx.donchambitas.app.dominio.modelo.RolUsuario
 import mx.donchambitas.app.dominio.modelo.Sesion
 import mx.donchambitas.app.dominio.repositorio.RepositorioAuth
 import mx.donchambitas.app.util.DatosPrueba
 import mx.donchambitas.app.util.ReglaCorrutinas
-import mx.donchambitas.app.util.Resultado
-import mx.donchambitas.app.util.TipoError
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -76,29 +74,68 @@ class SesionViewModelTest {
         assertEquals(1, avisos.size)
     }
 
-    @Test
-    fun debeLlamarAlRepositorio_cuandoSeCierraSesion() = runTest(reglaCorrutinas.testDispatcher) {
-        responderCon(MutableStateFlow(DatosPrueba.crearSesion()))
-        coEvery { repositorio.cerrarSesion() } returns Resultado.Exito(Unit)
-        val viewModel = SesionViewModel(repositorio)
-
-        viewModel.cerrarSesion()
+    private fun TestScope.recuperacionesDe(viewModel: SesionViewModel): List<RolUsuario> {
+        val roles = mutableListOf<RolUsuario>()
+        backgroundScope.launch { viewModel.recuperacion.toList(roles) }
         runCurrent()
-
-        coVerify(exactly = 1) { repositorio.cerrarSesion() }
+        return roles
     }
 
     @Test
-    fun noDebeAvisar_cuandoElCierreFallaYLaSesionSigueAbierta() = runTest(reglaCorrutinas.testDispatcher) {
-        responderCon(MutableStateFlow(DatosPrueba.crearSesion()))
-        coEvery { repositorio.cerrarSesion() } returns Resultado.Error(TipoError.RED, "sin red")
+    fun debeAvisarConElRol_cuandoLlegaPorRecuperacionYLaSesionYaEsta() = runTest(reglaCorrutinas.testDispatcher) {
+        val sesion = DatosPrueba.crearSesion()
+        responderCon(MutableStateFlow(sesion))
         val viewModel = SesionViewModel(repositorio)
-        val avisos = avisosDe(viewModel)
+        val roles = recuperacionesDe(viewModel)
 
-        viewModel.cerrarSesion()
+        viewModel.alLlegarPorRecuperacion()
         runCurrent()
 
-        assertEquals(0, avisos.size)
+        assertEquals(listOf(sesion.usuario.rol), roles)
+    }
+
+    @Test
+    fun debeEsperarALaSesion_cuandoLlegaPorRecuperacionAntesDeQueSeImporte() = runTest(reglaCorrutinas.testDispatcher) {
+        val sesiones = MutableStateFlow<Sesion?>(null)
+        responderCon(sesiones)
+        val viewModel = SesionViewModel(repositorio)
+        val roles = recuperacionesDe(viewModel)
+
+        viewModel.alLlegarPorRecuperacion()
+        runCurrent()
+        assertEquals(0, roles.size)
+
+        sesiones.value = DatosPrueba.crearSesion()
+        runCurrent()
+
+        assertEquals(1, roles.size)
+    }
+
+    @Test
+    fun noDebeAvisarDeRecuperacion_cuandoLaSesionNoLlegaEnElTope() = runTest(reglaCorrutinas.testDispatcher) {
+        val sesiones = MutableStateFlow<Sesion?>(null)
+        responderCon(sesiones)
+        val viewModel = SesionViewModel(repositorio)
+        val roles = recuperacionesDe(viewModel)
+
+        viewModel.alLlegarPorRecuperacion()
+        advanceTimeBy(ESPERA_MAXIMA_SESION_MS + 1)
+        sesiones.value = DatosPrueba.crearSesion()
+        runCurrent()
+
+        assertEquals(0, roles.size)
+    }
+
+    @Test
+    fun noDebeAvisarDeRecuperacionNiLanzar_cuandoElFlujoDeSesionLanza() = runTest(reglaCorrutinas.testDispatcher) {
+        responderCon(flow { throw IllegalStateException("faltan las llaves de Supabase") })
+        val viewModel = SesionViewModel(repositorio)
+        val roles = recuperacionesDe(viewModel)
+
+        viewModel.alLlegarPorRecuperacion()
+        runCurrent()
+
+        assertEquals(0, roles.size)
     }
 
     @Test
