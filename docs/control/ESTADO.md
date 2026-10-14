@@ -14,7 +14,7 @@
 | Sprint | 2 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 16 |
-| Terminadas | 15 |
+| Terminadas | 16 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -79,21 +79,17 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S2-T15` — Guardas de navegación por sesión y por rol.** 2026-10-14.
-Rama `feat/S2-T15-guardas-navegacion`, desde `main`, pull request **sin abrir todavía**. Ticket redactado por el agente el 2026-10-13; **se eligió la opción A en las tres decisiones sin el líder disponible**, queda para que la confirme en el pull request.
+**`S2-T16` — Pruebas del flujo de autenticación con datos falsos.** 2026-10-14.
+Rama `test/S2-T16-pruebas-flujo-autenticacion`, desde `main`, pull request **#19**, integrado después del #18 (`S2-T15`): las dos ramas tocaban los mismos renglones de los archivos vivos y se resolvieron al integrar. Ticket redactado por el agente el mismo día; **se eligió la opción A en las tres decisiones sin el líder disponible**.
 
-- **`MarcadorSesionTemporal` desapareció.** `SesionViewModel` lleva `EstadoSesion` (`VERIFICANDO`, `SIN_SESION`, `CLIENTE`, `TRABAJADOR`) a partir de `sesionActual()`, y P-01, P-02 y P-03 avisan el rol al hacer entrar (`registrarEntrada`), para el caso sin red de `S2-T09`.
-- **Las guardas leen la sesión real.** Con sesión, P-02, P-03 y P-04 llevan al inicio del rol. Con `VERIFICANDO` nadie redirige.
-- **Los marcadores ya no tienen botones de rol.** "Pruebas de guardas" se queda.
-- **Desvío:** la guarda regresa al inicio que ya está en la pila en vez de apilar otro. Antes, atrás recorría copias de P-05 o P-10.
+- **`FlujoAutenticacionTest`**, 12 pruebas en la JVM con `RepositorioAuthFalso` y sin `mockk`: registro de cliente y de trabajador hasta P-01, cierre de sesión en P-18 y vuelta a entrar, correo duplicado, correo sin cuenta, P-04 exista o no la cuenta, y las filas de 2.4 y 3.5 que faltaban (`SERVIDOR`, `DESCONOCIDO`, `VALIDACION`, `AUTENTICACION` y el reintento tras `RED`).
+- **`app/src/main` no cambió.**
+- **Desvío:** cada prueba empieza sin sesión, porque `FuenteDatosFalsa` arranca con la de `cliente1` y con ella una prueba pasaba por casualidad.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 217 pruebas unitarias (7 nuevas) y 67 instrumentadas, 0 fallas.
-  - En emulador `Pixel_8` contra Supabase: las guardas por rol con una cuenta de cliente y una de trabajador, P-02 y P-03 con sesión, abrir con sesión guardada, abrir sin red y entrar con "Reintentar", cerrar sesión, y el enlace de recuperación **de un correo real** hasta P-18, por primera vez en el proyecto.
-- **Lo que NO se probó en el dispositivo:** el enlace de recuperación con la aplicación cerrada, por el límite de correos por hora.
-- **Dos hallazgos para el líder**, en "Cómo se verificó" de `docs/tareas/S2-T15.md`:
-  - **El proyecto de Supabase estaba pausado.** Se restauró el 2026-10-14.
-  - **"Redirect URLs" estaba vacía**, y el correo mandaba a `localhost:3000`. Se agregó `mx.donchambitas.app://auth`, como pide `CONTRATOS-API.md`.
+  - 224 pruebas unitarias (12 nuevas), 0 fallas. El archivo nuevo, 10 corridas seguidas sin fallas.
+  - Rompiendo a propósito la normalización del correo en `RegistroViewModel`, fallan 3 de las nuevas.
+- **Lo que NO prueba:** la contraseña equivocada, porque el falso no la revisa (decisión 2), ni el enlace de recuperación, porque el falso no manda correos.
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
 
@@ -134,10 +130,9 @@ explicados al final de `MODELO-ER.md`.
 
 ## Siguiente en la cola
 
-`S2-T16` — Pruebas del flujo de autenticación con datos falsos
-(prioridad 250, sprint 2, depende de `S2-T05`, que ya está hecha)
-
-**No tiene ticket.**
+**Ninguna.** Con `S2-T15` (#18) y `S2-T16` (#19) integrados, las 16 tareas del
+Sprint 2 están hechas. Lo siguiente es abrir el Sprint 3, y eso lo decide el
+líder (`AGENTS.md` §3).
 
 ## Los dos huecos de S2-T01, ya cerrados
 

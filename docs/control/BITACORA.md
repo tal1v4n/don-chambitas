@@ -40,6 +40,7 @@
 | 2026-10-11 | S2-T13 | BCJL | feat/S2-T13-foto-perfil-interfaz |  | Avatar de P-18: hoja con galeria (PickVisualMedia) y camara (TakePicture + FileProvider), validacion de 5 MB y JPG/PNG/WebP, recortador propio en Compose dentro de un Dialog y JPEG de 512 x 512 a subirFotoPerfil. Opcion A en las tres decisiones. Apilada sobre S2-T11. Hasta S2-T14 el repositorio real responde Error del servidor. El zoom con dos dedos no se probo en el dispositivo |
 | 2026-10-11 | S2-T14 | LMM | feat/S2-T14-almacenamiento-imagenes |  | subirFotoPerfil real: sube a perfiles/<uid>/<ms>.jpg, escribe foto_url y borra el resto de la carpeta (la foto anterior no se conserva, por decision del lider). install(Storage) y traducirErrorStorage. Apilada sobre S2-T13. H-16: las fotos de servicio quedan en S3-T09. H-17: Storage responde 400 a todo rechazo |
 | 2026-10-14 | S2-T15 | RRC | feat/S2-T15-guardas-navegacion | #18 | Las guardas y las barras leen la sesion real: SesionViewModel lleva EstadoSesion y P-01, P-02 y P-03 avisan el rol al entrar (cubre el caso sin red de S2-T09). Sin MarcadorSesionTemporal ni botones de rol en los marcadores; con sesion, P-02 a P-04 llevan al inicio. Opcion A en las tres decisiones **sin el lider disponible**. **Desvio:** la guarda regresa al inicio que ya esta en la pila en vez de apilar otro. Probado en Pixel_8 contra Supabase, incluido el enlace de recuperacion de un correo real hasta P-18 (con la app abierta; en frio no se repitio). **Hallazgos:** el proyecto estaba pausado, y Redirect URLs estaba vacia (el correo mandaba a localhost:3000); se agrego mx.donchambitas.app://auth. 217 unitarias y 67 instrumentadas pasando |
+| 2026-10-14 | S2-T16 | GRI | test/S2-T16-pruebas-flujo-autenticacion | #19 | FlujoAutenticacionTest: 12 pruebas en la JVM con RepositorioAuthFalso, sin mockk: registro hasta P-01, cierre y vuelta a entrar, correo duplicado, correo sin cuenta, P-04, y las filas de 2.4 y 3.5 que faltaban. app/src/main no cambio. Opcion A en las tres decisiones **sin el lider disponible**. **Desvio:** cada prueba empieza sin sesion porque FuenteDatosFalsa arranca con la de cliente1. Tomada con S2-T15 en su PR (#18): los archivos vivos van a chocar al integrar. 224 unitarias pasando |
 
 ---
 
@@ -58,6 +59,22 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S2-T15` — Guardas de navegación por sesión y por rol.** 2026-10-14.
+Rama `feat/S2-T15-guardas-navegacion`, desde `main`, pull request **#18**. Ticket redactado por el agente el 2026-10-13; **se eligió la opción A en las tres decisiones sin el líder disponible**, queda para que la confirme en el pull request.
+
+- **`MarcadorSesionTemporal` desapareció.** `SesionViewModel` lleva `EstadoSesion` (`VERIFICANDO`, `SIN_SESION`, `CLIENTE`, `TRABAJADOR`) a partir de `sesionActual()`, y P-01, P-02 y P-03 avisan el rol al hacer entrar (`registrarEntrada`), para el caso sin red de `S2-T09`.
+- **Las guardas leen la sesión real.** Con sesión, P-02, P-03 y P-04 llevan al inicio del rol. Con `VERIFICANDO` nadie redirige.
+- **Los marcadores ya no tienen botones de rol.** "Pruebas de guardas" se queda.
+- **Desvío:** la guarda regresa al inicio que ya está en la pila en vez de apilar otro. Antes, atrás recorría copias de P-05 o P-10.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 217 pruebas unitarias (7 nuevas) y 67 instrumentadas, 0 fallas.
+  - En emulador `Pixel_8` contra Supabase: las guardas por rol con una cuenta de cliente y una de trabajador, P-02 y P-03 con sesión, abrir con sesión guardada, abrir sin red y entrar con "Reintentar", cerrar sesión, y el enlace de recuperación **de un correo real** hasta P-18, por primera vez en el proyecto.
+- **Lo que NO se probó en el dispositivo:** el enlace de recuperación con la aplicación cerrada, por el límite de correos por hora.
+- **Dos hallazgos para el líder**, en "Cómo se verificó" de `docs/tareas/S2-T15.md`:
+  - **El proyecto de Supabase estaba pausado.** Se restauró el 2026-10-14.
+  - **"Redirect URLs" estaba vacía**, y el correo mandaba a `localhost:3000`. Se agregó `mx.donchambitas.app://auth`, como pide `CONTRATOS-API.md`.
 
 **`S2-T14` — Almacenamiento real de imágenes en Supabase Storage.** 2026-10-11.
 Rama `feat/S2-T14-almacenamiento-imagenes`, **apilada sobre la de `S2-T13`**, pull request **sin abrir todavía**. Orden de integración: `S2-T11`, `S2-T13` y luego esta. Ticket redactado por el agente el mismo día; el líder decidió al pedirla que **la foto anterior se borra**.
