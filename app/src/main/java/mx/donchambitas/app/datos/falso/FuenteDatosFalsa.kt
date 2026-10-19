@@ -93,22 +93,22 @@ class FuenteDatosFalsa @Inject constructor() {
     private fun inicializarDatos() {
         // 1. Categorias de 04_datos_semilla.sql
         val listaCategorias = listOf(
-            Categoria(1, "Plomeria", "Fugas, instalaciones hidraulicas y drenajes", "plumbing", true, 10),
-            Categoria(2, "Electricidad", "Instalaciones electricas, cortos y luminarias", "bolt", true, 20),
-            Categoria(3, "Albanileria", "Muros, pisos, castillos y acabados", "construction", true, 30),
-            Categoria(4, "Carpinteria", "Muebles a medida, puertas y reparaciones en madera", "carpenter", true, 40),
-            Categoria(5, "Pintura", "Interiores, exteriores e impermeabilizacion", "format_paint", true, 50),
-            Categoria(6, "Herreria", "Rejas, portones, barandales y soldadura", "hardware", true, 60),
+            Categoria(1, "Plomería", "Fugas, instalaciones hidráulicas y drenajes", "plumbing", true, 10),
+            Categoria(2, "Electricidad", "Instalaciones eléctricas, cortos y luminarias", "bolt", true, 20),
+            Categoria(3, "Albañilería", "Muros, pisos, castillos y acabados", "construction", true, 30),
+            Categoria(4, "Carpintería", "Muebles a medida, puertas y reparaciones en madera", "carpenter", true, 40),
+            Categoria(5, "Pintura", "Interiores, exteriores e impermeabilización", "format_paint", true, 50),
+            Categoria(6, "Herrería", "Rejas, portones, barandales y soldadura", "hardware", true, 60),
             Categoria(7, "Limpieza", "Limpieza de casas, oficinas y mudanzas", "cleaning_services", true, 70),
-            Categoria(8, "Jardineria", "Poda, mantenimiento de jardines y riego", "yard", true, 80),
+            Categoria(8, "Jardinería", "Poda, mantenimiento de jardines y riego", "yard", true, 80),
             Categoria(9, "Mudanzas y carga", "Fletes, cargadores y traslados", "local_shipping", true, 90),
-            Categoria(10, "Aire y refrigeracion", "Minisplits, refrigeradores y ventilacion", "ac_unit", true, 100),
-            Categoria(11, "Mecanica", "Reparacion automotriz y servicio a domicilio", "car_repair", true, 110),
-            Categoria(12, "Computo", "Reparacion de equipos, redes y respaldo de datos", "computer", true, 120),
-            Categoria(13, "Cerrajeria", "Aperturas, cambio de chapas y duplicado de llaves", "key", true, 130),
-            Categoria(14, "Costura", "Arreglos de ropa, confeccion y tapiceria", "content_cut", true, 140),
+            Categoria(10, "Aire y refrigeración", "Minisplits, refrigeradores y ventilación", "ac_unit", true, 100),
+            Categoria(11, "Mecánica", "Reparación automotriz y servicio a domicilio", "car_repair", true, 110),
+            Categoria(12, "Cómputo", "Reparación de equipos, redes y respaldo de datos", "computer", true, 120),
+            Categoria(13, "Cerrajería", "Aperturas, cambio de chapas y duplicado de llaves", "key", true, 130),
+            Categoria(14, "Costura", "Arreglos de ropa, confección y tapicería", "content_cut", true, 140),
             Categoria(15, "Cocina y eventos", "Banquetes, meseros y servicio para eventos", "restaurant", true, 150),
-            Categoria(16, "Otros", "Oficios que no encajan en las categorias anteriores", "more_horiz", true, 999)
+            Categoria(16, "Otros", "Oficios que no encajan en las categorías anteriores", "more_horiz", true, 999)
         )
         categorias.addAll(listaCategorias)
 
@@ -346,7 +346,7 @@ class FuenteDatosFalsa @Inject constructor() {
         val sol1 = Solicitud(
             id = "sol-1",
             clienteId = cliente1.id,
-            categoriaId = 1, // Plomeria
+            categoriaId = 1, // Plomería
             titulo = "Reparacion de fuga bajo lavabo de cocina",
             descripcion = "Tengo una fuga constante en la tuberia del cespol que gotea dentro del mueble de cocina.",
             presupuesto = BigDecimal("450.00"),
@@ -361,7 +361,7 @@ class FuenteDatosFalsa @Inject constructor() {
         val sol2 = Solicitud(
             id = "sol-2",
             clienteId = cliente2.id,
-            categoriaId = 10, // Aire y refrigeracion
+            categoriaId = 10, // Aire y refrigeración
             titulo = "Mantenimiento preventivo de minisplit",
             descripcion = "Requiere limpieza de filtros y revision de gas para equipo de 1.5 toneladas en recamara.",
             presupuesto = BigDecimal("850.00"),
@@ -376,7 +376,7 @@ class FuenteDatosFalsa @Inject constructor() {
         val sol3 = Solicitud(
             id = "sol-3",
             clienteId = cliente1.id,
-            categoriaId = 6, // Herreria
+            categoriaId = 6, // Herrería
             titulo = "Alineacion y soldadura de porton corredizo",
             descripcion = "El riel inferior se desoldo y el porton se traba a medio cerrar.",
             presupuesto = BigDecimal("1500.00"),
@@ -407,7 +407,7 @@ class FuenteDatosFalsa @Inject constructor() {
         val sol5 = Solicitud(
             id = "sol-5",
             clienteId = cliente1.id,
-            categoriaId = 13, // Cerrajeria
+            categoriaId = 13, // Cerrajería
             titulo = "Cambio de cilindro y chapa de seguridad",
             descripcion = "Necesito cambiar el cilindro de la puerta principal tras extraviar un juego de llaves.",
             presupuesto = BigDecimal("600.00"),

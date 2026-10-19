@@ -146,10 +146,10 @@ def main():
         tok[mote], uid[mote] = api.entra(mote)
         print("  %-6s %s" % (mote, uid[mote]))
 
-    cod, cats = api.pide("GET", "/rest/v1/categorias?select=id&nombre=eq.Plomeria",
+    cod, cats = api.pide("GET", "/rest/v1/categorias?select=id&orden=eq.10",
                          token=tok["ana"])
     if cod != 200 or not cats:
-        salir("No se pudo leer la categoria Plomeria (HTTP %s). Corrio 04_datos_semilla.sql?" % cod)
+        salir("No se pudo leer la categoria de orden 10, Plomeria (HTTP %s). Corrio 04_datos_semilla.sql?" % cod)
     categoria = cats[0]["id"]
 
     print("Creando perfiles, solicitud, postulaciones y conversacion...")
