@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 2 |
+| Terminadas | 3 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -40,6 +40,7 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas la pestaña **Cuenta** | P-18 real: tu ficha de `public.usuarios`, editar datos, cambiar contraseña y cerrar sesión. El trabajador ve además "Mi perfil profesional" (P-11) y "Mis postulaciones" (P-14) | — |
 | Editas nombre, apellidos o teléfono y guardas | La tarjeta cambia en ese momento y sigue así al reabrir. El teléfono es obligatorio, como en P-03 | — |
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
+| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 completa, con el aviso de perfil incompleto, habilidades como chips y la barra inferior en Cuenta. **Todavía no carga ni guarda**: arranca en blanco cada vez, "Guardar perfil" no hace nada y las hojas de estado y municipio salen vacías | `S3-T06` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -83,66 +84,43 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla.**
-2026-10-18. Rama `feat/S3-T02-catalogo-categorias`, desde `main` con `S3-T01`
-ya integrada (#31), pull request **sin abrir todavía**. Ticket redactado por el
-agente al tomar la tarea.
+**`S3-T03` — Pantalla del perfil del trabajador (habilidades, experiencia,
+contacto).** 2026-10-18. Rama `feat/S3-T03-pantalla-mi-perfil`, desde `main`
+con `S3-T02` ya integrada (#32), pull request **sin abrir todavía**. Ticket
+redactado por el agente al tomar la tarea.
 
-- **Las 16 categorías llevan acentos** en `04_datos_semilla.sql`,
-  `FuenteDatosFalsa` y `RepositorioIaFalso`: Plomería, Albañilería, Cómputo…
-- **La semilla sigue siendo idempotente.** Un `update` previo renombra las
-  filas que se sembraron sin acento, así que no se duplican y conservan su
-  `id`. `91_prueba_funcional.sql` y `92_prueba_rls_anon.py` buscan la categoría
-  por `orden = 10`, ya no por nombre.
-- **`iconoCategoria(nombre)`** en `ui/componentes/IconosCategoria.kt` traduce
-  `categorias.icono` al icono de Material; uno nulo o desconocido cae en
-  "Otros". `DISENO.md` ya no llama "ID" al `orden`.
+- **P-11 está construida** según `DISENO-PERFIL-SERVICIOS.md` §2:
+  `MiPerfilContenido` sin estado propio, `EstadoMiPerfil`, `EstadoBotonIa` con
+  sus cuatro casos y `FaltaPerfil` para el aviso de perfil incompleto. Las hojas
+  de estado y municipio son `ModalBottomSheet`, como la de la foto de P-18.
+- **Todavía no carga ni guarda.** `MiPerfilPantalla` guarda el estado con
+  `rememberSaveable` hasta que llegue el ViewModel de `S3-T06`; "Guardar
+  perfil" no hace nada y las hojas salen vacías. Sin validaciones: son
+  `S3-T07`.
+- **`H-19` cerrado por el líder**: `obtenerMisHabilidades()` en
+  `RepositorioTrabajador`, en su falso y en `CONTRATOS-API.md`.
+- `Ruta.MiPerfil` entró en `RUTAS_SIN_BARRA_DEL_ANDAMIO`: la barra superior es
+  la de la pantalla, y la inferior la sigue pintando el grafo con Cuenta activa.
+- **Desvío del diseño:** `EstadoMiPerfil` ganó `faltantes` y `strings.xml` la
+  clave `mi_perfil_incompleto_coma`, para unir tres o más faltantes. Las dos ya
+  están en `DISENO-PERFIL-SERVICIOS.md`.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 233 pruebas unitarias (4 nuevas en `IconosCategoriaTest`), 0 fallas. Al
-    quitar un acento en la fuente falsa, la prueba de coincidencia con la
-    semilla falla, como debe.
-  - En el emulador `Pixel_10`: instala, abre y llega a P-02.
-- **Lo que NO se probó:** correr la semilla contra Supabase. No hay Postgres
-  local, y la consola la corre el líder. **Falta que el líder vuelva a correr
-  `04_datos_semilla.sql`** en el proyecto; los criterios 2 y 3 del ticket se
-  cierran con eso.
-- **El cambio todavía no se ve en pantalla**: ninguna pantalla lee las
-  categorías hasta `S3-T04`.
-- **Observación para el líder:** los estados y municipios de la semilla
-  tampoco llevan acentos ("Ciudad de Mexico", "Michoacan"), y P-11 los mostrará
-  en sus hojas. No entró en esta tarea, que es solo de categorías.
+  - 234 pruebas unitarias (1 nueva, la de `obtenerMisHabilidades`), 0 fallas.
+  - 84 instrumentadas en el emulador `Pixel_10`, 0 fallas (17 nuevas en
+    `MiPerfilPantallaTest`). En una primera corrida fallaron las 5 de
+    `RepositorioUsuarioRealTest` porque **el proyecto de Supabase estaba
+    pausado** y su dominio no resolvía; reactivado, pasan.
+  - A mano en el emulador, con `beto.rls@…` contra Supabase: P-18 → P-11 con
+    Cuenta activa, el aviso con los cuatro faltantes, agregar una habilidad
+    con el "+" y con `Done`, quitarla, municipio sin estado que no abre nada,
+    girar sin perder lo escrito y la flecha de regreso a P-18.
+- **Desvío encontrado en el emulador:** el campo de experiencia pasó de 120 a
+  200 dp, porque con 120 la etiqueta se partía en dos renglones. Ya está en el
+  diseño.
+- **Para `S3-T06`:** el botón de IA no reacciona al escribir el título, porque
+  decidir cuándo se habilita es del ViewModel.
 
-La anterior fue **`S3-T01` — Diseño de las pantallas de perfil del trabajador
-y de servicio.** 2026-10-18. Rama `docs/S3-T01-diseno-perfil-servicios`,
-integrada con el **#31**. Ticket redactado por el agente el mismo día en
-que el líder autorizó abrir el Sprint 3.
-
-- **`docs/producto/DISENO-PERFIL-SERVICIOS.md`**: P-11, P-12 y P-13 con
-  anatomía y medidas, contratos `EstadoMiPerfil`, `EstadoMisServicios` y
-  `EstadoServicio`, eventos, validaciones campo por campo, mapa de `TipoError`,
-  108 claves de `strings.xml` y la tabla de qué consume cada tarea del
-  Sprint 3. Tiene la misma forma que `DISENO-AUTENTICACION.md`.
-- **Cuatro wireframes nuevos** en `docs/producto/wireframes/`: P-11 y P-13
-  completas con scroll, y P-12 con datos y vacía. Están en `WIREFRAMES.md`,
-  secciones 8 a 10.
-- **No se tocó código.**
-- **Seis hallazgos para el líder, `H-18` a `H-23`** (ver abajo). `H-18`,
-  `H-19` y `H-21` hay que cerrarlos antes de que `S3-T03`, `S3-T04` y `S3-T05`
-  lleguen a su parte.
-
-La anterior fue **`S2-T16` — Pruebas del flujo de autenticación con datos
-falsos.** 2026-10-14.
-Rama `test/S2-T16-pruebas-flujo-autenticacion`, desde `main`, pull request **#19**, integrado después del #18 (`S2-T15`): las dos ramas tocaban los mismos renglones de los archivos vivos y se resolvieron al integrar. Ticket redactado por el agente el mismo día; **se eligió la opción A en las tres decisiones sin el líder disponible**.
-
-- **`FlujoAutenticacionTest`**, 12 pruebas en la JVM con `RepositorioAuthFalso` y sin `mockk`: registro de cliente y de trabajador hasta P-01, cierre de sesión en P-18 y vuelta a entrar, correo duplicado, correo sin cuenta, P-04 exista o no la cuenta, y las filas de 2.4 y 3.5 que faltaban (`SERVIDOR`, `DESCONOCIDO`, `VALIDACION`, `AUTENTICACION` y el reintento tras `RED`).
-- **`app/src/main` no cambió.**
-- **Desvío:** cada prueba empieza sin sesión, porque `FuenteDatosFalsa` arranca con la de `cliente1` y con ella una prueba pasaba por casualidad.
-- Verificación del proyecto:
-  - Compilación exitosa (`./gradlew assembleDebug`).
-  - 224 pruebas unitarias (12 nuevas), 0 fallas. El archivo nuevo, 10 corridas seguidas sin fallas.
-  - Rompiendo a propósito la normalización del correo en `RegistroViewModel`, fallan 3 de las nuevas.
-- **Lo que NO prueba:** la contraseña equivocada, porque el falso no la revisa (decisión 2), ni el enlace de recuperación, porque el falso no manda correos.
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
 
@@ -184,14 +162,16 @@ explicados al final de `MODELO-ER.md`.
 ## Los seis huecos de S3-T01
 
 Salen de cruzar HU-06, HU-08 a HU-11 y HU-29 a HU-31 contra los repositorios
-y el esquema. **Ninguno se resolvió**: están explicados en la sección 10 de
-`docs/producto/DISENO-PERFIL-SERVICIOS.md`.
+y el esquema. Están explicados en la sección 10 de
+`docs/producto/DISENO-PERFIL-SERVICIOS.md`. **Cerrado uno, `H-19`; quedan
+cinco.**
 
 - **`H-18` — Las fotos de un servicio propio no se pueden leer.** `Servicio`
   no trae fotos y sin el `id` de cada una no se puede llamar a `eliminarFoto`.
   Le toca a `S3-T08`.
-- **`H-19` — Las habilidades del perfil propio no se pueden leer.**
-  `obtenerMiPerfil()` no las trae. Le toca a `S3-T08`.
+- **`H-19` — CERRADO el 2026-10-18 por el líder**: operación nueva,
+  `obtenerMisHabilidades()`, que agregó `S3-T03` en la interfaz y en el falso.
+  La real es de `S3-T09`.
 - **`H-20` — `subirFoto` no informa avance.** El diseño pinta un indicador
   indeterminado; HU-11 dice "veo el progreso".
 - **`H-21` — `TarjetaServicio` no distingue un servicio pausado** y deja un
@@ -205,10 +185,10 @@ y el esquema. **Ninguno se resolvió**: están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T03` — Pantalla del perfil del trabajador (habilidades, experiencia,
-contacto)** (prioridad 950, GRI, depende de `S1-T10`, hecha). Todavía no tiene
-ticket: se redacta al tomarla. Ojo: P-11 necesita leer las habilidades
-guardadas, que es `H-19`, sin resolver.
+**`S3-T04` — Pantalla de creación y edición de un servicio** (prioridad 900,
+BCJL, depende de `S3-T02`, hecha). Todavía no tiene ticket: se redacta al
+tomarla. Ojo: editar las fotos de un servicio necesita `H-18`, y crear con
+fotos depende de lo que el líder diga de `H-22`.
 
 ## Los dos huecos de S2-T01, ya cerrados
 

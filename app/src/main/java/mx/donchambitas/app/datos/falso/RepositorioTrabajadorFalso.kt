@@ -116,6 +116,19 @@ class RepositorioTrabajadorFalso @Inject constructor(
         return Resultado.Exito(perfil)
     }
 
+    override suspend fun obtenerMisHabilidades(): Resultado<List<String>> {
+        verificarSimulacion()?.let { return it }
+
+        val usuarioId = fuente.obtenerUsuarioActivoId()
+            ?: return Resultado.Error(TipoError.AUTENTICACION, "No hay sesion activa")
+
+        val habilidades = fuente.habilidades
+            .filter { it.perfilId == usuarioId }
+            .map { it.habilidad }
+            .sorted()
+        return Resultado.Exito(habilidades)
+    }
+
     override suspend fun guardarMiPerfil(perfil: PerfilTrabajador): Resultado<PerfilTrabajador> {
         verificarSimulacion()?.let { return it }
 

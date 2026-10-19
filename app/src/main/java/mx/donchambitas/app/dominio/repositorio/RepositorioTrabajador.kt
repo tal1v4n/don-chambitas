@@ -21,6 +21,12 @@ interface RepositorioTrabajador {
     suspend fun obtenerMiPerfil(): Resultado<PerfilTrabajador?>
 
     /**
+     * Obtiene las habilidades del trabajador autenticado, en orden alfabetico.
+     * Lista vacia si todavia no tiene perfil o no declaro ninguna (H-19).
+     */
+    suspend fun obtenerMisHabilidades(): Resultado<List<String>>
+
+    /**
      * Guarda o actualiza el perfil del trabajador autenticado.
      */
     suspend fun guardarMiPerfil(perfil: PerfilTrabajador): Resultado<PerfilTrabajador>

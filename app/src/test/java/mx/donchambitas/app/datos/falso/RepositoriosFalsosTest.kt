@@ -115,6 +115,22 @@ class RepositoriosFalsosTest {
     }
 
     @Test
+    fun `3b RepositorioTrabajador lee las habilidades propias que reemplazarHabilidades escribio`() = runBlocking {
+        fuente.fijarSesionActiva(Sesion(fuente.usuarios.first { it.id == "usr-trab-1" }))
+
+        val sembradas = (repoTrabajador.obtenerMisHabilidades() as Resultado.Exito).dato
+        assertTrue(sembradas.isNotEmpty())
+        assertEquals(sembradas.sorted(), sembradas)
+
+        repoTrabajador.reemplazarHabilidades(listOf("Tinacos", "Boilers"))
+        assertEquals(listOf("Boilers", "Tinacos"), (repoTrabajador.obtenerMisHabilidades() as Resultado.Exito).dato)
+
+        fuente.fijarSesionActiva(null)
+        val sinSesion = repoTrabajador.obtenerMisHabilidades()
+        assertEquals(TipoError.AUTENTICACION, (sinSesion as Resultado.Error).tipo)
+    }
+
+    @Test
     fun `4 RepositorioServicios gestiona servicios y respeta tope de 3 fotos`() = runBlocking {
         // Fijar sesion como trabajador 1
         val trab1 = fuente.usuarios.first { it.id == "usr-trab-1" }

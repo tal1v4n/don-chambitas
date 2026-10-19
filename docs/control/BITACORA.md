@@ -42,7 +42,8 @@
 | 2026-10-14 | S2-T15 | RRC | feat/S2-T15-guardas-navegacion | #18 | Las guardas y las barras leen la sesion real: SesionViewModel lleva EstadoSesion y P-01, P-02 y P-03 avisan el rol al entrar (cubre el caso sin red de S2-T09). Sin MarcadorSesionTemporal ni botones de rol en los marcadores; con sesion, P-02 a P-04 llevan al inicio. Opcion A en las tres decisiones **sin el lider disponible**. **Desvio:** la guarda regresa al inicio que ya esta en la pila en vez de apilar otro. Probado en Pixel_8 contra Supabase, incluido el enlace de recuperacion de un correo real hasta P-18 (con la app abierta; en frio no se repitio). **Hallazgos:** el proyecto estaba pausado, y Redirect URLs estaba vacia (el correo mandaba a localhost:3000); se agrego mx.donchambitas.app://auth. 217 unitarias y 67 instrumentadas pasando |
 | 2026-10-14 | S2-T16 | GRI | test/S2-T16-pruebas-flujo-autenticacion | #19 | FlujoAutenticacionTest: 12 pruebas en la JVM con RepositorioAuthFalso, sin mockk: registro hasta P-01, cierre y vuelta a entrar, correo duplicado, correo sin cuenta, P-04, y las filas de 2.4 y 3.5 que faltaban. app/src/main no cambio. Opcion A en las tres decisiones **sin el lider disponible**. **Desvio:** cada prueba empieza sin sesion porque FuenteDatosFalsa arranca con la de cliente1. Tomada con S2-T15 en su PR (#18): los archivos vivos van a chocar al integrar. 224 unitarias pasando |
 | 2026-10-18 | S3-T01 | LMM | docs/S3-T01-diseno-perfil-servicios | #31 | DISENO-PERFIL-SERVICIOS.md especifica P-11, P-12 y P-13: anatomia con medidas, EstadoMiPerfil, EstadoMisServicios y EstadoServicio con sus eventos, validaciones campo por campo contra el esquema, mapa de TipoError y 108 claves de strings.xml. Cuatro wireframes nuevos (P-11 y P-13 completas con scroll, P-12 con datos y vacia). Sin codigo. Primera del Sprint 3, abierto ese dia por autorizacion del lider; ticket redactado por el agente. Seis hallazgos, H-18 a H-23: fotos y habilidades propias sin lectura, subida sin avance, TarjetaServicio sin pausado, fotos solo despues de crear y el tope de IA sin consulta |
-| 2026-10-18 | S3-T02 | RRC | feat/S3-T02-catalogo-categorias |  | Las 16 categorias con acentos en 04_datos_semilla.sql, FuenteDatosFalsa y RepositorioIaFalso; un update previo renombra las filas viejas para que la semilla siga idempotente y conserve los id. 91 y 92 buscan la categoria por orden. iconoCategoria() en IconosCategoria.kt traduce categorias.icono a Material Icons, con Otros como respaldo. DISENO.md ya no llama ID al orden. 233 unitarias pasando (4 nuevas). Falta que el lider vuelva a correr la semilla en Supabase |
+| 2026-10-18 | S3-T02 | RRC | feat/S3-T02-catalogo-categorias | #32 | Las 16 categorias con acentos en 04_datos_semilla.sql, FuenteDatosFalsa y RepositorioIaFalso; un update previo renombra las filas viejas para que la semilla siga idempotente y conserve los id. 91 y 92 buscan la categoria por orden. iconoCategoria() en IconosCategoria.kt traduce categorias.icono a Material Icons, con Otros como respaldo. DISENO.md ya no llama ID al orden. 233 unitarias pasando (4 nuevas). Falta que el lider vuelva a correr la semilla en Supabase |
+| 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil |  | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
 
 ---
 
@@ -61,6 +62,67 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla.**
+2026-10-18. Rama `feat/S3-T02-catalogo-categorias`, desde `main` con `S3-T01`
+ya integrada (#31), pull request **#32**. Ticket redactado por el
+agente al tomar la tarea.
+
+- **Las 16 categorías llevan acentos** en `04_datos_semilla.sql`,
+  `FuenteDatosFalsa` y `RepositorioIaFalso`: Plomería, Albañilería, Cómputo…
+- **La semilla sigue siendo idempotente.** Un `update` previo renombra las
+  filas que se sembraron sin acento, así que no se duplican y conservan su
+  `id`. `91_prueba_funcional.sql` y `92_prueba_rls_anon.py` buscan la categoría
+  por `orden = 10`, ya no por nombre.
+- **`iconoCategoria(nombre)`** en `ui/componentes/IconosCategoria.kt` traduce
+  `categorias.icono` al icono de Material; uno nulo o desconocido cae en
+  "Otros". `DISENO.md` ya no llama "ID" al `orden`.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 233 pruebas unitarias (4 nuevas en `IconosCategoriaTest`), 0 fallas. Al
+    quitar un acento en la fuente falsa, la prueba de coincidencia con la
+    semilla falla, como debe.
+  - En el emulador `Pixel_10`: instala, abre y llega a P-02.
+- **Lo que NO se probó:** correr la semilla contra Supabase. No hay Postgres
+  local, y la consola la corre el líder. **Falta que el líder vuelva a correr
+  `04_datos_semilla.sql`** en el proyecto; los criterios 2 y 3 del ticket se
+  cierran con eso.
+- **El cambio todavía no se ve en pantalla**: ninguna pantalla lee las
+  categorías hasta `S3-T04`.
+- **Observación para el líder:** los estados y municipios de la semilla
+  tampoco llevan acentos ("Ciudad de Mexico", "Michoacan"), y P-11 los mostrará
+  en sus hojas. No entró en esta tarea, que es solo de categorías.
+
+**`S3-T01` — Diseño de las pantallas de perfil del trabajador
+y de servicio.** 2026-10-18. Rama `docs/S3-T01-diseno-perfil-servicios`,
+pull request **#31**. Ticket redactado por el agente el mismo día en
+que el líder autorizó abrir el Sprint 3.
+
+- **`docs/producto/DISENO-PERFIL-SERVICIOS.md`**: P-11, P-12 y P-13 con
+  anatomía y medidas, contratos `EstadoMiPerfil`, `EstadoMisServicios` y
+  `EstadoServicio`, eventos, validaciones campo por campo, mapa de `TipoError`,
+  108 claves de `strings.xml` y la tabla de qué consume cada tarea del
+  Sprint 3. Tiene la misma forma que `DISENO-AUTENTICACION.md`.
+- **Cuatro wireframes nuevos** en `docs/producto/wireframes/`: P-11 y P-13
+  completas con scroll, y P-12 con datos y vacía. Están en `WIREFRAMES.md`,
+  secciones 8 a 10.
+- **No se tocó código.**
+- **Seis hallazgos para el líder, `H-18` a `H-23`** (ver abajo). `H-18`,
+  `H-19` y `H-21` hay que cerrarlos antes de que `S3-T03`, `S3-T04` y `S3-T05`
+  lleguen a su parte.
+
+**`S2-T16` — Pruebas del flujo de autenticación con datos
+falsos.** 2026-10-14.
+Rama `test/S2-T16-pruebas-flujo-autenticacion`, desde `main`, pull request **#19**, integrado después del #18 (`S2-T15`): las dos ramas tocaban los mismos renglones de los archivos vivos y se resolvieron al integrar. Ticket redactado por el agente el mismo día; **se eligió la opción A en las tres decisiones sin el líder disponible**.
+
+- **`FlujoAutenticacionTest`**, 12 pruebas en la JVM con `RepositorioAuthFalso` y sin `mockk`: registro de cliente y de trabajador hasta P-01, cierre de sesión en P-18 y vuelta a entrar, correo duplicado, correo sin cuenta, P-04 exista o no la cuenta, y las filas de 2.4 y 3.5 que faltaban (`SERVIDOR`, `DESCONOCIDO`, `VALIDACION`, `AUTENTICACION` y el reintento tras `RED`).
+- **`app/src/main` no cambió.**
+- **Desvío:** cada prueba empieza sin sesión, porque `FuenteDatosFalsa` arranca con la de `cliente1` y con ella una prueba pasaba por casualidad.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 224 pruebas unitarias (12 nuevas), 0 fallas. El archivo nuevo, 10 corridas seguidas sin fallas.
+  - Rompiendo a propósito la normalización del correo en `RegistroViewModel`, fallan 3 de las nuevas.
+- **Lo que NO prueba:** la contraseña equivocada, porque el falso no la revisa (decisión 2), ni el enlace de recuperación, porque el falso no manda correos.
 
 **`S2-T15` — Guardas de navegación por sesión y por rol.** 2026-10-14.
 Rama `feat/S2-T15-guardas-navegacion`, desde `main`, pull request **#18**. Ticket redactado por el agente el 2026-10-13; **se eligió la opción A en las tres decisiones sin el líder disponible**, queda para que la confirme en el pull request.

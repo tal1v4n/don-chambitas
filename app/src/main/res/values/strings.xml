@@ -141,4 +141,43 @@
     <string name="validacion_contrasena_corta">Usa al menos 8 caracteres</string>
     <string name="validacion_telefono_vacio">Escribe tu teléfono</string>
     <string name="validacion_telefono_digitos">El teléfono lleva 10 dígitos</string>
+
+    <!-- Botón de IA de P-11 y P-13 (DISENO-PERFIL-SERVICIOS.md, 1.9) -->
+    <string name="ia_redactar">Redactar con IA</string>
+    <string name="ia_restantes">Te quedan %1$d de 10 hoy</string>
+    <string name="ia_limite">Alcanzaste el límite de hoy</string>
+
+    <!-- P-11 Mi perfil (S3-T03) -->
+    <string name="mi_perfil_titulo">Mi perfil profesional</string>
+    <string name="mi_perfil_incompleto_titulo">Te falta completar tu perfil</string>
+    <string name="mi_perfil_incompleto_te_falta">Te falta %1$s</string>
+    <string name="mi_perfil_incompleto_coma">%1$s, %2$s</string>
+    <string name="mi_perfil_incompleto_y">%1$s y %2$s</string>
+    <string name="mi_perfil_falta_descripcion">una descripción</string>
+    <string name="mi_perfil_falta_habilidad">al menos una habilidad</string>
+    <string name="mi_perfil_falta_ubicacion">dónde trabajas</string>
+    <string name="mi_perfil_falta_telefono">un teléfono de contacto</string>
+    <string name="mi_perfil_incompleto_por_que">Los clientes buscan por oficio y por municipio: un perfil completo aparece en más búsquedas.</string>
+    <string name="mi_perfil_vista_previa">Ver mi perfil como cliente</string>
+    <string name="mi_perfil_bloque_oficio">Tu oficio</string>
+    <string name="mi_perfil_campo_titulo">Título de tu oficio</string>
+    <string name="mi_perfil_campo_titulo_ejemplo">Ej. Plomero con 10 años de experiencia</string>
+    <string name="mi_perfil_experiencia">Años de experiencia</string>
+    <string name="mi_perfil_habilidad_nueva">Agrega una habilidad</string>
+    <string name="mi_perfil_agregar_habilidad">Agregar habilidad</string>
+    <string name="mi_perfil_quitar_habilidad">Quitar %1$s</string>
+    <string name="mi_perfil_ia_falta_titulo">Escribe primero el título</string>
+    <string name="mi_perfil_descripcion">Cuéntale a tus clientes quién eres</string>
+    <string name="mi_perfil_bloque_ubicacion">Dónde trabajas</string>
+    <string name="mi_perfil_estado">Estado</string>
+    <string name="mi_perfil_municipio">Municipio</string>
+    <string name="mi_perfil_municipio_ayuda">Elige primero el estado</string>
+    <string name="mi_perfil_hoja_estado">Elige tu estado</string>
+    <string name="mi_perfil_hoja_municipio">Elige tu municipio</string>
+    <string name="mi_perfil_bloque_contacto">Contacto y disponibilidad</string>
+    <string name="mi_perfil_telefono">Teléfono para tus clientes</string>
+    <string name="mi_perfil_telefono_ayuda">Lo ve cualquier cliente con sesión</string>
+    <string name="mi_perfil_disponible">Disponible</string>
+    <string name="mi_perfil_no_disponible">No estoy tomando trabajos</string>
+    <string name="mi_perfil_guardar">Guardar perfil</string>
 </resources>
