@@ -292,6 +292,7 @@ data class EstadoMiPerfil(
     val municipioId: Int? = null,
     val telefonoContacto: String = "",
     val disponible: Boolean = true,
+    val faltantes: List<FaltaPerfil> = emptyList(), // sobre lo guardado (2.5)
     val errorTitulo: Int? = null,                // @StringRes
     val errorExperiencia: Int? = null,
     val errorHabilidad: Int? = null,
@@ -313,16 +314,19 @@ sealed interface EstadoBotonIa {
 ```
 
 `EstadoBotonIa` es el mismo para P-11 y P-13 y vive en un archivo propio,
-`EstadoBotonIa.kt`. Lo crea `S3-T13`; `S3-T03` y `S3-T04` lo usan con
-`FaltanDatos` y `Disponible(null)` mientras tanto.
+`EstadoBotonIa.kt`. Lo crea `S3-T03` con sus cuatro casos, para poder
+pintarlos; quien lo hace funcionar es `S3-T13`.
+
+`FaltaPerfil` es el enum de lo que lista el aviso de 2.5, en este orden:
+`DESCRIPCION`, `HABILIDAD`, `UBICACION`, `TELEFONO`. La pantalla solo lo pinta;
+quien lo calcula sobre lo guardado es el ViewModel.
 
 Los errores viajan como `@StringRes Int?`, como en autenticación. `aviso` es un
 evento de un solo uso, como `destino` en P-02: la pantalla lo muestra en el
 `SnackbarHost` y llama a `alConsumirAviso()`.
 
-**`habilidades` necesita `H-19`.** Hoy `obtenerMiPerfil()` devuelve un
-`PerfilTrabajador` sin habilidades y ninguna operación las lee para el perfil
-propio.
+**`habilidades` sale de `obtenerMisHabilidades()`**, la operación que cerró
+`H-19` (ver sección 10).
 
 ### 2.3 Eventos
 
@@ -344,7 +348,8 @@ propio.
 | `alAceptarPropuestaIa()` / `alDescartarPropuestaIa()` | Reemplaza la descripción con `propuestaIa`, o no, y la pone en `null` |
 | `alConsumirAviso()` | Pone `aviso` en `null` |
 
-La carga inicial pide `obtenerMiPerfil()` y `obtenerEstados()`, y luego
+La carga inicial pide `obtenerMiPerfil()`, `obtenerMisHabilidades()` y
+`obtenerEstados()`, y luego
 `obtenerMunicipios(estadoId)` si el perfil ya tiene estado. Sin perfil
 (`Exito(null)`), el formulario arranca en blanco con `perfilGuardado = false`.
 
@@ -779,6 +784,7 @@ reutilizan.
 <string name="mi_perfil_titulo">Mi perfil profesional</string>
 <string name="mi_perfil_incompleto_titulo">Te falta completar tu perfil</string>
 <string name="mi_perfil_incompleto_te_falta">Te falta %1$s</string>
+<string name="mi_perfil_incompleto_coma">%1$s, %2$s</string>
 <string name="mi_perfil_incompleto_y">%1$s y %2$s</string>
 <string name="mi_perfil_falta_descripcion">una descripción</string>
 <string name="mi_perfil_falta_habilidad">al menos una habilidad</string>
@@ -933,7 +939,7 @@ las sustituyen `S3-T03`, `S3-T04` y `S3-T05`.
 | `S3-T05` Mis servicios | Secciones 1, 3 y 7 |
 | `S3-T06` ViewModels | Contratos de estado de 2.2, 3.2 y 4.3, los eventos y la sección 6 |
 | `S3-T07` Validaciones | Secciones 1.6, 5 y 7 |
-| `S3-T08` Contrato de la API | La sección 10: `H-18`, `H-19` y `H-20` le tocan |
+| `S3-T08` Contrato de la API | La sección 10: `H-18` y `H-20` le tocan (`H-19` ya se cerró) |
 | `S3-T13` Botón de IA | Sección 1.9 y `EstadoBotonIa` de 2.2 |
 | `S3-T14` Vista previa | La entrada de 2.1 y la navegación de 8 |
 | `S3-T15` Pruebas | 5.2 y 5.3 como tabla de casos, y 2.4, 3.3, 4.4 y 4.5 como matriz de resultados |
@@ -1005,7 +1011,12 @@ la tarjeta. **Le toca a `S3-T08`**: lo más simple es que
 (`select=*,servicio_fotos(*)`) y que `Servicio` gane
 `fotos: List<ServicioFoto>`.
 
-**`H-19` · Las habilidades del perfil propio no se pueden leer.**
+**`H-19` · CERRADO el 2026-10-18 por el líder: operación nueva,
+`obtenerMisHabilidades(): Resultado<List<String>>`.** La agregó `S3-T03` a
+`RepositorioTrabajador` y a su falso, y está en `CONTRATOS-API.md`; la real es
+de `S3-T09`. El hallazgo, como se reportó:
+
+**Las habilidades del perfil propio no se pueden leer.**
 `obtenerMiPerfil()` devuelve un `PerfilTrabajador` sin habilidades, y
 `reemplazarHabilidades` solo escribe. P-11 no tiene cómo pintar las que ya
 estaban. Usar `obtenerPerfilPublico(miId)` no sirve: falla si el perfil no
