@@ -857,12 +857,14 @@ reutilizan.
 <string name="servicio_precio_ayuda">Opcional. Si no pones precio, se acuerda con el cliente</string>
 <string name="servicio_precio_desde">Desde</string>
 <string name="servicio_precio_hasta">Hasta</string>
+<string name="servicio_moneda">$</string>
 <string name="servicio_unidad">Unidad</string>
 <string name="servicio_unidad_ejemplo">por trabajo, por hora, por m²</string>
 <string name="servicio_bloque_fotos">Fotos</string>
 <string name="servicio_fotos_contador">%1$d de 3</string>
 <string name="servicio_fotos_despues">Podrás agregar fotos en cuanto lo publiques</string>
 <string name="servicio_agregar_foto">Agregar</string>
+<string name="servicio_hoja_foto">Agregar una foto</string>
 <string name="servicio_foto_n">Foto %1$d de 3</string>
 <string name="servicio_quitar_foto_n">Quitar foto %1$d</string>
 <string name="servicio_cancelar_subida">Cancelar subida</string>

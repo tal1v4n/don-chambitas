@@ -43,7 +43,8 @@
 | 2026-10-14 | S2-T16 | GRI | test/S2-T16-pruebas-flujo-autenticacion | #19 | FlujoAutenticacionTest: 12 pruebas en la JVM con RepositorioAuthFalso, sin mockk: registro hasta P-01, cierre y vuelta a entrar, correo duplicado, correo sin cuenta, P-04, y las filas de 2.4 y 3.5 que faltaban. app/src/main no cambio. Opcion A en las tres decisiones **sin el lider disponible**. **Desvio:** cada prueba empieza sin sesion porque FuenteDatosFalsa arranca con la de cliente1. Tomada con S2-T15 en su PR (#18): los archivos vivos van a chocar al integrar. 224 unitarias pasando |
 | 2026-10-18 | S3-T01 | LMM | docs/S3-T01-diseno-perfil-servicios | #31 | DISENO-PERFIL-SERVICIOS.md especifica P-11, P-12 y P-13: anatomia con medidas, EstadoMiPerfil, EstadoMisServicios y EstadoServicio con sus eventos, validaciones campo por campo contra el esquema, mapa de TipoError y 108 claves de strings.xml. Cuatro wireframes nuevos (P-11 y P-13 completas con scroll, P-12 con datos y vacia). Sin codigo. Primera del Sprint 3, abierto ese dia por autorizacion del lider; ticket redactado por el agente. Seis hallazgos, H-18 a H-23: fotos y habilidades propias sin lectura, subida sin avance, TarjetaServicio sin pausado, fotos solo despues de crear y el tope de IA sin consulta |
 | 2026-10-18 | S3-T02 | RRC | feat/S3-T02-catalogo-categorias | #32 | Las 16 categorias con acentos en 04_datos_semilla.sql, FuenteDatosFalsa y RepositorioIaFalso; un update previo renombra las filas viejas para que la semilla siga idempotente y conserve los id. 91 y 92 buscan la categoria por orden. iconoCategoria() en IconosCategoria.kt traduce categorias.icono a Material Icons, con Otros como respaldo. DISENO.md ya no llama ID al orden. 233 unitarias pasando (4 nuevas). Falta que el lider vuelva a correr la semilla en Supabase |
-| 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil |  | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
+| 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil | #33 | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
+| 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio |  | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
 
 ---
 
@@ -62,6 +63,43 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T03` — Pantalla del perfil del trabajador (habilidades, experiencia,
+contacto).** 2026-10-18. Rama `feat/S3-T03-pantalla-mi-perfil`, desde `main`
+con `S3-T02` ya integrada (#32), pull request **#33**. Ticket
+redactado por el agente al tomar la tarea.
+
+- **P-11 está construida** según `DISENO-PERFIL-SERVICIOS.md` §2:
+  `MiPerfilContenido` sin estado propio, `EstadoMiPerfil`, `EstadoBotonIa` con
+  sus cuatro casos y `FaltaPerfil` para el aviso de perfil incompleto. Las hojas
+  de estado y municipio son `ModalBottomSheet`, como la de la foto de P-18.
+- **Todavía no carga ni guarda.** `MiPerfilPantalla` guarda el estado con
+  `rememberSaveable` hasta que llegue el ViewModel de `S3-T06`; "Guardar
+  perfil" no hace nada y las hojas salen vacías. Sin validaciones: son
+  `S3-T07`.
+- **`H-19` cerrado por el líder**: `obtenerMisHabilidades()` en
+  `RepositorioTrabajador`, en su falso y en `CONTRATOS-API.md`.
+- `Ruta.MiPerfil` entró en `RUTAS_SIN_BARRA_DEL_ANDAMIO`: la barra superior es
+  la de la pantalla, y la inferior la sigue pintando el grafo con Cuenta activa.
+- **Desvío del diseño:** `EstadoMiPerfil` ganó `faltantes` y `strings.xml` la
+  clave `mi_perfil_incompleto_coma`, para unir tres o más faltantes. Las dos ya
+  están en `DISENO-PERFIL-SERVICIOS.md`.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 234 pruebas unitarias (1 nueva, la de `obtenerMisHabilidades`), 0 fallas.
+  - 84 instrumentadas en el emulador `Pixel_10`, 0 fallas (17 nuevas en
+    `MiPerfilPantallaTest`). En una primera corrida fallaron las 5 de
+    `RepositorioUsuarioRealTest` porque **el proyecto de Supabase estaba
+    pausado** y su dominio no resolvía; reactivado, pasan.
+  - A mano en el emulador, con `beto.rls@…` contra Supabase: P-18 → P-11 con
+    Cuenta activa, el aviso con los cuatro faltantes, agregar una habilidad
+    con el "+" y con `Done`, quitarla, municipio sin estado que no abre nada,
+    girar sin perder lo escrito y la flecha de regreso a P-18.
+- **Desvío encontrado en el emulador:** el campo de experiencia pasó de 120 a
+  200 dp, porque con 120 la etiqueta se partía en dos renglones. Ya está en el
+  diseño.
+- **Para `S3-T06`:** el botón de IA no reacciona al escribir el título, porque
+  decidir cuándo se habilita es del ViewModel.
 
 **`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla.**
 2026-10-18. Rama `feat/S3-T02-catalogo-categorias`, desde `main` con `S3-T01`
