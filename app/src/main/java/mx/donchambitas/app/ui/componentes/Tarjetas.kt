@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -49,6 +50,7 @@ import mx.donchambitas.app.ui.tema.secundario
 private val TamanoFotoTrabajador = 56.dp
 private val TamanoFotoServicio = 72.dp
 private val FormaFotoServicio = RoundedCornerShape(12.dp)
+private const val OPACIDAD_SERVICIO_PAUSADO = 0.6f
 private val TamanoIconoUbicacion = 14.dp
 
 /**
@@ -156,6 +158,9 @@ fun TarjetaTrabajador(
 /**
  * Tarjeta para mostrar un servicio publicado segun DISENO.md.
  * Incluye foto, titulo, categoria y rango de precio.
+ *
+ * @param precioTexto Vacio cuando el servicio no tiene precio: el renglon no se pinta (HU-09).
+ * @param pausado El servicio no sale en la busqueda: la tarjeta se atenua y lo dice (H-21).
  */
 @Composable
 fun TarjetaServicio(
@@ -163,6 +168,7 @@ fun TarjetaServicio(
     categoria: String,
     precioTexto: String,
     fotoUrl: String? = null,
+    pausado: Boolean = false,
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -174,7 +180,9 @@ fun TarjetaServicio(
             contentColor = Carbon
         ),
         border = BorderStroke(1.dp, Borde),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(if (pausado) OPACIDAD_SERVICIO_PAUSADO else 1f)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -221,16 +229,22 @@ fun TarjetaServicio(
                 )
 
                 Text(
-                    text = categoria,
+                    text = if (pausado) {
+                        stringResource(R.string.tarjeta_servicio_categoria_pausado, categoria)
+                    } else {
+                        categoria
+                    },
                     style = DonChambitasTema.tipografia.secundario,
                     color = Cafe
                 )
 
-                Text(
-                    text = precioTexto,
-                    style = DonChambitasTema.tipografia.cuerpoFuerte,
-                    color = Terracota
-                )
+                if (precioTexto.isNotBlank()) {
+                    Text(
+                        text = precioTexto,
+                        style = DonChambitasTema.tipografia.cuerpoFuerte,
+                        color = Terracota
+                    )
+                }
             }
         }
     }
@@ -328,6 +342,19 @@ private fun PreviaTarjetaServicio() {
             titulo = "Instalación y reparación de tuberías de cobre",
             categoria = "Plomería",
             precioTexto = "$350 - $800 MXN"
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Composable
+private fun PreviaTarjetaServicioPausado() {
+    DonChambitasTema {
+        TarjetaServicio(
+            titulo = "Destape de drenaje",
+            categoria = "Plomería",
+            precioTexto = "",
+            pausado = true
         )
     }
 }
