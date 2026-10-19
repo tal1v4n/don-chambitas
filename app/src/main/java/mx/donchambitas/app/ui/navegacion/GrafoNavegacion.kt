@@ -59,6 +59,7 @@ import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.dominio.modelo.RolUsuario
 import mx.donchambitas.app.ui.pantallas.IniciarSesionPantalla
 import mx.donchambitas.app.ui.pantallas.MiCuentaPantalla
+import mx.donchambitas.app.ui.pantallas.MiPerfilPantalla
 import mx.donchambitas.app.ui.pantallas.RecuperarContrasenaPantalla
 import mx.donchambitas.app.ui.pantallas.RegistroPantalla
 import mx.donchambitas.app.ui.pantallas.SplashPantalla
@@ -278,6 +279,8 @@ private val LocalEstadoSesion = compositionLocalOf { EstadoSesion.VERIFICANDO }
  * - P-02, P-03 y P-04 traen su propio Scaffold con BarraSuperior, que es lo
  *   que pide la regla 1.1 de DISENO-AUTENTICACION.md.
  * - P-18 trae su BarraSuperior "Mi cuenta" (S2-T11). La inferior sigue aquí.
+ * - P-11 trae su BarraSuperior "Mi perfil profesional" (S3-T03). La inferior,
+ *   con Cuenta activa, sigue aquí.
  *
  * Sin esto salen dos barras encimadas, con dos títulos y dos flechas de
  * regreso. El andamio nació cuando los 19 destinos eran MarcadorPantalla y su
@@ -291,7 +294,8 @@ private val RUTAS_SIN_BARRA_DEL_ANDAMIO = setOf(
     Ruta.IniciarSesion.ruta,
     Ruta.Registro.ruta,
     Ruta.RecuperarContrasena.ruta,
-    Ruta.MiCuenta.ruta
+    Ruta.MiCuenta.ruta,
+    Ruta.MiPerfil.ruta
 )
 
 /**
@@ -471,15 +475,9 @@ private fun NavGraphBuilder.subgrafoTrabajador(navController: NavHostController)
         }
 
         composable(Ruta.MiPerfil.ruta) {
-            MarcadorPantalla(
-                ruta = Ruta.MiPerfil,
-                descripcion = "Ver y editar título, descripción, habilidades, experiencia, contacto y ubicación. Acceso desde P-18.",
-                navController = navController,
-                acciones = listOf(
-                    AccionNavegacion("Volver a Mi cuenta (P-18)") {
-                        navController.navigate(Ruta.MiCuenta.ruta)
-                    }
-                )
+            MiPerfilPantalla(
+                alRegresar = { navController.popBackStack() },
+                alVerComoCliente = { id -> navController.navigate(Ruta.PerfilTrabajador.crearRuta(id)) }
             )
         }
 
