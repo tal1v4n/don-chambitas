@@ -90,7 +90,7 @@ import mx.donchambitas.app.ui.tema.secundario
 import mx.donchambitas.app.ui.tema.subtitulo
 import mx.donchambitas.app.util.TipoError
 
-private val AnchoExperiencia = 120.dp
+private val AnchoExperiencia = 200.dp
 private val AltoRenglonHoja = 48.dp
 private const val MAXIMO_DIGITOS_EXPERIENCIA = 2
 

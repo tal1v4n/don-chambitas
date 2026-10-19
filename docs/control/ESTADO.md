@@ -107,16 +107,19 @@ redactado por el agente al tomar la tarea.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
   - 234 pruebas unitarias (1 nueva, la de `obtenerMisHabilidades`), 0 fallas.
-  - 84 instrumentadas en el emulador `Pixel_10`: **79 pasan y 5 fallan**. Las
-    17 nuevas de `MiPerfilPantallaTest` pasan todas.
-- **Las 5 que fallan son de `RepositorioUsuarioRealTest`** y no las causa este
-  cambio: **el dominio del proyecto de Supabase, `fxhjrrcrrefeyrljsayl.supabase.co`,
-  ya no existe** (`nslookup` responde "Non-existent domain" desde la PC y desde
-  el emulador, mientras `supabase.co` sí resuelve). Probablemente el proyecto
-  se pausó por inactividad o se borró. **Lo tiene que revisar el líder en la
-  consola**; mientras tanto la aplicación no puede iniciar sesión ni registrar.
-- **Lo que NO se probó a mano:** entrar a P-11 en el emulador. Hace falta una
-  cuenta de trabajador con Supabase arriba.
+  - 84 instrumentadas en el emulador `Pixel_10`, 0 fallas (17 nuevas en
+    `MiPerfilPantallaTest`). En una primera corrida fallaron las 5 de
+    `RepositorioUsuarioRealTest` porque **el proyecto de Supabase estaba
+    pausado** y su dominio no resolvía; reactivado, pasan.
+  - A mano en el emulador, con `beto.rls@…` contra Supabase: P-18 → P-11 con
+    Cuenta activa, el aviso con los cuatro faltantes, agregar una habilidad
+    con el "+" y con `Done`, quitarla, municipio sin estado que no abre nada,
+    girar sin perder lo escrito y la flecha de regreso a P-18.
+- **Desvío encontrado en el emulador:** el campo de experiencia pasó de 120 a
+  200 dp, porque con 120 la etiqueta se partía en dos renglones. Ya está en el
+  diseño.
+- **Para `S3-T06`:** el botón de IA no reacciona al escribir el título, porque
+  decidir cuándo se habilita es del ViewModel.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".

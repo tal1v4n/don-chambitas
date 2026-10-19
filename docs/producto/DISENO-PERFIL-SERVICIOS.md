@@ -254,7 +254,7 @@ P-13.
 | 3 | Ver como cliente | `BotonSecundario` | "Ver mi perfil como cliente". Abre la vista previa (HU-08). Deshabilitado mientras el perfil no se haya guardado nunca |
 | 4 | Bloque "Tu oficio" | título de bloque | |
 | 5 | Título | `CampoTexto` | "Título de tu oficio", con el marcador "Ej. Plomero con 10 años de experiencia" |
-| 6 | Años de experiencia | `CampoTexto` | "Años de experiencia", numérico, ancho de 120 dp |
+| 6 | Años de experiencia | `CampoTexto` | "Años de experiencia", numérico, ancho de 200 dp: con 120 la etiqueta se parte en dos renglones (lo encontró `S3-T03` en el emulador) |
 | 7 | Habilidades | `CampoTexto` + `ChipCategoria` | "Agrega una habilidad" con un icono `Add` al final que la agrega. Debajo, las ya agregadas en un `FlowRow` de chips activos con icono `Close`; tocar uno lo quita. 8 dp entre chips |
 | 8 | Botón de IA | `BotonSecundario` | Ver 1.9 |
 | 9 | Descripción | `CampoTexto` | "Cuéntale a tus clientes quién eres", de 4 a 8 renglones |
