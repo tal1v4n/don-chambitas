@@ -146,7 +146,7 @@ interfaz.
 Las 16 categorías del sistema (`categorias` en base de datos) tienen asignado
 su icono correspondiente de Material Icons Outlined:
 
-| ID | Categoría | Icono Material Outlined | Nombre Compose (`Icons.Outlined.*`) | Uso / Representación |
+| Orden | Categoría | Icono Material Outlined | Nombre Compose (`Icons.Outlined.*`) | Uso / Representación |
 |---|---|---|---|---|
 | 10 | Plomería | `plumbing` | `Plumbing` | Llave y tubería hidráulica |
 | 20 | Electricidad | `bolt` | `Bolt` | Rayo de energía e instalaciones eléctricas |
@@ -167,6 +167,14 @@ su icono correspondiente de Material Icons Outlined:
 
 Estos valores están sincronizados con la columna `categorias.icono` en
 `basedatos/04_datos_semilla.sql`.
+
+La primera columna es `categorias.orden`, el que decide cómo se listan, **no el
+`id`**: los `id` son un `smallserial` del 1 al 16 y no se usan en la interfaz.
+
+La traducción de `categorias.icono` al icono vive en una sola función,
+`iconoCategoria(nombre)` de `ui/componentes/IconosCategoria.kt` (`S3-T02`). Un
+nombre nulo o desconocido cae en `MoreHoriz`, el de "Otros". Si se agrega una
+categoría, se agrega aquí, en la semilla y en esa función.
 
 ## Textos
 
