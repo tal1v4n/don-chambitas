@@ -544,8 +544,16 @@ que lo impide hoy es la validación de la aplicación.
 |---|---|
 | `obtenerPerfilPublico(id)` | RPC `fn_perfil_publico_trabajador(id)` |
 | `obtenerMiPerfil()` | `perfiles_trabajador` where `usuario_id = auth.uid()` |
+| `obtenerMisHabilidades()` | `perfil_habilidades` where `perfil_id = auth.uid()`, ordenadas por `habilidad` |
 | `guardarMiPerfil(perfil)` | `upsert` sobre `perfiles_trabajador` |
 | `reemplazarHabilidades(lista)` | `delete` + `insert` sobre `perfil_habilidades` |
+
+**`obtenerMisHabilidades` cierra `H-19`** (líder, 2026-10-18). P-11 tiene que
+pintar las habilidades ya guardadas, y `reemplazarHabilidades` borra todas antes
+de insertar: si la pantalla no las leyera, guardar el perfil las perdería.
+Devuelve una lista vacía, no un error, si el trabajador aún no tiene perfil o no
+declaró ninguna. La política de lectura de `perfil_habilidades` ya deja leer las
+propias. La implementación real es de `S3-T09`.
 
 `obtenerPerfilPublico` es RPC y no cinco consultas porque **P-07 necesita perfil,
 habilidades, servicios, fotos, calificación y reseñas de un golpe**. Devuelve:
