@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 1 |
+| Terminadas | 2 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -83,9 +83,39 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T01` — Diseño de las pantallas de perfil del trabajador y de servicio.**
-2026-10-18. Rama `docs/S3-T01-diseno-perfil-servicios`, desde `main`, pull
-request **sin abrir todavía**. Ticket redactado por el agente el mismo día en
+**`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla.**
+2026-10-18. Rama `feat/S3-T02-catalogo-categorias`, desde `main` con `S3-T01`
+ya integrada (#31), pull request **sin abrir todavía**. Ticket redactado por el
+agente al tomar la tarea.
+
+- **Las 16 categorías llevan acentos** en `04_datos_semilla.sql`,
+  `FuenteDatosFalsa` y `RepositorioIaFalso`: Plomería, Albañilería, Cómputo…
+- **La semilla sigue siendo idempotente.** Un `update` previo renombra las
+  filas que se sembraron sin acento, así que no se duplican y conservan su
+  `id`. `91_prueba_funcional.sql` y `92_prueba_rls_anon.py` buscan la categoría
+  por `orden = 10`, ya no por nombre.
+- **`iconoCategoria(nombre)`** en `ui/componentes/IconosCategoria.kt` traduce
+  `categorias.icono` al icono de Material; uno nulo o desconocido cae en
+  "Otros". `DISENO.md` ya no llama "ID" al `orden`.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 233 pruebas unitarias (4 nuevas en `IconosCategoriaTest`), 0 fallas. Al
+    quitar un acento en la fuente falsa, la prueba de coincidencia con la
+    semilla falla, como debe.
+  - En el emulador `Pixel_10`: instala, abre y llega a P-02.
+- **Lo que NO se probó:** correr la semilla contra Supabase. No hay Postgres
+  local, y la consola la corre el líder. **Falta que el líder vuelva a correr
+  `04_datos_semilla.sql`** en el proyecto; los criterios 2 y 3 del ticket se
+  cierran con eso.
+- **El cambio todavía no se ve en pantalla**: ninguna pantalla lee las
+  categorías hasta `S3-T04`.
+- **Observación para el líder:** los estados y municipios de la semilla
+  tampoco llevan acentos ("Ciudad de Mexico", "Michoacan"), y P-11 los mostrará
+  en sus hojas. No entró en esta tarea, que es solo de categorías.
+
+La anterior fue **`S3-T01` — Diseño de las pantallas de perfil del trabajador
+y de servicio.** 2026-10-18. Rama `docs/S3-T01-diseno-perfil-servicios`,
+integrada con el **#31**. Ticket redactado por el agente el mismo día en
 que el líder autorizó abrir el Sprint 3.
 
 - **`docs/producto/DISENO-PERFIL-SERVICIOS.md`**: P-11, P-12 y P-13 con
@@ -175,9 +205,10 @@ y el esquema. **Ninguno se resolvió**: están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla**
-(prioridad 970, RRC, sin dependencias). Todavía no tiene ticket: se redacta al
-tomarla.
+**`S3-T03` — Pantalla del perfil del trabajador (habilidades, experiencia,
+contacto)** (prioridad 950, GRI, depende de `S1-T10`, hecha). Todavía no tiene
+ticket: se redacta al tomarla. Ojo: P-11 necesita leer las habilidades
+guardadas, que es `H-19`, sin resolver.
 
 ## Los dos huecos de S2-T01, ya cerrados
 

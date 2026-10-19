@@ -25,24 +25,46 @@ BEGIN;
 --
 --  El ON CONFLICT es DO UPDATE para reconciliar icono, descripcion y orden
 --  si se vuelve a correr el archivo.
+--
+--  Los nombres llevan acentos porque son texto que el usuario lee, no
+--  identificadores (S3-T02). El ON CONFLICT no corrige un nombre: lo toma por
+--  una categoria nueva. Por eso el UPDATE de abajo renombra primero las filas
+--  que se sembraron sin acento, y la fila conserva su id, al que apuntan
+--  servicios y solicitudes. En una base nueva no encuentra nada que cambiar.
 -- ----------------------------------------------------------------------------
+UPDATE categorias AS c
+   SET nombre = r.nuevo
+  FROM (VALUES
+    ('Plomeria',             'Plomería'),
+    ('Albanileria',          'Albañilería'),
+    ('Carpinteria',          'Carpintería'),
+    ('Herreria',             'Herrería'),
+    ('Jardineria',           'Jardinería'),
+    ('Aire y refrigeracion', 'Aire y refrigeración'),
+    ('Mecanica',             'Mecánica'),
+    ('Computo',              'Cómputo'),
+    ('Cerrajeria',           'Cerrajería')
+  ) AS r (viejo, nuevo)
+ WHERE c.nombre = r.viejo
+   AND NOT EXISTS (SELECT 1 FROM categorias o WHERE o.nombre = r.nuevo);
+
 INSERT INTO categorias (nombre, descripcion, icono, orden) VALUES
-    ('Plomeria',        'Fugas, instalaciones hidraulicas y drenajes',        'plumbing',          10),
-    ('Electricidad',    'Instalaciones electricas, cortos y luminarias',      'bolt',              20),
-    ('Albanileria',     'Muros, pisos, castillos y acabados',                 'construction',      30),
-    ('Carpinteria',     'Muebles a medida, puertas y reparaciones en madera', 'carpenter',         40),
-    ('Pintura',         'Interiores, exteriores e impermeabilizacion',        'format_paint',      50),
-    ('Herreria',        'Rejas, portones, barandales y soldadura',            'hardware',          60),
+    ('Plomería',        'Fugas, instalaciones hidráulicas y drenajes',        'plumbing',          10),
+    ('Electricidad',    'Instalaciones eléctricas, cortos y luminarias',      'bolt',              20),
+    ('Albañilería',     'Muros, pisos, castillos y acabados',                 'construction',      30),
+    ('Carpintería',     'Muebles a medida, puertas y reparaciones en madera', 'carpenter',         40),
+    ('Pintura',         'Interiores, exteriores e impermeabilización',        'format_paint',      50),
+    ('Herrería',        'Rejas, portones, barandales y soldadura',            'hardware',          60),
     ('Limpieza',        'Limpieza de casas, oficinas y mudanzas',             'cleaning_services', 70),
-    ('Jardineria',      'Poda, mantenimiento de jardines y riego',            'yard',              80),
+    ('Jardinería',      'Poda, mantenimiento de jardines y riego',            'yard',              80),
     ('Mudanzas y carga','Fletes, cargadores y traslados',                     'local_shipping',    90),
-    ('Aire y refrigeracion','Minisplits, refrigeradores y ventilacion',       'ac_unit',          100),
-    ('Mecanica',        'Reparacion automotriz y servicio a domicilio',       'car_repair',       110),
-    ('Computo',         'Reparacion de equipos, redes y respaldo de datos',   'computer',         120),
-    ('Cerrajeria',      'Aperturas, cambio de chapas y duplicado de llaves',  'key',              130),
-    ('Costura',         'Arreglos de ropa, confeccion y tapiceria',           'content_cut',      140),
+    ('Aire y refrigeración','Minisplits, refrigeradores y ventilación',       'ac_unit',          100),
+    ('Mecánica',        'Reparación automotriz y servicio a domicilio',       'car_repair',       110),
+    ('Cómputo',         'Reparación de equipos, redes y respaldo de datos',   'computer',         120),
+    ('Cerrajería',      'Aperturas, cambio de chapas y duplicado de llaves',  'key',              130),
+    ('Costura',         'Arreglos de ropa, confección y tapicería',           'content_cut',      140),
     ('Cocina y eventos','Banquetes, meseros y servicio para eventos',         'restaurant',       150),
-    ('Otros',           'Oficios que no encajan en las categorias anteriores','more_horiz',       999)
+    ('Otros',           'Oficios que no encajan en las categorías anteriores','more_horiz',       999)
 on conflict (nombre) do update
     set descripcion = excluded.descripcion,
         icono       = excluded.icono,

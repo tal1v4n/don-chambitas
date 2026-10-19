@@ -41,7 +41,7 @@ class RepositorioIaFalso @Inject constructor() : RepositorioIa {
                 "Servicio profesional especializado en $entrada. Diagnóstico puntual, uso de materiales de primera calidad, limpieza total al finalizar y garantía por escrito."
 
             FuncionIa.CATEGORIZAR ->
-                "Plomeria"
+                "Plomería"
 
             FuncionIa.SUGERIR ->
                 "Sugerencia: describe el problema con el mayor detalle posible e incluye medidas aproximadas para recibir cotizaciones más precisas."

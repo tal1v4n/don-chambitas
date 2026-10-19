@@ -69,7 +69,7 @@ begin
         v_rol_ok := false;
     end;
 
-    select id into v_cat from public.categorias where nombre = 'Plomeria';
+    select id into v_cat from public.categorias where orden = 10;  -- Plomería
     select id into v_edo from public.estados where clave = 'PUE';
     select m.id into v_mun from public.municipios m
       join public.estados e on e.id = m.estado_id
