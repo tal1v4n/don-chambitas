@@ -212,4 +212,33 @@
     <string name="servicio_guardar_cambios">Guardar cambios</string>
     <string name="servicio_no_existe">Este servicio ya no existe</string>
     <string name="servicio_volver">Volver a mis servicios</string>
+
+    <!-- P-12 Mis servicios (S3-T05) -->
+    <string name="mis_servicios_titulo">Mis servicios</string>
+    <plurals name="mis_servicios_resumen">
+        <item quantity="one">%1$d servicio</item>
+        <item quantity="many">%1$d servicios</item>
+        <item quantity="other">%1$d servicios</item>
+    </plurals>
+    <plurals name="mis_servicios_pausados">
+        <item quantity="one">%1$d pausado</item>
+        <item quantity="many">%1$d pausados</item>
+        <item quantity="other">%1$d pausados</item>
+    </plurals>
+    <string name="mis_servicios_resumen_con_pausados">%1$s · %2$s</string>
+    <string name="mis_servicios_publicar">+ Publicar servicio</string>
+    <string name="mis_servicios_editar">Editar</string>
+    <string name="mis_servicios_pausar">Pausar</string>
+    <string name="mis_servicios_reactivar">Reactivar</string>
+    <string name="mis_servicios_eliminar">Eliminar</string>
+    <string name="mis_servicios_eliminar_titulo">¿Eliminar este servicio?</string>
+    <string name="mis_servicios_eliminar_texto">«%1$s» y sus fotos se borran. No se puede deshacer.</string>
+    <string name="mis_servicios_vacio_titulo">Aún no publicas servicios</string>
+    <string name="mis_servicios_vacio_mensaje">Publica lo que haces y su precio para que los clientes te encuentren</string>
+    <string name="mis_servicios_vacio_accion">Publicar mi primer servicio</string>
+    <string name="tarjeta_servicio_categoria_pausado">%1$s · Pausado</string>
+    <string name="precio_rango">$%1$s – $%2$s</string>
+    <string name="precio_desde">Desde $%1$s</string>
+    <string name="precio_hasta">Hasta $%1$s</string>
+    <string name="precio_con_unidad">%1$s %2$s</string>
 </resources>

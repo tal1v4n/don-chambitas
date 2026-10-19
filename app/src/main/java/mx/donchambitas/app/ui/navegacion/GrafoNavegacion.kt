@@ -60,6 +60,7 @@ import mx.donchambitas.app.dominio.modelo.RolUsuario
 import mx.donchambitas.app.ui.pantallas.IniciarSesionPantalla
 import mx.donchambitas.app.ui.pantallas.MiCuentaPantalla
 import mx.donchambitas.app.ui.pantallas.MiPerfilPantalla
+import mx.donchambitas.app.ui.pantallas.MisServiciosPantalla
 import mx.donchambitas.app.ui.pantallas.RecuperarContrasenaPantalla
 import mx.donchambitas.app.ui.pantallas.RegistroPantalla
 import mx.donchambitas.app.ui.pantallas.ServicioPantalla
@@ -284,6 +285,8 @@ private val LocalEstadoSesion = compositionLocalOf { EstadoSesion.VERIFICANDO }
  *   con Cuenta activa, sigue aquí.
  * - P-13 trae su BarraSuperior "Publicar servicio" o "Editar servicio"
  *   (S3-T04). No lleva barra inferior: se abre encima.
+ * - P-12 trae su BarraSuperior "Mis servicios" (S3-T05). La inferior, con
+ *   Servicios activa, sigue aquí.
  *
  * Sin esto salen dos barras encimadas, con dos títulos y dos flechas de
  * regreso. El andamio nació cuando los 19 destinos eran MarcadorPantalla y su
@@ -299,7 +302,8 @@ private val RUTAS_SIN_BARRA_DEL_ANDAMIO = setOf(
     Ruta.RecuperarContrasena.ruta,
     Ruta.MiCuenta.ruta,
     Ruta.MiPerfil.ruta,
-    Ruta.CrearEditarServicio.ruta
+    Ruta.CrearEditarServicio.ruta,
+    Ruta.MisServicios.ruta
 )
 
 /**
@@ -486,21 +490,11 @@ private fun NavGraphBuilder.subgrafoTrabajador(navController: NavHostController)
         }
 
         composable(Ruta.MisServicios.ruta) {
-            MarcadorPantalla(
-                ruta = Ruta.MisServicios,
-                descripcion = "Lista de servicios publicados con editar, pausar y eliminar.",
-                navController = navController,
-                acciones = listOf(
-                    AccionNavegacion("Crear nuevo servicio (P-13)") {
-                        navController.navigate(Ruta.CrearEditarServicio.crearRuta(null))
-                    },
-                    AccionNavegacion("Editar servicio existente (P-13)") {
-                        navController.navigate(Ruta.CrearEditarServicio.crearRuta("servicio-demo-01"))
-                    },
-                    AccionNavegacion("Mis postulaciones (P-14)") {
-                        navController.navigate(Ruta.MisPostulaciones.ruta)
-                    }
-                )
+            MisServiciosPantalla(
+                alPublicar = { navController.navigate(Ruta.CrearEditarServicio.crearRuta(null)) },
+                alEditar = { id -> navController.navigate(Ruta.CrearEditarServicio.crearRuta(id)) },
+                alIrAMiPerfil = { navController.navigate(Ruta.MiPerfil.ruta) },
+                alIrAMisPostulaciones = { navController.navigate(Ruta.MisPostulaciones.ruta) }
             )
         }
 
