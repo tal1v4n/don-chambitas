@@ -11,6 +11,11 @@
 > [`DISENO-AUTENTICACION.md`](DISENO-AUTENTICACION.md) (`S2-T01`), que es lo
 > que implementan `S2-T02`, `S2-T03`, `S2-T04`, `S2-T05` y `S2-T10`.
 
+> **P-11, P-12 y P-13 también tienen especificación de detalle**, en
+> [`DISENO-PERFIL-SERVICIOS.md`](DISENO-PERFIL-SERVICIOS.md) (`S3-T01`). Las
+> dibujó esa misma tarea el 2026-10-18. P-11 y P-13 se dibujaron completas, con
+> todo el scroll, así que miden más de 800 dp de alto.
+
 ---
 
 ## Resumen de pantallas dibujadas
@@ -27,6 +32,10 @@
 | **P-10** | Inicio trabajador | [`P-10-inicio-trabajador.png`](wireframes/P-10-inicio-trabajador.png) | Contenido | `BarraSuperior`, `ChipCategoria`, `TarjetaSolicitud`, `EtiquetaEstado`, `BarraInferior` |
 | **P-10** | Inicio trabajador | [`P-10-vacio.png`](wireframes/P-10-vacio.png) | Vacío | `BarraSuperior`, `ChipCategoria`, `EstadoVacio`, `BotonPrincipal`, `BarraInferior` |
 | **P-10** | Inicio trabajador | [`P-10-error.png`](wireframes/P-10-error.png) | Error | `BarraSuperior`, `EstadoError`, `BotonPrincipal`, `BarraInferior` |
+| **P-11** | Mi perfil | [`P-11-mi-perfil.png`](wireframes/P-11-mi-perfil.png) | Contenido, completa con scroll | `BarraSuperior`, `BotonSecundario`, `CampoTexto`, `ChipCategoria`, `BotonPrincipal`, `BarraInferior` |
+| **P-12** | Mis servicios | [`P-12-mis-servicios.png`](wireframes/P-12-mis-servicios.png) | Contenido | `BarraSuperior`, `BotonTexto`, `TarjetaServicio`, `BotonDestacado`, `BarraInferior` |
+| **P-12** | Mis servicios | [`P-12-vacio.png`](wireframes/P-12-vacio.png) | Vacío | `BarraSuperior`, `BotonTexto`, `EstadoVacio`, `BotonPrincipal`, `BarraInferior` |
+| **P-13** | Crear o editar servicio | [`P-13-servicio.png`](wireframes/P-13-servicio.png) | Editar, completa con scroll | `BarraSuperior`, `CampoTexto`, `ChipCategoria`, `BotonSecundario`, `BotonPrincipal` |
 | **P-18** | Mi cuenta | [`P-18-cuenta.png`](wireframes/P-18-cuenta.png) | Normal | `BarraSuperior`, `EtiquetaEstado`, `BotonSecundario`, `BarraInferior` |
 
 ---
@@ -268,28 +277,123 @@ Pantalla compartida para la administración del perfil, seguridad de la cuenta y
 
 ---
 
+## 8. P-11 · Mi perfil
+
+![Wireframe P-11 Mi perfil](wireframes/P-11-mi-perfil.png)
+
+### Objetivo y descripción
+El trabajador arma su perfil profesional: oficio, experiencia, habilidades, descripción, dónde trabaja, teléfono de contacto y si está tomando trabajos (HU-06). Las medidas, el estado y las reglas están en [`DISENO-PERFIL-SERVICIOS.md`](DISENO-PERFIL-SERVICIOS.md) §2.
+
+### Zonas y componentes exactos
+- **Encabezado:** `BarraSuperior` "Mi perfil profesional" con flecha de regreso.
+- **Aviso de perfil incompleto:** superficie `Arena` con lo que falta. Solo si falta algo.
+- **Vista previa:** `BotonSecundario` "Ver mi perfil como cliente".
+- **Tu oficio:** `CampoTexto` de título, años de experiencia y habilidad nueva; las habilidades como `ChipCategoria` activos con icono de cerrar; `BotonSecundario` "Redactar con IA" y la descripción.
+- **Dónde trabajas:** estado y municipio como `CampoTexto` de solo lectura que abren una hoja inferior.
+- **Contacto y disponibilidad:** `CampoTexto` del teléfono y dos `ChipCategoria` de selección única.
+- **Acción:** `BotonPrincipal` "Guardar perfil".
+- **Navegación:** `BarraInferior` con Cuenta activa.
+
+### Elementos tocables y comportamiento
+| Elemento | Componente | Comportamiento al tocar |
+|---|---|---|
+| Flecha de regreso | `BarraSuperior` | Regresa a P-18 o a P-12, de donde haya venido. Descarta lo no guardado. |
+| "Ver mi perfil como cliente" | `BotonSecundario` | Navega a `P-07` con el propio identificador (HU-08). Deshabilitado si el perfil nunca se guardó. |
+| Icono de agregar habilidad | `CampoTexto` | Agrega la habilidad escrita como chip. También con la tecla `Done`. |
+| Chip de habilidad | `ChipCategoria` | La quita de la lista. |
+| "Redactar con IA" | `BotonSecundario` | Propone una descripción. Si ya había texto, pregunta antes de reemplazarlo. |
+| Estado / Municipio | `CampoTexto` | Abre la hoja con la lista. El municipio solo muestra los del estado elegido. |
+| "Disponible" / "No estoy tomando trabajos" | `ChipCategoria` | Selección única. Se guarda con el resto. |
+| "Guardar perfil" | `BotonPrincipal` | Guarda el perfil y luego las habilidades. Se queda en la pantalla con el aviso "Perfil guardado". |
+
+---
+
+## 9. P-12 · Mis servicios (2 estados)
+
+### 9.1 Estado con datos (Contenido)
+![Wireframe P-12 Mis servicios](wireframes/P-12-mis-servicios.png)
+
+### 9.2 Estado vacío
+![Wireframe P-12 Vacío](wireframes/P-12-vacio.png)
+
+### Objetivo y descripción
+Lista de los servicios que publicó el trabajador, activos primero y pausados después, con editar, pausar y eliminar (HU-10). El detalle está en [`DISENO-PERFIL-SERVICIOS.md`](DISENO-PERFIL-SERVICIOS.md) §3. El estado de error es el mismo `EstadoError` a pantalla completa de P-10 y no se dibuja aparte.
+
+### Zonas y componentes exactos
+- **Encabezado:** `BarraSuperior` "Mis servicios", sin flecha.
+- **Accesos:** dos `BotonTexto`, "Mi perfil profesional" y "Mis postulaciones".
+- **Resumen:** cuántos servicios y cuántos pausados, en `pie` `Cafe`.
+- **Lista:** `TarjetaServicio` por servicio. El pausado se ve atenuado con la marca "Pausado", lo que pide extender el componente (`H-21`).
+- **Publicar:** `BotonDestacado` flotante "+ Publicar servicio". No se pinta en el vacío.
+- **Vacío:** `EstadoVacio` con "Publicar mi primer servicio".
+- **Navegación:** `BarraInferior` con Servicios activa.
+
+### Elementos tocables y comportamiento
+| Elemento | Componente | Comportamiento al tocar |
+|---|---|---|
+| "Mi perfil profesional" | `BotonTexto` | Navega a `P-11`. |
+| "Mis postulaciones" | `BotonTexto` | Navega a `P-14`. |
+| Tarjeta de servicio | `TarjetaServicio` | Abre una hoja inferior con "Editar", "Pausar" o "Reactivar", y "Eliminar". |
+| "Editar" | `BotonSecundario` en la hoja | Navega a `P-13` con el servicio. |
+| "Pausar" / "Reactivar" | `BotonSecundario` en la hoja | Cambia el servicio de grupo y avisa. El pausado sigue en la lista. |
+| "Eliminar" | `BotonSecundario` en la hoja | Pide confirmación. Al confirmar se borra con sus fotos. |
+| "+ Publicar servicio" / "Publicar mi primer servicio" | `BotonDestacado` / `BotonPrincipal` | Navega a `P-13` para crear. |
+| Pestañas | `BarraInferior` | Inicio `P-10`, Servicios (actual), Chats `P-15`, Cuenta `P-18`. |
+
+---
+
+## 10. P-13 · Crear o editar servicio
+
+![Wireframe P-13 Editar servicio](wireframes/P-13-servicio.png)
+
+### Objetivo y descripción
+Formulario para publicar un servicio o cambiar uno publicado: título, categoría, descripción, precio opcional y hasta 3 fotos (HU-09, HU-11). Se abre encima, sin barra inferior. El dibujo es el modo editar; al crear, la barra dice "Publicar servicio", el botón es un `BotonDestacado` "Publicar" y el bloque de fotos está deshabilitado hasta publicar (`H-22`). El detalle está en [`DISENO-PERFIL-SERVICIOS.md`](DISENO-PERFIL-SERVICIOS.md) §4.
+
+### Zonas y componentes exactos
+- **Encabezado:** `BarraSuperior` "Editar servicio" o "Publicar servicio", con flecha.
+- **Título:** `CampoTexto`.
+- **Categoría:** las 16 como `ChipCategoria` con su icono, selección única, todas a la vista.
+- **Descripción:** `BotonSecundario` "Redactar con IA" y el `CampoTexto` de varias líneas.
+- **Precio:** `CampoTexto` "Desde" y "Hasta" en una fila, y "Unidad".
+- **Fotos:** miniaturas de 96 dp con su botón de quitar, la que está subiendo con indicador encima, y el cuadro "Agregar", que desaparece en la tercera.
+- **Acción:** `BotonPrincipal` "Guardar cambios" o `BotonDestacado` "Publicar".
+
+### Elementos tocables y comportamiento
+| Elemento | Componente | Comportamiento al tocar |
+|---|---|---|
+| Flecha de regreso | `BarraSuperior` | Regresa a `P-12`. Descarta lo no guardado; las fotos ya subidas se quedan. |
+| Chip de categoría | `ChipCategoria` | Elige la categoría. |
+| "Redactar con IA" | `BotonSecundario` | Propone la descripción. Si ya había texto, pregunta antes de reemplazarlo. |
+| Cuadro "Agregar" | — | Abre la hoja de galería o cámara de `S2-T13`. Rechaza, con el motivo, más de 5 MB o un tipo que no sea JPG, PNG o WebP. |
+| Botón de quitar en una foto | — | Pide confirmación y la quita. Mientras sube, cancela la subida sin tocar el formulario. |
+| "Guardar cambios" | `BotonPrincipal` | Guarda y regresa a `P-12` con el aviso "Cambios guardados". |
+| "Publicar" | `BotonDestacado` | Crea el servicio y la pantalla pasa a modo editar para agregar fotos. |
+
+---
+
 ## Verificación de consistencia y componentes
 
 Cruzando todos los wireframes contra [`DISENO.md`](../tecnico/DISENO.md):
 
 1. **Componentes base empleados:**
-   - `BarraSuperior` (utilizado en P-02, P-03, P-04, P-05, P-10, P-18)
-   - `BarraInferior` (utilizado en P-05, P-10, P-18)
-   - `BotonPrincipal` (utilizado en P-02, P-03, P-04, P-05 vacío/error, P-10 vacío/error)
-   - `BotonSecundario` (utilizado en P-18)
-   - `BotonDestacado` (utilizado en P-05 para el botón flotante "+ Publicar solicitud")
-   - `BotonTexto` (utilizado en P-02, P-03, P-04)
-   - `CampoTexto` (utilizado en P-02, P-03, P-04, P-05)
+   - `BarraSuperior` (utilizado en P-02, P-03, P-04, P-05, P-10, P-11, P-12, P-13, P-18)
+   - `BarraInferior` (utilizado en P-05, P-10, P-11, P-12, P-18)
+   - `BotonPrincipal` (utilizado en P-02, P-03, P-04, P-05 vacío/error, P-10 vacío/error, P-11, P-12 vacío, P-13)
+   - `BotonSecundario` (utilizado en P-11, P-13, P-18)
+   - `BotonDestacado` (utilizado en P-05 para "+ Publicar solicitud" y en P-12 para "+ Publicar servicio")
+   - `BotonTexto` (utilizado en P-02, P-03, P-04, P-12)
+   - `CampoTexto` (utilizado en P-02, P-03, P-04, P-05, P-11, P-13)
    - `CampoContrasena` (utilizado en P-02, P-03)
    - `TarjetaTrabajador` (utilizado en P-05)
+   - `TarjetaServicio` (utilizado en P-12)
    - `TarjetaSolicitud` (utilizado en P-10)
-   - `ChipCategoria` (utilizado en P-03, P-05, P-10)
+   - `ChipCategoria` (utilizado en P-03, P-05, P-10, P-11, P-13)
    - `Estrellas` (utilizado en P-05 dentro de `TarjetaTrabajador`)
    - `EtiquetaEstado` (utilizado en P-10 y P-18)
    - `Cargando` (utilizado en P-01)
-   - `EstadoVacio` (utilizado en P-05 vacío y P-10 vacío)
+   - `EstadoVacio` (utilizado en P-05 vacío, P-10 vacío y P-12 vacío)
    - `EstadoError` (utilizado en P-05 error y P-10 error)
-   - **Ningún componente fuera de catálogo:** Cero componentes inventados o no registrados en `DISENO.md`.
+   - **Ningún componente fuera de catálogo:** Cero componentes inventados o no registrados en `DISENO.md`. La única excepción pendiente es la marca "Pausado" de `TarjetaServicio` en P-12, que se reportó como `H-21` en `DISENO-PERFIL-SERVICIOS.md` en vez de inventarse.
 
 2. **Paleta Taller:**
    - Mostaza (`#E0A11B`), Mostaza Oscuro (`#B37D08`), Terracota (`#C1440E`), Carbon (`#2B1F14`), Cafe (`#7A6A58`), Crema (`#FFFDF8`), Arena (`#F7F0E4`), Borde (`#E6DAC6`).
