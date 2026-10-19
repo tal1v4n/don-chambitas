@@ -180,4 +180,36 @@
     <string name="mi_perfil_disponible">Disponible</string>
     <string name="mi_perfil_no_disponible">No estoy tomando trabajos</string>
     <string name="mi_perfil_guardar">Guardar perfil</string>
+
+    <!-- P-13 Crear o editar servicio (S3-T04) -->
+    <string name="trabajador_cancelar">Cancelar</string>
+    <string name="servicio_titulo_crear">Publicar servicio</string>
+    <string name="servicio_titulo_editar">Editar servicio</string>
+    <string name="servicio_campo_titulo">¿Qué servicio ofreces?</string>
+    <string name="servicio_campo_titulo_ejemplo">Ej. Instalación de boiler</string>
+    <string name="servicio_bloque_categoria">Categoría</string>
+    <string name="servicio_ia_faltan_datos">Escribe el título y elige la categoría</string>
+    <string name="servicio_descripcion">Describe tu servicio</string>
+    <string name="servicio_bloque_precio">Precio</string>
+    <string name="servicio_precio_ayuda">Opcional. Si no pones precio, se acuerda con el cliente</string>
+    <string name="servicio_precio_desde">Desde</string>
+    <string name="servicio_precio_hasta">Hasta</string>
+    <string name="servicio_moneda">$</string>
+    <string name="servicio_unidad">Unidad</string>
+    <string name="servicio_unidad_ejemplo">por trabajo, por hora, por m²</string>
+    <string name="servicio_bloque_fotos">Fotos</string>
+    <string name="servicio_fotos_contador">%1$d de 3</string>
+    <string name="servicio_fotos_despues">Podrás agregar fotos en cuanto lo publiques</string>
+    <string name="servicio_agregar_foto">Agregar</string>
+    <string name="servicio_hoja_foto">Agregar una foto</string>
+    <string name="servicio_foto_n">Foto %1$d de 3</string>
+    <string name="servicio_quitar_foto_n">Quitar foto %1$d</string>
+    <string name="servicio_cancelar_subida">Cancelar subida</string>
+    <string name="servicio_quitar_foto_titulo">¿Quitar esta foto?</string>
+    <string name="servicio_quitar_foto">Quitar</string>
+    <string name="servicio_espera_fotos">Espera a que terminen de subir las fotos</string>
+    <string name="servicio_publicar">Publicar</string>
+    <string name="servicio_guardar_cambios">Guardar cambios</string>
+    <string name="servicio_no_existe">Este servicio ya no existe</string>
+    <string name="servicio_volver">Volver a mis servicios</string>
 </resources>

@@ -62,6 +62,7 @@ import mx.donchambitas.app.ui.pantallas.MiCuentaPantalla
 import mx.donchambitas.app.ui.pantallas.MiPerfilPantalla
 import mx.donchambitas.app.ui.pantallas.RecuperarContrasenaPantalla
 import mx.donchambitas.app.ui.pantallas.RegistroPantalla
+import mx.donchambitas.app.ui.pantallas.ServicioPantalla
 import mx.donchambitas.app.ui.pantallas.SplashPantalla
 import mx.donchambitas.app.ui.componentes.BotonDestacado
 import mx.donchambitas.app.ui.componentes.BotonPrincipal
@@ -281,6 +282,8 @@ private val LocalEstadoSesion = compositionLocalOf { EstadoSesion.VERIFICANDO }
  * - P-18 trae su BarraSuperior "Mi cuenta" (S2-T11). La inferior sigue aquí.
  * - P-11 trae su BarraSuperior "Mi perfil profesional" (S3-T03). La inferior,
  *   con Cuenta activa, sigue aquí.
+ * - P-13 trae su BarraSuperior "Publicar servicio" o "Editar servicio"
+ *   (S3-T04). No lleva barra inferior: se abre encima.
  *
  * Sin esto salen dos barras encimadas, con dos títulos y dos flechas de
  * regreso. El andamio nació cuando los 19 destinos eran MarcadorPantalla y su
@@ -295,7 +298,8 @@ private val RUTAS_SIN_BARRA_DEL_ANDAMIO = setOf(
     Ruta.Registro.ruta,
     Ruta.RecuperarContrasena.ruta,
     Ruta.MiCuenta.ruta,
-    Ruta.MiPerfil.ruta
+    Ruta.MiPerfil.ruta,
+    Ruta.CrearEditarServicio.ruta
 )
 
 /**
@@ -505,16 +509,9 @@ private fun NavGraphBuilder.subgrafoTrabajador(navController: NavHostController)
             arguments = Ruta.CrearEditarServicio.argumentos
         ) { backStackEntry ->
             val servicioId = backStackEntry.arguments?.getString(Ruta.CrearEditarServicio.ARG_SERVICIO_ID)
-            MarcadorPantalla(
-                ruta = Ruta.CrearEditarServicio,
-                descripcion = "Título, descripción, categoría, precio, hasta 3 fotos. Botón de redactar con IA. Pantalla encima (sin barra).",
-                argumentos = mapOf(Ruta.CrearEditarServicio.ARG_SERVICIO_ID to servicioId),
-                navController = navController,
-                acciones = listOf(
-                    AccionNavegacion("Guardar y volver a Mis servicios (P-12)") {
-                        navController.popBackStack()
-                    }
-                )
+            ServicioPantalla(
+                servicioId = servicioId,
+                alRegresar = { navController.popBackStack() }
             )
         }
 
