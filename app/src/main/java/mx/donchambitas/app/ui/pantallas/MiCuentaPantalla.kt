@@ -1,7 +1,6 @@
 package mx.donchambitas.app.ui.pantallas
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -9,15 +8,10 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.FileProvider
 import mx.donchambitas.app.ui.componentes.RecortadorFoto
-import mx.donchambitas.app.ui.tema.FormaHojaInferior
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.BorderStroke
@@ -205,14 +199,6 @@ fun MiCuentaPantalla(
     }
 }
 
-/**
- * Archivo donde la cámara del sistema deja la foto, expuesto con el
- * FileProvider de AndroidManifest.xml. Se reescribe en cada toma.
- */
-private fun archivoDeCamara(contexto: Context): Uri {
-    val archivo = File(contexto.cacheDir, "fotos/camara.jpg").apply { parentFile?.mkdirs() }
-    return FileProvider.getUriForFile(contexto, "${contexto.packageName}.archivos", archivo)
-}
 
 /**
  * Contenido visual puro de P-18, sin estado propio salvo el dialogo de
@@ -354,6 +340,7 @@ fun MiCuentaContenido(
 
     if (eligiendoFoto) {
         OpcionesFoto(
+            titulo = stringResource(R.string.mi_cuenta_cambiar_foto),
             alElegirDeGaleria = {
                 eligiendoFoto = false
                 alElegirDeGaleria()
@@ -491,39 +478,6 @@ private fun AvatarImagen(usuario: Usuario, forma: Modifier) {
                 text = iniciales(usuario.nombre, usuario.apellidos),
                 style = DonChambitasTema.tipografia.titulo,
                 color = Carbon
-            )
-        }
-    }
-}
-
-/** Hoja inferior al tocar el avatar (decisión 2 de S2-T13): galería o cámara. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun OpcionesFoto(
-    alElegirDeGaleria: () -> Unit,
-    alTomarFoto: () -> Unit,
-    alCerrar: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = alCerrar,
-        shape = FormaHojaInferior,
-        containerColor = Crema
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Espaciado.margenPantalla)
-                .padding(bottom = Espaciado.dp24),
-            verticalArrangement = Arrangement.spacedBy(Espaciado.dp12)
-        ) {
-            Titulo(stringResource(R.string.mi_cuenta_cambiar_foto))
-            BotonSecundario(
-                texto = stringResource(R.string.foto_elegir_galeria),
-                onClick = alElegirDeGaleria
-            )
-            BotonSecundario(
-                texto = stringResource(R.string.foto_tomar),
-                onClick = alTomarFoto
             )
         }
     }

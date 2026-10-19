@@ -56,7 +56,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -331,6 +330,7 @@ fun MiPerfilContenido(
 
                 BotonIa(
                     estado = estado.ia,
+                    textoFaltanDatos = stringResource(R.string.mi_perfil_ia_falta_titulo),
                     habilitado = editable,
                     alPedir = alPedirIa
                 )
@@ -522,36 +522,6 @@ private fun ChipHabilidad(habilidad: String, alQuitar: () -> Unit) {
             role = Role.Button
         }
     )
-}
-
-/**
- * Boton "Redactar con IA" con la linea que explica su estado (1.9). Cuando esta
- * deshabilitado, el lector de pantalla anuncia el motivo.
- */
-@Composable
-private fun BotonIa(estado: EstadoBotonIa, habilitado: Boolean, alPedir: () -> Unit) {
-    val linea = when (estado) {
-        EstadoBotonIa.FaltanDatos -> stringResource(R.string.mi_perfil_ia_falta_titulo)
-        is EstadoBotonIa.Disponible -> estado.restantesHoy?.let { stringResource(R.string.ia_restantes, it) }
-        EstadoBotonIa.Pidiendo -> null
-        EstadoBotonIa.LimiteAlcanzado -> stringResource(R.string.ia_limite)
-    }
-    val disponible = estado is EstadoBotonIa.Disponible
-
-    Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
-        BotonSecundario(
-            texto = stringResource(R.string.ia_redactar),
-            onClick = alPedir,
-            habilitado = habilitado && disponible,
-            cargando = estado == EstadoBotonIa.Pidiendo,
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics { if (!disponible && linea != null) stateDescription = linea }
-        )
-        if (linea != null) {
-            Text(text = linea, style = DonChambitasTema.tipografia.pie, color = Cafe)
-        }
-    }
 }
 
 /**
