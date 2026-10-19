@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-10-14
+**Última actualización:** 2026-10-18
 
 ---
 
@@ -11,14 +11,18 @@
 
 | Campo | Valor |
 |---|---|
-| Sprint | 2 |
+| Sprint | 3 |
 | Fechas | PENDIENTE |
-| Tareas del sprint | 16 |
-| Terminadas | 16 |
+| Tareas del sprint | 15 |
+| Terminadas | 1 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
-> Sprint 1 cerrado el 2026-09-20 con sus 16 tareas en `hecha`.
+> Sprint 3 abierto el 2026-10-18 por autorización del líder. Sus tickets se
+> redactan uno por uno al tomar cada tarea, como en el Sprint 2.
+>
+> Sprint 2 cerrado con sus 16 tareas en `hecha` (la última, `S2-T16`, con el
+> #19). Sprint 1 cerrado el 2026-09-20 con sus 16 tareas en `hecha`.
 
 ## Qué se puede probar hoy en la aplicación
 
@@ -79,7 +83,26 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S2-T16` — Pruebas del flujo de autenticación con datos falsos.** 2026-10-14.
+**`S3-T01` — Diseño de las pantallas de perfil del trabajador y de servicio.**
+2026-10-18. Rama `docs/S3-T01-diseno-perfil-servicios`, desde `main`, pull
+request **sin abrir todavía**. Ticket redactado por el agente el mismo día en
+que el líder autorizó abrir el Sprint 3.
+
+- **`docs/producto/DISENO-PERFIL-SERVICIOS.md`**: P-11, P-12 y P-13 con
+  anatomía y medidas, contratos `EstadoMiPerfil`, `EstadoMisServicios` y
+  `EstadoServicio`, eventos, validaciones campo por campo, mapa de `TipoError`,
+  108 claves de `strings.xml` y la tabla de qué consume cada tarea del
+  Sprint 3. Tiene la misma forma que `DISENO-AUTENTICACION.md`.
+- **Cuatro wireframes nuevos** en `docs/producto/wireframes/`: P-11 y P-13
+  completas con scroll, y P-12 con datos y vacía. Están en `WIREFRAMES.md`,
+  secciones 8 a 10.
+- **No se tocó código.**
+- **Seis hallazgos para el líder, `H-18` a `H-23`** (ver abajo). `H-18`,
+  `H-19` y `H-21` hay que cerrarlos antes de que `S3-T03`, `S3-T04` y `S3-T05`
+  lleguen a su parte.
+
+La anterior fue **`S2-T16` — Pruebas del flujo de autenticación con datos
+falsos.** 2026-10-14.
 Rama `test/S2-T16-pruebas-flujo-autenticacion`, desde `main`, pull request **#19**, integrado después del #18 (`S2-T15`): las dos ramas tocaban los mismos renglones de los archivos vivos y se resolvieron al integrar. Ticket redactado por el agente el mismo día; **se eligió la opción A en las tres decisiones sin el líder disponible**.
 
 - **`FlujoAutenticacionTest`**, 12 pruebas en la JVM con `RepositorioAuthFalso` y sin `mockk`: registro de cliente y de trabajador hasta P-01, cierre de sesión en P-18 y vuelta a entrar, correo duplicado, correo sin cuenta, P-04 exista o no la cuenta, y las filas de 2.4 y 3.5 que faltaban (`SERVIDOR`, `DESCONOCIDO`, `VALIDACION`, `AUTENTICACION` y el reintento tras `RED`).
@@ -128,11 +151,33 @@ explicados al final de `MODELO-ER.md`.
   devolverse:** o el criterio baja a cuatro triggers, o se anota que al quinto
   lo sostiene el esquema.
 
+## Los seis huecos de S3-T01
+
+Salen de cruzar HU-06, HU-08 a HU-11 y HU-29 a HU-31 contra los repositorios
+y el esquema. **Ninguno se resolvió**: están explicados en la sección 10 de
+`docs/producto/DISENO-PERFIL-SERVICIOS.md`.
+
+- **`H-18` — Las fotos de un servicio propio no se pueden leer.** `Servicio`
+  no trae fotos y sin el `id` de cada una no se puede llamar a `eliminarFoto`.
+  Le toca a `S3-T08`.
+- **`H-19` — Las habilidades del perfil propio no se pueden leer.**
+  `obtenerMiPerfil()` no las trae. Le toca a `S3-T08`.
+- **`H-20` — `subirFoto` no informa avance.** El diseño pinta un indicador
+  indeterminado; HU-11 dice "veo el progreso".
+- **`H-21` — `TarjetaServicio` no distingue un servicio pausado** y deja un
+  renglón vacío sin precio. Hay una propuesta para `DISENO.md` que espera al
+  líder. **Bloquea esa parte de `S3-T05`.**
+- **`H-22` — Al crear un servicio todavía no se le pueden agregar fotos.** El
+  diseño pasa P-13 a modo editar al publicar; el líder puede elegir lo
+  contrario.
+- **`H-23` — No hay forma de saber el tope de IA al abrir la pantalla**, como
+  pide HU-31. Le toca a `S3-T12`.
+
 ## Siguiente en la cola
 
-**Ninguna.** Con `S2-T15` (#18) y `S2-T16` (#19) integrados, las 16 tareas del
-Sprint 2 están hechas. Lo siguiente es abrir el Sprint 3, y eso lo decide el
-líder (`AGENTS.md` §3).
+**`S3-T02` — Catálogo de categorías de oficios: definición y datos semilla**
+(prioridad 970, RRC, sin dependencias). Todavía no tiene ticket: se redacta al
+tomarla.
 
 ## Los dos huecos de S2-T01, ya cerrados
 
