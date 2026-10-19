@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 4 |
+| Terminadas | 5 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -41,7 +41,8 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Editas nombre, apellidos o teléfono y guardas | La tarjeta cambia en ese momento y sigue así al reabrir. El teléfono es obligatorio, como en P-03 | — |
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
 | Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 completa, con el aviso de perfil incompleto, habilidades como chips y la barra inferior en Cuenta. **Todavía no carga ni guarda**: arranca en blanco cada vez, "Guardar perfil" no hace nada y las hojas de estado y municipio salen vacías | `S3-T06` |
-| Como trabajador, en el andamio de P-12 tocas "Crear nuevo servicio" o "Editar servicio existente" | P-13 completa sin barra inferior: "Publicar servicio" o "Editar servicio", precio que solo acepta dos decimales, unidad que se habilita con el primer precio y, al editar, el cuadro "Agregar" con la hoja de galería o cámara. **Todavía no carga, no guarda ni sube fotos**, y el bloque de categorías sale vacío | `S3-T06` |
+| Como trabajador, tocas la pestaña **Servicios** | P-12 real, sin flecha: "Mi perfil profesional" y "Mis postulaciones" arriba y, como todavía no carga servicios, siempre el estado vacío "Aún no publicas servicios" con "Publicar mi primer servicio" | `S3-T06` |
+| Como trabajador, tocas "Publicar mi primer servicio" en P-12 | P-13 completa sin barra inferior: "Publicar servicio", precio que solo acepta dos decimales, unidad que se habilita con el primer precio. El modo editar, con el cuadro "Agregar", solo se alcanza desde una tarjeta de P-12, y P-12 todavía no carga ninguna. **Todavía no carga, no guarda ni sube fotos**, y el bloque de categorías sale vacío | `S3-T06` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -85,39 +86,32 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T04` — Pantalla de creación y edición de un servicio.** 2026-10-18.
-Rama `feat/S3-T04-pantalla-servicio`, desde `main` con `S3-T03` ya integrada
-(#33), pull request **sin abrir todavía**. Ticket redactado por el agente al
-tomar la tarea.
+**`S3-T05` — Listado "mis servicios publicados" con acciones (editar,
+pausar, eliminar).** 2026-10-18. Rama `feat/S3-T05-mis-servicios`, desde
+`main` con `S3-T04` ya integrada (#34), pull request **sin abrir todavía**.
+Ticket redactado por el agente al tomar la tarea.
 
-- **P-13 está construida** según `DISENO-PERFIL-SERVICIOS.md` §4:
-  `ServicioContenido` sin estado propio, `EstadoServicio` y `FotoEnPantalla`.
-  Crear dice "Publicar servicio", con `BotonDestacado` y las fotos
-  deshabilitadas (`H-22`); editar dice "Editar servicio", con
-  `BotonPrincipal`, contador "n de 3", miniaturas de 96 dp y el cuadro
-  "Agregar" punteado. Las 16 categorías son chips con `iconoCategoria`.
-- **Todavía no carga, no guarda ni sube fotos**: eso es `S3-T06`, que también
-  tiene que resolver `H-18`. La foto elegida se valida con `LimitesFoto`, sin
-  recortador, y ahí se queda. Sin validaciones de campo: son `S3-T07`.
-- **Dos piezas compartidas nuevas**: la hoja de galería o cámara salió de
-  `MiCuentaPantalla.kt` a `OpcionesFoto.kt`, y el botón de IA salió de P-11 a
-  `BotonIa.kt`. P-18 y P-11 se ven y se comportan igual.
-- `filtrarPrecio` deja escribir dígitos y un separador con dos decimales.
-- **Desvío del diseño:** dos claves nuevas en `strings.xml`,
-  `servicio_hoja_foto` y `servicio_moneda` (el "$" del precio). Ya están en
-  `DISENO-PERFIL-SERVICIOS.md`.
+- **P-12 está construida** según `DISENO-PERFIL-SERVICIOS.md` §3:
+  `MisServiciosContenido` sin estado propio y `EstadoMisServicios`, con los
+  accesos a P-11 y P-14, el resumen "3 servicios · 1 pausado", la lista, la
+  hoja de acciones (Editar, Pausar o Reactivar, Eliminar), la confirmación de
+  eliminar con el título del servicio, el botón flotante y el estado vacío.
+- **`H-21` cerrado por el líder**: `TarjetaServicio` ganó `pausado` (60 % de
+  opacidad y "Plomería · Pausado") y ya no pinta el renglón de precio vacío.
+  Entró primero en `DISENO.md`.
+- `ordenarMisServicios`, `precioDeServicio` y `formatearCantidad` son
+  funciones puras con prueba: activos primero, la tabla 3.4 y los miles de
+  `es-MX`.
+- **Todavía no carga, no pausa ni elimina**: eso es `S3-T06`. En el emulador
+  P-12 siempre se ve vacía. La miniatura de cada tarjeta espera `H-18`.
+- **Hueco nuevo, `H-24`**: ninguna tarea construye P-14.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 238 pruebas unitarias (4 nuevas en `EstadoServicioTest`), 0 fallas.
-  - 96 instrumentadas (12 nuevas en `ServicioPantallaTest`), 0 fallas.
-  - A mano en el emulador con `beto.rls@…`: crear y editar desde el andamio de
-    P-12, el precio "350.505" que se queda en "350.50", la hoja de fotos de
-    P-13 y la de P-18, y la flecha de regreso.
-- **El emulador `Pixel_10` tenía 2 GB de RAM** y con la imagen de Android 17 se
-  quedaba sin memoria: mataba procesos del sistema y tumbaba la suite
-  instrumentada a media corrida. Se subió a 4 GB en la configuración local del
-  AVD (no en el repositorio), y la suite pasó de 30 minutos a 3. **Quien use
-  esa misma imagen conviene que haga lo mismo.**
+  - 242 pruebas unitarias (4 nuevas en `EstadoMisServiciosTest`), 0 fallas.
+  - 108 instrumentadas (12 nuevas en `MisServiciosPantallaTest`), 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: la pestaña Servicios abre P-12
+    vacía y sin flecha; "Publicar mi primer servicio" abre P-13 en modo
+    crear, y los accesos abren P-11 y P-14; atrás vuelve a P-12.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -161,8 +155,8 @@ explicados al final de `MODELO-ER.md`.
 
 Salen de cruzar HU-06, HU-08 a HU-11 y HU-29 a HU-31 contra los repositorios
 y el esquema. Están explicados en la sección 10 de
-`docs/producto/DISENO-PERFIL-SERVICIOS.md`. **Cerrado uno, `H-19`; quedan
-cinco.**
+`docs/producto/DISENO-PERFIL-SERVICIOS.md`. **Cerrados dos, `H-19` y `H-21`;
+quedan cuatro.**
 
 - **`H-18` — Las fotos de un servicio propio no se pueden leer.** `Servicio`
   no trae fotos y sin el `id` de cada una no se puede llamar a `eliminarFoto`.
@@ -172,9 +166,8 @@ cinco.**
   La real es de `S3-T09`.
 - **`H-20` — `subirFoto` no informa avance.** El diseño pinta un indicador
   indeterminado; HU-11 dice "veo el progreso".
-- **`H-21` — `TarjetaServicio` no distingue un servicio pausado** y deja un
-  renglón vacío sin precio. Hay una propuesta para `DISENO.md` que espera al
-  líder. **Bloquea esa parte de `S3-T05`.**
+- **`H-21` — CERRADO el 2026-10-18 por el líder**: `TarjetaServicio` ganó
+  `pausado` y ya no pinta el renglón de precio vacío. Lo aplicó `S3-T05`.
 - **`H-22` — Al crear un servicio todavía no se le pueden agregar fotos.** El
   diseño pasa P-13 a modo editar al publicar; el líder puede elegir lo
   contrario.
@@ -183,10 +176,18 @@ cinco.**
 
 ## Siguiente en la cola
 
-**`S3-T05` — Listado "mis servicios publicados" con acciones (editar, pausar,
-eliminar)** (prioridad 850, LMM, sin dependencias). Todavía no tiene ticket: se
-redacta al tomarla. **Ojo: la marca "Pausado" de la tarjeta espera `H-21`**,
-que pide extender `TarjetaServicio` en `DISENO.md` y necesita al líder.
+**`S3-T06` — ViewModels y estados de UI del módulo del trabajador** (prioridad
+800, RRC, depende de `S3-T04`, hecha). Todavía no tiene ticket: se redacta al
+tomarla. Es la que hace que P-11, P-12 y P-13 carguen y guarden. **Ojo: cargar
+las fotos de un servicio necesita `H-18`**, que sigue abierto y es de `S3-T08`.
+
+## Un hueco nuevo de S3-T05
+
+- **`H-24` — Ninguna tarea de la cola construye P-14 "Mis postulaciones".**
+  P-12 y P-18 ya llevan a ella y sigue siendo el andamio de `S1-T12`. Las
+  postulaciones son del Sprint 5 (`S5-T02`, `S5-T03`), pero ninguna nombra la
+  pantalla del trabajador. **Lo tiene que decidir el líder**: agregar una
+  tarea o asignársela a una existente.
 
 ## Los dos huecos de S2-T01, ya cerrados
 

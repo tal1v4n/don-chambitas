@@ -116,7 +116,7 @@ falta un componente, se agrega aquí primero.
 | `CampoTexto` | Fondo Arena, borde Borde, borde mostaza oscuro al enfocar |
 | `CampoContrasena` | Igual, con ojo para mostrar y ocultar |
 | `TarjetaTrabajador` | Foto, nombre, título, estrellas, municipio |
-| `TarjetaServicio` | Foto, título, categoría, rango de precio |
+| `TarjetaServicio` | Foto, título, categoría, rango de precio. Sin precio, el renglón no se pinta. Con `pausado = true` va al 60 % de opacidad y la categoría dice "Plomería · Pausado" (`H-21`, decidido por el líder el 2026-10-18 para P-12) |
 | `TarjetaSolicitud` | Título, categoría, presupuesto, estado, fecha |
 | `ChipCategoria` | Mostaza cuando está activo, Arena cuando no |
 | `Estrellas` | Terracota, media estrella permitida en lectura |

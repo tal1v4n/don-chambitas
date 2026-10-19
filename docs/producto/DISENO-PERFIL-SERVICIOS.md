@@ -112,9 +112,8 @@ para las listas de estado y municipio y para las acciones de un servicio,
 componentes nuevos del sistema de diseño: son los contenedores que ya usa la
 aplicación.
 
-**Hace falta extender `TarjetaServicio`** para que P-12 distinga un servicio
-pausado. Es el hallazgo `H-21`: hasta que el líder lo resuelva y quede escrito
-en `DISENO.md`, `S3-T05` no lo implementa por su cuenta.
+**`TarjetaServicio` se extendió** para que P-12 distinga un servicio pausado:
+es `H-21`, que el líder cerró el 2026-10-18 y ya está en `DISENO.md`.
 
 Las miniaturas de las fotos de P-13 y el aviso de perfil incompleto de P-11 no
 son componentes: son composición dentro de la pantalla, igual que la tarjeta de
@@ -448,8 +447,8 @@ Cada tarjeta pasa a `TarjetaServicio`:
 | `fotoUrl` | La foto en la posición 1, si la hay (`H-18`) |
 | `onClick` | Abre la hoja de acciones (3.3) |
 
-Un servicio pausado se ve atenuado y con la marca "Pausado". Eso pide
-extender `TarjetaServicio` (`H-21`).
+Un servicio pausado pasa `pausado = true`: la tarjeta se atenúa al 60 % y la
+categoría dice "Plomería · Pausado" (`H-21`).
 
 ### 3.2 Contrato de estado
 
@@ -826,12 +825,13 @@ reutilizan.
     <item quantity="one">%1$d pausado</item>
     <item quantity="other">%1$d pausados</item>
 </plurals>
+<string name="mis_servicios_resumen_con_pausados">%1$s · %2$s</string>
 <string name="mis_servicios_publicar">+ Publicar servicio</string>
 <string name="mis_servicios_editar">Editar</string>
 <string name="mis_servicios_pausar">Pausar</string>
 <string name="mis_servicios_reactivar">Reactivar</string>
 <string name="mis_servicios_eliminar">Eliminar</string>
-<string name="mis_servicios_pausado">Pausado</string>
+<string name="tarjeta_servicio_categoria_pausado">%1$s · Pausado</string>
 <string name="mis_servicios_eliminar_titulo">¿Eliminar este servicio?</string>
 <string name="mis_servicios_eliminar_texto">«%1$s» y sus fotos se borran. No se puede deshacer.</string>
 <string name="mis_servicios_aviso_pausado">Servicio pausado</string>
@@ -1031,7 +1031,11 @@ diseño pinta un indicador indeterminado sobre la miniatura (4.4). Si el líder
 quiere porcentaje, `S3-T08` tiene que agregar un parámetro de avance a la
 firma; `supabase-kt` lo permite con `uploadAsFlow`.
 
-**`H-21` · `TarjetaServicio` no distingue un servicio pausado, y pinta un
+**`H-21` · CERRADO el 2026-10-18 por el líder: se extiende `TarjetaServicio`**
+con `pausado` y sin renglón de precio vacío, tal como se propuso abajo. Lo
+aplicó `S3-T05`. El hallazgo, como se reportó:
+
+**`TarjetaServicio` no distingue un servicio pausado, y pinta un
 renglón vacío si no hay precio.** P-12 necesita mostrar "Pausado" (HU-10) y
 `EtiquetaEstado` solo acepta `EstadoSolicitud`. Además, con
 `precioTexto = ""` la tarjeta deja el renglón del precio en blanco. Propuesta
