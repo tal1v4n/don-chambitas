@@ -44,7 +44,8 @@
 | 2026-10-18 | S3-T01 | LMM | docs/S3-T01-diseno-perfil-servicios | #31 | DISENO-PERFIL-SERVICIOS.md especifica P-11, P-12 y P-13: anatomia con medidas, EstadoMiPerfil, EstadoMisServicios y EstadoServicio con sus eventos, validaciones campo por campo contra el esquema, mapa de TipoError y 108 claves de strings.xml. Cuatro wireframes nuevos (P-11 y P-13 completas con scroll, P-12 con datos y vacia). Sin codigo. Primera del Sprint 3, abierto ese dia por autorizacion del lider; ticket redactado por el agente. Seis hallazgos, H-18 a H-23: fotos y habilidades propias sin lectura, subida sin avance, TarjetaServicio sin pausado, fotos solo despues de crear y el tope de IA sin consulta |
 | 2026-10-18 | S3-T02 | RRC | feat/S3-T02-catalogo-categorias | #32 | Las 16 categorias con acentos en 04_datos_semilla.sql, FuenteDatosFalsa y RepositorioIaFalso; un update previo renombra las filas viejas para que la semilla siga idempotente y conserve los id. 91 y 92 buscan la categoria por orden. iconoCategoria() en IconosCategoria.kt traduce categorias.icono a Material Icons, con Otros como respaldo. DISENO.md ya no llama ID al orden. 233 unitarias pasando (4 nuevas). Falta que el lider vuelva a correr la semilla en Supabase |
 | 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil | #33 | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
-| 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio |  | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
+| 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio | #34 | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
+| 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios |  | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
 
 ---
 
@@ -63,6 +64,40 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T04` — Pantalla de creación y edición de un servicio.** 2026-10-18.
+Rama `feat/S3-T04-pantalla-servicio`, desde `main` con `S3-T03` ya integrada
+(#33), pull request **#34**. Ticket redactado por el agente al
+tomar la tarea.
+
+- **P-13 está construida** según `DISENO-PERFIL-SERVICIOS.md` §4:
+  `ServicioContenido` sin estado propio, `EstadoServicio` y `FotoEnPantalla`.
+  Crear dice "Publicar servicio", con `BotonDestacado` y las fotos
+  deshabilitadas (`H-22`); editar dice "Editar servicio", con
+  `BotonPrincipal`, contador "n de 3", miniaturas de 96 dp y el cuadro
+  "Agregar" punteado. Las 16 categorías son chips con `iconoCategoria`.
+- **Todavía no carga, no guarda ni sube fotos**: eso es `S3-T06`, que también
+  tiene que resolver `H-18`. La foto elegida se valida con `LimitesFoto`, sin
+  recortador, y ahí se queda. Sin validaciones de campo: son `S3-T07`.
+- **Dos piezas compartidas nuevas**: la hoja de galería o cámara salió de
+  `MiCuentaPantalla.kt` a `OpcionesFoto.kt`, y el botón de IA salió de P-11 a
+  `BotonIa.kt`. P-18 y P-11 se ven y se comportan igual.
+- `filtrarPrecio` deja escribir dígitos y un separador con dos decimales.
+- **Desvío del diseño:** dos claves nuevas en `strings.xml`,
+  `servicio_hoja_foto` y `servicio_moneda` (el "$" del precio). Ya están en
+  `DISENO-PERFIL-SERVICIOS.md`.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 238 pruebas unitarias (4 nuevas en `EstadoServicioTest`), 0 fallas.
+  - 96 instrumentadas (12 nuevas en `ServicioPantallaTest`), 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: crear y editar desde el andamio de
+    P-12, el precio "350.505" que se queda en "350.50", la hoja de fotos de
+    P-13 y la de P-18, y la flecha de regreso.
+- **El emulador `Pixel_10` tenía 2 GB de RAM** y con la imagen de Android 17 se
+  quedaba sin memoria: mataba procesos del sistema y tumbaba la suite
+  instrumentada a media corrida. Se subió a 4 GB en la configuración local del
+  AVD (no en el repositorio), y la suite pasó de 30 minutos a 3. **Quien use
+  esa misma imagen conviene que haga lo mismo.**
 
 **`S3-T03` — Pantalla del perfil del trabajador (habilidades, experiencia,
 contacto).** 2026-10-18. Rama `feat/S3-T03-pantalla-mi-perfil`, desde `main`
