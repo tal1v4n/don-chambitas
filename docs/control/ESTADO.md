@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 7 |
+| Terminadas | 8 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -42,7 +42,7 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
 | Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 carga y guarda: hojas de estado y municipio con datos (solo los municipios del estado), "Perfil guardado" y el aviso de incompleto recalculado al guardar. **Contra el repositorio falso**: lo guardado vive en memoria hasta cerrar la aplicación, y la fuente falsa lo atribuye a `cliente1`, no a tu cuenta (`DEC-31`). Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error; una habilidad vacía, larga o repetida no se agrega | `S3-T09` |
 | Como trabajador, tocas la pestaña **Servicios** | P-12 carga tus servicios, activos primero. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13. Arranca vacía por lo mismo que P-11: el falso no conoce tu cuenta | `S3-T09` |
-| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Con campos mal, "Publicar" los marca todos y lleva el foco al primero; el rango de precio se marca en "Hasta". **Al editar, las fotos que ya tenía no salen** (`H-18`); las que agregas se suben y se quitan en el momento. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T08`, `S3-T13` |
+| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Con campos mal, "Publicar" los marca todos y lleva el foco al primero; el rango de precio se marca en "Hasta". Al editar salen las fotos que el servicio ya tenía, y se pueden quitar; las que agregas se suben y se quitan en el momento, y la de la posición 1 es la miniatura de P-12. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T13` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -86,36 +86,35 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T07` — Validaciones y reglas de negocio de la publicación de
-servicios.** 2026-10-19. Rama `feat/S3-T07-validaciones-trabajador`, desde
-`main` con `S3-T06` ya integrada (#36), pull request **sin abrir todavía**.
-Ticket redactado por el agente al tomar la tarea.
+**`S3-T08` — Contrato de la API de perfil del trabajador y de servicios.**
+2026-10-19. Rama `docs/S3-T08-contrato-trabajador-servicios`, desde `main` con
+`S3-T07` ya integrada (#37), pull request **sin abrir todavía**. Ticket
+redactado por el agente al tomar la tarea.
 
-- **`ValidacionesTrabajador.kt`** en el dominio, junto a `ValidacionesAuth.kt`:
-  las 8 reglas de §5.2 y las 8 de §5.3 como funciones puras que devuelven
-  `FalloTrabajador`, con los topes del esquema en `LimitesTrabajador`. La ui
-  las traduce con `mensaje()` a las 15 claves `validacion_*` nuevas, y
-  `validacion_telefono_digitos` se reutiliza.
-- **La normalización de §1.6** también es dominio: el precio con coma o punto
-  se envía como `BigDecimal` de dos decimales, y las habilidades van sin
-  repetidas, sin distinguir mayúsculas.
-- **P-11 y P-13 validan igual que P-03**: al perder el foco un campo ya tocado;
-  todos al guardar, sin llamar al repositorio y con el foco en el primer error.
-  El selector de municipio y el bloque "Categoría" reciben el foco aunque no
-  abran teclado. La habilidad se valida al agregarla, y el rango de precio se
-  marca en "Hasta".
-- **Corrección de la bitácora**: el renglón de `S3-T06` había entrado
-  duplicado con el #36. Se quitó el sobrante.
+- **`CONTRATOS-API.md` detalla `RepositorioTrabajador` y
+  `RepositorioServicios`** como "Usuario": para cada operación, el código de
+  `supabase-kt` 3.0.3, las columnas que manda, qué devuelve, qué pasa si falla
+  cada paso y la tabla de errores. **No se probó contra Supabase.** Al final de
+  "Servicios", "Qué falta verificar" lista lo que `S3-T09` tiene que probar
+  primero.
+- **Tres huecos cerrados por el líder al tomar la tarea:**
+  - `H-18` con fotos embebidas: `Servicio` ganó `fotos` y el falso las
+    devuelve. P-12 pinta la miniatura de la posición 1, y P-13 pinta y deja
+    quitar al editar las fotos que el servicio ya tenía.
+  - `H-20` sin porcentaje: HU-11 se cumple con el indicador indeterminado.
+  - `H-06` con la fila primero y el archivo después, con las URL leídas antes.
+    `MODELO-ER.md` decía lo contrario: el agente lo reportó antes de
+    escribirlo, y lleva la nota de cierre.
+- **Tres huecos nuevos**, `H-25` a `H-27`, abajo. `H-27` es el urgente.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 296 pruebas unitarias (12 en `ValidacionesTrabajadorTest` y 7 más en los
-    ViewModels), 0 fallas.
+  - 296 pruebas unitarias, 0 fallas. Dos se ajustaron, porque el servicio
+    sembrado ya trae su foto, y el falso tiene una prueba nueva de fotos
+    embebidas.
   - 108 instrumentadas, 0 fallas.
-  - A mano en el emulador con `beto.rls@…`: "Publicar" vacío marca título,
-    categoría y descripción, con el foco en el título; "Desde" 800 y "Hasta"
-    300 se marca en "Hasta" y no publica; "Cobre" dos veces da "Ya agregaste
-    esa habilidad"; un teléfono de 5 dígitos se marca al salir del campo, y
-    guardar sin título lleva el foco al título.
+  - A mano en el emulador con `beto.rls@…`: publicar, subir una foto de la
+    galería ("1 de 3"), ver la miniatura en P-12, volver a editar con la foto
+    ya cargada y quitarla ("0 de 3").
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -131,7 +130,7 @@ y `trabajador.s2t15@donchambitas.test`) siguen en el proyecto. Borrarlas necesit
 delete from auth.users where email like '%@prueba.donchambitas.mx';
 ```
 
-## Cuatro huecos que esperan al líder
+## Los cuatro huecos de S1-T03, uno ya cerrado
 
 Salen del cruce contra las historias y de revisar el paso 2 del ticket.
 **Ninguno se corrigió**: el esquema no se rediseña en `S1-T03`. Están
@@ -142,9 +141,10 @@ explicados al final de `MODELO-ER.md`.
   que el `ilike` considera igual, y `unaccent` no está instalado; el contrato
   de `buscarTrabajadores` busca justamente con `ilike`. Es el más serio y
   **conviene cerrarlo antes de `S4-T04`**.
-- **`H-06` — Nada borra el archivo de Storage cuando desaparece su fila.** La
-  cascada se lleva la URL antes de que nadie pueda usarla. Le toca a `S3-T08`
-  y `S2-T12` escribir el orden de operaciones.
+- **`H-06` — CERRADO el 2026-10-19 por el líder**: se borra la fila primero y
+  el archivo después, con las URL leídas antes. Si falla el borrado del
+  archivo, queda un archivo sin fila que nadie ve. El orden de cada operación
+  está en `CONTRATOS-API.md` (`S3-T08`).
 - **`H-07` — "Postulaciones sin revisar" no existe como dato.** `enviada` es
   "no decidida", no "no vista". Probablemente sea la redacción de HU-13.
 - **`H-08` — Uno de los cinco triggers del paso 2 no se puede probar, y eso
@@ -159,17 +159,17 @@ explicados al final de `MODELO-ER.md`.
 
 Salen de cruzar HU-06, HU-08 a HU-11 y HU-29 a HU-31 contra los repositorios
 y el esquema. Están explicados en la sección 10 de
-`docs/producto/DISENO-PERFIL-SERVICIOS.md`. **Cerrados dos, `H-19` y `H-21`;
-quedan cuatro.**
+`docs/producto/DISENO-PERFIL-SERVICIOS.md`. **Cerrados cuatro, `H-18` a
+`H-21`; quedan dos.**
 
-- **`H-18` — Las fotos de un servicio propio no se pueden leer.** `Servicio`
-  no trae fotos y sin el `id` de cada una no se puede llamar a `eliminarFoto`.
-  Le toca a `S3-T08`.
+- **`H-18` — CERRADO el 2026-10-19 por el líder**: fotos embebidas.
+  `Servicio` ganó `fotos`; lo aplicó `S3-T08` en el modelo, el falso, P-12 y
+  P-13. La real es de `S3-T09`.
 - **`H-19` — CERRADO el 2026-10-18 por el líder**: operación nueva,
   `obtenerMisHabilidades()`, que agregó `S3-T03` en la interfaz y en el falso.
   La real es de `S3-T09`.
-- **`H-20` — `subirFoto` no informa avance.** El diseño pinta un indicador
-  indeterminado; HU-11 dice "veo el progreso".
+- **`H-20` — CERRADO el 2026-10-19 por el líder**: sin porcentaje. HU-11 se
+  cumple con el indicador indeterminado de P-13 (`S3-T08`).
 - **`H-21` — CERRADO el 2026-10-18 por el líder**: `TarjetaServicio` ganó
   `pausado` y ya no pinta el renglón de precio vacío. Lo aplicó `S3-T05`.
 - **`H-22` — Al crear un servicio todavía no se le pueden agregar fotos.** El
@@ -180,12 +180,31 @@ quedan cuatro.**
 
 ## Siguiente en la cola
 
-**`S3-T08` — Contrato de la API de perfil del trabajador y de servicios**
-(prioridad 700, BCJL, sin dependencias). Todavía no tiene ticket: se redacta al
-tomarla. Es documentación de `CONTRATOS-API.md`, sin Supabase. Le tocan dos
-huecos abiertos: `H-18`, para leer las fotos de un servicio propio con su `id`,
-y `H-20`, sobre si `subirFoto` informa avance. También le toca `H-06`: en qué
-orden se borran la fila y el archivo de Storage.
+**`S3-T09` — Persistencia real de perfiles y servicios en Supabase**
+(prioridad 650, LMM, depende de `S3-T08`, hecha). Todavía no tiene ticket: se
+redacta al tomarla. Es una de las seis tareas reales de `AGENTS.md` §6:
+`RepositorioTrabajadorReal` y `RepositorioServiciosReal` según
+`CONTRATOS-API.md`, y su enlace en `ModuloRepositorios`. **Lo primero es probar
+contra el proyecto lo de "Qué falta verificar"** al final de "Servicios". Con
+ella, P-11, P-12 y P-13 dejan de atribuirle todo a `cliente1`. `H-27` se nota
+en cuanto entra: si el líder no lo decide antes, publicar sin perfil falla.
+
+## Tres huecos nuevos de S3-T08
+
+Salen de escribir el contrato de trabajador y servicios. Están explicados al
+final de `docs/tecnico/CONTRATOS-API.md`. **Ninguno se corrigió.**
+
+- **`H-25` — El perfil público de un trabajador sin estado o sin municipio no
+  se puede leer.** La RPC los manda `null` y `PerfilPublicoTrabajador` los
+  pide no nulos. Pega en la vista previa de HU-08.
+- **`H-26` — `reemplazarHabilidades` no es atómico.** Si falla el `insert`
+  después del `delete`, el perfil queda sin habilidades hasta que se reintente.
+  P-11 conserva la lista en pantalla mientras siga abierta.
+- **`H-27` — Un trabajador no puede publicar un servicio antes de guardar su
+  perfil.** `servicios.perfil_id` apunta a `perfiles_trabajador`: `crear`
+  falla con `409` y P-13 da el error genérico. Es el camino natural de quien
+  se acaba de registrar. **Es el más urgente: se nota en cuanto entre
+  `S3-T09`.**
 
 ## Un hueco nuevo de S3-T05
 
