@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-10-18
+**Última actualización:** 2026-10-19
 
 ---
 
@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 5 |
+| Terminadas | 6 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -40,9 +40,9 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas la pestaña **Cuenta** | P-18 real: tu ficha de `public.usuarios`, editar datos, cambiar contraseña y cerrar sesión. El trabajador ve además "Mi perfil profesional" (P-11) y "Mis postulaciones" (P-14) | — |
 | Editas nombre, apellidos o teléfono y guardas | La tarjeta cambia en ese momento y sigue así al reabrir. El teléfono es obligatorio, como en P-03 | — |
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
-| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 completa, con el aviso de perfil incompleto, habilidades como chips y la barra inferior en Cuenta. **Todavía no carga ni guarda**: arranca en blanco cada vez, "Guardar perfil" no hace nada y las hojas de estado y municipio salen vacías | `S3-T06` |
-| Como trabajador, tocas la pestaña **Servicios** | P-12 real, sin flecha: "Mi perfil profesional" y "Mis postulaciones" arriba y, como todavía no carga servicios, siempre el estado vacío "Aún no publicas servicios" con "Publicar mi primer servicio" | `S3-T06` |
-| Como trabajador, tocas "Publicar mi primer servicio" en P-12 | P-13 completa sin barra inferior: "Publicar servicio", precio que solo acepta dos decimales, unidad que se habilita con el primer precio. El modo editar, con el cuadro "Agregar", solo se alcanza desde una tarjeta de P-12, y P-12 todavía no carga ninguna. **Todavía no carga, no guarda ni sube fotos**, y el bloque de categorías sale vacío | `S3-T06` |
+| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 carga y guarda: hojas de estado y municipio con datos (solo los municipios del estado), "Perfil guardado" y el aviso de incompleto recalculado al guardar. **Contra el repositorio falso**: lo guardado vive en memoria hasta cerrar la aplicación, y la fuente falsa lo atribuye a `cliente1`, no a tu cuenta (`DEC-31`). Sin validaciones de campo | `S3-T07`, `S3-T09` |
+| Como trabajador, tocas la pestaña **Servicios** | P-12 carga tus servicios, activos primero. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13. Arranca vacía por lo mismo que P-11: el falso no conoce tu cuenta | `S3-T09` |
+| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Sin categoría, "Publicar" no hace nada todavía. **Al editar, las fotos que ya tenía no salen** (`H-18`); las que agregas se suben y se quitan en el momento. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T07`, `S3-T08`, `S3-T13` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -86,32 +86,38 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T05` — Listado "mis servicios publicados" con acciones (editar,
-pausar, eliminar).** 2026-10-18. Rama `feat/S3-T05-mis-servicios`, desde
-`main` con `S3-T04` ya integrada (#34), pull request **sin abrir todavía**.
-Ticket redactado por el agente al tomar la tarea.
+**`S3-T06` — ViewModels y estados de UI del módulo del trabajador.**
+2026-10-19. Rama `feat/S3-T06-viewmodels-trabajador`, desde `main` con
+`S3-T05` ya integrada (#35), pull request **sin abrir todavía**. Ticket
+redactado por el agente al tomar la tarea.
 
-- **P-12 está construida** según `DISENO-PERFIL-SERVICIOS.md` §3:
-  `MisServiciosContenido` sin estado propio y `EstadoMisServicios`, con los
-  accesos a P-11 y P-14, el resumen "3 servicios · 1 pausado", la lista, la
-  hoja de acciones (Editar, Pausar o Reactivar, Eliminar), la confirmación de
-  eliminar con el título del servicio, el botón flotante y el estado vacío.
-- **`H-21` cerrado por el líder**: `TarjetaServicio` ganó `pausado` (60 % de
-  opacidad y "Plomería · Pausado") y ya no pinta el renglón de precio vacío.
-  Entró primero en `DISENO.md`.
-- `ordenarMisServicios`, `precioDeServicio` y `formatearCantidad` son
-  funciones puras con prueba: activos primero, la tabla 3.4 y los miles de
-  `es-MX`.
-- **Todavía no carga, no pausa ni elimina**: eso es `S3-T06`. En el emulador
-  P-12 siempre se ve vacía. La miniatura de cada tarjeta espera `H-18`.
-- **Hueco nuevo, `H-24`**: ninguna tarea construye P-14.
+- **P-11, P-12 y P-13 cargan y guardan** contra sus interfaces de
+  repositorio, con `MiPerfilViewModel`, `MisServiciosViewModel` y
+  `ServicioViewModel`. Siguen enlazadas a los falsos hasta `S3-T09`.
+- **P-11** guarda en dos pasos (2.4): primero el perfil, luego las habilidades
+  si cambiaron. Si fallan solo las habilidades, "Reintentar" repite solo ese
+  paso (`soloFaltanHabilidades`). El aviso de incompleto se calcula con
+  `calcularFaltantes` sobre lo guardado.
+- **P-12** recarga en cada `ON_RESUME` sin volver a tapar la lista. Pausar,
+  reactivar y eliminar dan su aviso; un error deja la lista igual.
+- **P-13** pasa a modo editar al publicar, sin navegar, y guarda el `id` nuevo
+  en su `SavedStateHandle`. "Guardar cambios" regresa a P-12, y P-12 da el
+  aviso. Las fotos se suben, se cancelan y se quitan en el momento.
+- **Lo que falta**: las validaciones de campo (`S3-T07`); pedir a la IA
+  (`S3-T13`), aunque el botón ya se habilita con los datos; las fotos que el
+  servicio ya tenía (`H-18`).
+- **Desvío**: los avisos no salían en ninguna de las tres pantallas. Consumir
+  el aviso dentro del mismo `LaunchedEffect` cancelaba el Snackbar. Se corrigió
+  como en P-18, y está en el ticket.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 242 pruebas unitarias (4 nuevas en `EstadoMisServiciosTest`), 0 fallas.
-  - 108 instrumentadas (12 nuevas en `MisServiciosPantallaTest`), 0 fallas.
-  - A mano en el emulador con `beto.rls@…`: la pestaña Servicios abre P-12
-    vacía y sin flecha; "Publicar mi primer servicio" abre P-13 en modo
-    crear, y los accesos abren P-11 y P-14; atrás vuelve a P-12.
+  - 277 pruebas unitarias (35 nuevas en los tres `…ViewModelTest`), 0 fallas.
+  - 108 instrumentadas, 0 fallas. La primera corrida se cortó en la prueba 83
+    porque el emulador `Pixel_10` se cayó; reiniciado, pasaron todas.
+  - A mano en el emulador con `beto.rls@…`: publicar, editar con "Cambios
+    guardados", pausar, eliminar con confirmación hasta el vacío; en P-11,
+    estado Puebla con solo sus municipios, guardar con "Perfil guardado", y al
+    reabrir lo guardado sigue ahí.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -176,10 +182,11 @@ quedan cuatro.**
 
 ## Siguiente en la cola
 
-**`S3-T06` — ViewModels y estados de UI del módulo del trabajador** (prioridad
-800, RRC, depende de `S3-T04`, hecha). Todavía no tiene ticket: se redacta al
-tomarla. Es la que hace que P-11, P-12 y P-13 carguen y guarden. **Ojo: cargar
-las fotos de un servicio necesita `H-18`**, que sigue abierto y es de `S3-T08`.
+**`S3-T07` — Validaciones y reglas de negocio de la publicación de servicios**
+(prioridad 750, GRI, depende de `S1-T13`, hecha). Todavía no tiene ticket: se
+redacta al tomarla. Son las secciones 1.6 y 5 de `DISENO-PERFIL-SERVICIOS.md`,
+en `ValidacionesTrabajador.kt`. Los tres ViewModels de `S3-T06` ya tienen dónde
+llamarlas: `alGuardar()` de P-11 y P-13 y `alAgregarHabilidad()` de P-11.
 
 ## Un hueco nuevo de S3-T05
 

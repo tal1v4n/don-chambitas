@@ -33,6 +33,7 @@ sealed interface FotoEnPantalla {
  * @property noExiste Al editar, el servicio ya no esta: se borro desde otro telefono (1.3).
  * @property fotoPorQuitar Foto cuya confirmacion de quitar esta abierta.
  * @property aviso Mensaje de un solo uso para el SnackbarHost.
+ * @property cambiosGuardados Evento de un solo uso: "Guardar cambios" salio bien y se regresa a P-12 (4.5).
  */
 data class EstadoServicio(
     val cargando: Boolean = true,
@@ -58,7 +59,8 @@ data class EstadoServicio(
     val ia: EstadoBotonIa = EstadoBotonIa.FaltanDatos,
     val propuestaIa: String? = null,
     val fotoPorQuitar: FotoEnPantalla? = null,
-    @StringRes val aviso: Int? = null
+    @StringRes val aviso: Int? = null,
+    val cambiosGuardados: Boolean = false
 ) {
     val creando: Boolean get() = servicioId == null
     val hayPrecio: Boolean get() = precioDesde.isNotBlank() || precioHasta.isNotBlank()

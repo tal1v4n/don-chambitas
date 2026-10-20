@@ -45,7 +45,9 @@
 | 2026-10-18 | S3-T02 | RRC | feat/S3-T02-catalogo-categorias | #32 | Las 16 categorias con acentos en 04_datos_semilla.sql, FuenteDatosFalsa y RepositorioIaFalso; un update previo renombra las filas viejas para que la semilla siga idempotente y conserve los id. 91 y 92 buscan la categoria por orden. iconoCategoria() en IconosCategoria.kt traduce categorias.icono a Material Icons, con Otros como respaldo. DISENO.md ya no llama ID al orden. 233 unitarias pasando (4 nuevas). Falta que el lider vuelva a correr la semilla en Supabase |
 | 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil | #33 | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
 | 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio | #34 | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
-| 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios |  | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
+| 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios | #35 | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
+| 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador |  | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
+| 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador |  | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
 
 ---
 
@@ -64,6 +66,33 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T05` — Listado "mis servicios publicados" con acciones (editar,
+pausar, eliminar).** 2026-10-18. Rama `feat/S3-T05-mis-servicios`, desde
+`main` con `S3-T04` ya integrada (#34), pull request **#35**.
+Ticket redactado por el agente al tomar la tarea.
+
+- **P-12 está construida** según `DISENO-PERFIL-SERVICIOS.md` §3:
+  `MisServiciosContenido` sin estado propio y `EstadoMisServicios`, con los
+  accesos a P-11 y P-14, el resumen "3 servicios · 1 pausado", la lista, la
+  hoja de acciones (Editar, Pausar o Reactivar, Eliminar), la confirmación de
+  eliminar con el título del servicio, el botón flotante y el estado vacío.
+- **`H-21` cerrado por el líder**: `TarjetaServicio` ganó `pausado` (60 % de
+  opacidad y "Plomería · Pausado") y ya no pinta el renglón de precio vacío.
+  Entró primero en `DISENO.md`.
+- `ordenarMisServicios`, `precioDeServicio` y `formatearCantidad` son
+  funciones puras con prueba: activos primero, la tabla 3.4 y los miles de
+  `es-MX`.
+- **Todavía no carga, no pausa ni elimina**: eso es `S3-T06`. En el emulador
+  P-12 siempre se ve vacía. La miniatura de cada tarjeta espera `H-18`.
+- **Hueco nuevo, `H-24`**: ninguna tarea construye P-14.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 242 pruebas unitarias (4 nuevas en `EstadoMisServiciosTest`), 0 fallas.
+  - 108 instrumentadas (12 nuevas en `MisServiciosPantallaTest`), 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: la pestaña Servicios abre P-12
+    vacía y sin flecha; "Publicar mi primer servicio" abre P-13 en modo
+    crear, y los accesos abren P-11 y P-14; atrás vuelve a P-12.
 
 **`S3-T04` — Pantalla de creación y edición de un servicio.** 2026-10-18.
 Rama `feat/S3-T04-pantalla-servicio`, desde `main` con `S3-T03` ya integrada

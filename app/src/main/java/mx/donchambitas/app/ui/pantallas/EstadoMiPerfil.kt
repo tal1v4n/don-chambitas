@@ -3,6 +3,7 @@ package mx.donchambitas.app.ui.pantallas
 import androidx.annotation.StringRes
 import mx.donchambitas.app.dominio.modelo.Estado
 import mx.donchambitas.app.dominio.modelo.Municipio
+import mx.donchambitas.app.dominio.modelo.PerfilTrabajador
 import mx.donchambitas.app.util.TipoError
 
 /** Lo que el aviso de perfil incompleto puede listar, en el orden en que se lista (2.5). */
@@ -19,6 +20,8 @@ enum class FaltaPerfil { DESCRIPCION, HABILIDAD, UBICACION, TELEFONO }
  * @property perfilGuardado Ya existe la fila en perfiles_trabajador; sin ella no hay vista previa.
  * @property faltantes Lo que le falta al perfil guardado. Se calcula sobre lo guardado y no
  * sobre lo que se escribe, para que el aviso no aparezca y desaparezca con cada letra.
+ * @property soloFaltanHabilidades El perfil se guardo y las habilidades no: el error en linea lo
+ * dice y "Reintentar" repite solo ese paso (2.4).
  * @property propuestaIa Texto de la IA pendiente de confirmar antes de reemplazar la descripcion.
  * @property aviso Mensaje de un solo uso para el SnackbarHost, como `destino` en P-02.
  */
@@ -45,8 +48,23 @@ data class EstadoMiPerfil(
     @StringRes val errorMunicipio: Int? = null,
     @StringRes val errorTelefono: Int? = null,
     val errorPantalla: TipoError? = null,
+    val soloFaltanHabilidades: Boolean = false,
     val guardando: Boolean = false,
     val ia: EstadoBotonIa = EstadoBotonIa.FaltanDatos,
     val propuestaIa: String? = null,
     @StringRes val aviso: Int? = null
 )
+
+/**
+ * Lo que le falta al perfil guardado, en el orden del aviso (2.5). Sin perfil
+ * falta todo. El titulo no se lista: sin el no se puede guardar.
+ */
+fun calcularFaltantes(perfil: PerfilTrabajador?, habilidades: List<String>): List<FaltaPerfil> {
+    if (perfil == null) return FaltaPerfil.entries
+    return buildList {
+        if (perfil.descripcion.isNullOrBlank()) add(FaltaPerfil.DESCRIPCION)
+        if (habilidades.isEmpty()) add(FaltaPerfil.HABILIDAD)
+        if (perfil.estadoId == null || perfil.municipioId == null) add(FaltaPerfil.UBICACION)
+        if (perfil.telefonoContacto.isNullOrBlank()) add(FaltaPerfil.TELEFONO)
+    }
+}

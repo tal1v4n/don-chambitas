@@ -298,6 +298,7 @@ data class EstadoMiPerfil(
     val errorMunicipio: Int? = null,
     val errorTelefono: Int? = null,
     val errorPantalla: TipoError? = null,
+    val soloFaltanHabilidades: Boolean = false,  // 2.4: el perfil se guardó y las habilidades no (S3-T06)
     val guardando: Boolean = false,
     val ia: EstadoBotonIa = EstadoBotonIa.FaltanDatos,
     val propuestaIa: String? = null,             // pendiente de confirmar reemplazo
@@ -605,7 +606,8 @@ data class EstadoServicio(
     val ia: EstadoBotonIa = EstadoBotonIa.FaltanDatos,
     val propuestaIa: String? = null,
     val fotoPorQuitar: FotoEnPantalla? = null,  // diálogo de confirmación abierto
-    val aviso: Int? = null
+    val aviso: Int? = null,
+    val cambiosGuardados: Boolean = false       // evento de un solo uso: regresar a P-12 (4.5, S3-T06)
 )
 
 sealed interface FotoEnPantalla {
@@ -924,6 +926,12 @@ de crear vacío.
 
 **P-12 recarga al volver de P-13.** `MisServiciosViewModel` recarga cuando la
 pantalla vuelve a estar en `RESUMED`, no solo la primera vez.
+
+**El aviso "Cambios guardados" viaja en la entrada de P-12** (lo agregó
+`S3-T06`). Al guardar cambios, el grafo deja una marca en el
+`savedStateHandle` de la entrada anterior y hace `popBackStack()`; P-12 la
+toma una sola vez al volver y se la pasa a `alCargar(cambiosGuardados)`. No
+puede ir en el `SavedStateHandle` del ViewModel: el de la entrada es otro.
 
 **Esta tarea no toca `Rutas.kt`.** Las tres rutas y la de P-07 ya existen
 desde `S1-T12`, con `servicioId` opcional en P-13. Lo que hoy hay en

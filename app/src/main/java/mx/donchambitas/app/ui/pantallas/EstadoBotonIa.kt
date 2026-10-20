@@ -19,3 +19,13 @@ sealed interface EstadoBotonIa {
     /** Se gastaron las 10 llamadas del dia, en total (DEC-18). */
     data object LimiteAlcanzado : EstadoBotonIa
 }
+
+/**
+ * El estado del boton tras cambiar los datos de los que sale la entrada (1.9).
+ * Mientras pide o con el limite alcanzado no cambia: escribir no lo destraba.
+ */
+fun EstadoBotonIa.recalcular(faltanDatos: Boolean): EstadoBotonIa = when {
+    this == EstadoBotonIa.Pidiendo || this == EstadoBotonIa.LimiteAlcanzado -> this
+    faltanDatos -> EstadoBotonIa.FaltanDatos
+    else -> EstadoBotonIa.Disponible((this as? EstadoBotonIa.Disponible)?.restantesHoy)
+}

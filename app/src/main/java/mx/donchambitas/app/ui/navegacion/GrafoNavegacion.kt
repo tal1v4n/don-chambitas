@@ -274,6 +274,14 @@ fun GrafoNavegacion(
 private val LocalEstadoSesion = compositionLocalOf { EstadoSesion.VERIFICANDO }
 
 /**
+ * Marca que P-13 deja en la entrada de P-12 tras "Guardar cambios", para que
+ * el aviso salga en P-12, que es a donde se regresa (DISENO-PERFIL-SERVICIOS.md 4.5).
+ * Va en la entrada y no en el ViewModel: el SavedStateHandle de la entrada es
+ * otro que el que Hilt le da a MisServiciosViewModel.
+ */
+private const val CLAVE_CAMBIOS_GUARDADOS = "cambios_guardados"
+
+/**
  * Rutas donde el andamio de S1-T12 no debe pintar barra superior, porque la
  * pantalla real ya resuelve su propia parte de arriba:
  *
@@ -489,23 +497,28 @@ private fun NavGraphBuilder.subgrafoTrabajador(navController: NavHostController)
             )
         }
 
-        composable(Ruta.MisServicios.ruta) {
+        composable(Ruta.MisServicios.ruta) { entrada ->
             MisServiciosPantalla(
                 alPublicar = { navController.navigate(Ruta.CrearEditarServicio.crearRuta(null)) },
                 alEditar = { id -> navController.navigate(Ruta.CrearEditarServicio.crearRuta(id)) },
                 alIrAMiPerfil = { navController.navigate(Ruta.MiPerfil.ruta) },
-                alIrAMisPostulaciones = { navController.navigate(Ruta.MisPostulaciones.ruta) }
+                alIrAMisPostulaciones = { navController.navigate(Ruta.MisPostulaciones.ruta) },
+                tomarCambiosGuardados = { entrada.savedStateHandle.remove<Boolean>(CLAVE_CAMBIOS_GUARDADOS) == true }
             )
         }
 
         composable(
             route = Ruta.CrearEditarServicio.ruta,
             arguments = Ruta.CrearEditarServicio.argumentos
-        ) { backStackEntry ->
-            val servicioId = backStackEntry.arguments?.getString(Ruta.CrearEditarServicio.ARG_SERVICIO_ID)
+        ) {
+            // El servicioId lo lee ServicioViewModel de su SavedStateHandle.
             ServicioPantalla(
-                servicioId = servicioId,
-                alRegresar = { navController.popBackStack() }
+                alRegresar = { navController.popBackStack() },
+                alGuardarCambios = {
+                    // El aviso "Cambios guardados" lo da P-12, que es a donde se regresa (4.5).
+                    navController.previousBackStackEntry?.savedStateHandle?.set(CLAVE_CAMBIOS_GUARDADOS, true)
+                    navController.popBackStack()
+                }
             )
         }
 

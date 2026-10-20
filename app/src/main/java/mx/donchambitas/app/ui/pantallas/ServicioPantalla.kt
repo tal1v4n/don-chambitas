@@ -37,11 +37,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,6 +66,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -106,38 +107,42 @@ private const val OPACIDAD_VELO_SUBIDA = 0.4f
  * Pantalla Crear o editar servicio (P-13).
  * Especificada en docs/producto/DISENO-PERFIL-SERVICIOS.md, seccion 4.
  *
- * Mientras no exista su ViewModel (S3-T06), guarda el estado aqui con
- * rememberSaveable y aplica los cambios de campo. No carga el servicio, no lo
- * guarda y no sube fotos: la foto elegida se valida y ahi se queda.
+ * Conecta [ServicioContenido] con [ServicioViewModel], que lee el servicioId
+ * de la ruta. La foto elegida se valida aqui, porque leerla necesita el
+ * ContentResolver, y sus bytes se le pasan al ViewModel. Pedir a la IA
+ * todavia no hace nada: es S3-T13.
  *
- * @param servicioId Nulo al crear; con valor, el servicio que se edita.
  * @param alRegresar Regresa a P-12. Descarta lo no guardado.
+ * @param alGuardarCambios "Guardar cambios" salio bien: regresa a P-12, que da el aviso (4.5).
  */
 @Composable
 fun ServicioPantalla(
-    servicioId: String?,
     alRegresar: () -> Unit,
-    modifier: Modifier = Modifier
+    alGuardarCambios: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ServicioViewModel = hiltViewModel()
 ) {
-    var estado by rememberSaveable(stateSaver = GuardadoEstadoServicio) {
-        mutableStateOf(EstadoServicio(cargando = false, servicioId = servicioId))
-    }
+    val estado by viewModel.estado.collectAsState()
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
 
-    // Sin recortador: la foto de un trabajo se ve completa (4.2). Solo se valida.
+    LaunchedEffect(estado.cambiosGuardados) {
+        if (estado.cambiosGuardados) alGuardarCambios()
+    }
+
+    // Sin recortador: la foto de un trabajo se ve completa (4.2).
     fun recibirFoto(uri: Uri) {
         alcance.launch {
             val resolvedor = contexto.contentResolver
             val fallo = withContext(Dispatchers.IO) { resolvedor.validarImagen(uri) }
             if (fallo != null) {
-                estado = estado.copy(aviso = fallo.mensaje())
+                viewModel.alRechazarFoto(fallo.mensaje())
                 return@launch
             }
             val bytes = withContext(Dispatchers.IO) {
                 runCatching { resolvedor.openInputStream(uri)?.use { it.readBytes() } }.getOrNull()
             }
-            if (bytes == null) estado = estado.copy(aviso = R.string.foto_no_se_abrio)
+            if (bytes == null) viewModel.alRechazarFoto(R.string.foto_no_se_abrio) else viewModel.alAgregarFoto(bytes)
         }
     }
 
@@ -151,17 +156,13 @@ fun ServicioPantalla(
 
     ServicioContenido(
         estado = estado,
-        alCambiarTitulo = { estado = estado.copy(titulo = it, errorTitulo = null) },
-        alElegirCategoria = { estado = estado.copy(categoriaId = it, errorCategoria = null) },
-        alCambiarDescripcion = { estado = estado.copy(descripcion = it, errorDescripcion = null) },
-        alCambiarPrecioDesde = {
-            estado = estado.copy(precioDesde = filtrarPrecio(it), errorPrecioDesde = null, errorPrecioHasta = null)
-        },
-        alCambiarPrecioHasta = {
-            estado = estado.copy(precioHasta = filtrarPrecio(it), errorPrecioDesde = null, errorPrecioHasta = null)
-        },
-        alCambiarUnidad = { estado = estado.copy(unidadPrecio = it, errorUnidad = null) },
-        alGuardar = {},
+        alCambiarTitulo = viewModel::alCambiarTitulo,
+        alElegirCategoria = viewModel::alElegirCategoria,
+        alCambiarDescripcion = viewModel::alCambiarDescripcion,
+        alCambiarPrecioDesde = viewModel::alCambiarPrecioDesde,
+        alCambiarPrecioHasta = viewModel::alCambiarPrecioHasta,
+        alCambiarUnidad = viewModel::alCambiarUnidad,
+        alGuardar = viewModel::alGuardar,
         alElegirDeGaleria = {
             galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         },
@@ -169,44 +170,21 @@ fun ServicioPantalla(
             try {
                 camara.launch(archivoCamara)
             } catch (e: ActivityNotFoundException) {
-                estado = estado.copy(aviso = R.string.foto_sin_camara)
+                viewModel.alRechazarFoto(R.string.foto_sin_camara)
             }
         },
-        alCancelarSubida = {},
-        alPedirQuitarFoto = { estado = estado.copy(fotoPorQuitar = it) },
-        alConfirmarQuitarFoto = { estado = estado.copy(fotoPorQuitar = null) },
-        alCancelarQuitarFoto = { estado = estado.copy(fotoPorQuitar = null) },
+        alCancelarSubida = viewModel::alCancelarSubida,
+        alPedirQuitarFoto = viewModel::alPedirQuitarFoto,
+        alConfirmarQuitarFoto = viewModel::alConfirmarQuitarFoto,
+        alCancelarQuitarFoto = viewModel::alCancelarQuitarFoto,
         alPedirIa = {},
-        alConsumirAviso = { estado = estado.copy(aviso = null) },
+        alReintentarCarga = viewModel::alReintentarCarga,
+        alReintentar = viewModel::alGuardar,
+        alConsumirAviso = viewModel::alConsumirAviso,
         alRegresar = alRegresar,
         modifier = modifier
     )
 }
-
-/**
- * Lo que sobrevive a una rotacion mientras el estado viva en la pantalla. Las
- * categorias, las fotos y los errores los vuelve a poner quien los trajo.
- */
-private val GuardadoEstadoServicio = listSaver<EstadoServicio, Any?>(
-    save = {
-        listOf(
-            it.servicioId, it.titulo, it.categoriaId, it.descripcion,
-            it.precioDesde, it.precioHasta, it.unidadPrecio
-        )
-    },
-    restore = {
-        EstadoServicio(
-            cargando = false,
-            servicioId = it[0] as String?,
-            titulo = it[1] as String,
-            categoriaId = it[2] as Int?,
-            descripcion = it[3] as String,
-            precioDesde = it[4] as String,
-            precioHasta = it[5] as String,
-            unidadPrecio = it[6] as String
-        )
-    }
-)
 
 /**
  * Contenido visual puro de P-13, sin estado propio. Un callback por evento de
@@ -238,14 +216,17 @@ fun ServicioContenido(
     val administradorFoco = LocalFocusManager.current
     val siguienteCampo = KeyboardActions(onNext = { administradorFoco.moveFocus(FocusDirection.Down) })
     val avisos = remember { SnackbarHostState() }
+    val alcanceAvisos = rememberCoroutineScope()
     val textoAviso = estado.aviso?.let { stringResource(it) }
     var eligiendoFoto by rememberSaveable { mutableStateOf(false) }
     val editable = !estado.guardando
 
     LaunchedEffect(textoAviso) {
         if (textoAviso == null) return@LaunchedEffect
+        // En otro scope, como en P-18: consumir el aviso cambia la llave de este
+        // efecto y cancelaria el Snackbar mientras se muestra.
+        alcanceAvisos.launch { avisos.showSnackbar(textoAviso) }
         alConsumirAviso()
-        avisos.showSnackbar(textoAviso)
     }
 
     Scaffold(

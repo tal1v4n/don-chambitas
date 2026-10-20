@@ -15,9 +15,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.SavedStateHandle
 import androidx.test.platform.app.InstrumentationRegistry
 import java.time.Instant
 import mx.donchambitas.app.R
+import mx.donchambitas.app.datos.falso.FuenteDatosFalsa
+import mx.donchambitas.app.datos.falso.RepositorioCatalogosFalso
+import mx.donchambitas.app.datos.falso.RepositorioServiciosFalso
 import mx.donchambitas.app.dominio.modelo.Categoria
 import mx.donchambitas.app.dominio.modelo.ServicioFoto
 import mx.donchambitas.app.ui.tema.DonChambitasTema
@@ -206,7 +210,7 @@ class ServicioPantallaTest {
     @Test
     fun pantalla_filtraLosPreciosYHabilitaLaUnidad() {
         composeTestRule.setContent {
-            DonChambitasTema { ServicioPantalla(servicioId = null, alRegresar = {}) }
+            DonChambitasTema { ServicioPantalla(alRegresar = {}, alGuardarCambios = {}, viewModel = viewModelSinRetraso()) }
         }
 
         composeTestRule.onNodeWithText(texto(R.string.servicio_precio_desde)).performScrollTo().performTextInput("12a.345")
@@ -214,4 +218,14 @@ class ServicioPantallaTest {
         composeTestRule.onNodeWithText("12.34").assertIsDisplayed()
         composeTestRule.onNodeWithText(texto(R.string.servicio_unidad)).assertIsEnabled()
     }
+}
+
+/** P-13 en modo crear contra los falsos, sin los 300 ms de retraso que la prueba no esperaria. */
+private fun viewModelSinRetraso(): ServicioViewModel {
+    val fuente = FuenteDatosFalsa()
+    return ServicioViewModel(
+        RepositorioServiciosFalso(fuente).apply { retrasoMs = 0 },
+        RepositorioCatalogosFalso(fuente).apply { retrasoMs = 0 },
+        SavedStateHandle()
+    )
 }

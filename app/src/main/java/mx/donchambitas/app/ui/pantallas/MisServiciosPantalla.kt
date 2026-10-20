@@ -20,18 +20,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import java.math.BigDecimal
 import java.time.Instant
+import kotlinx.coroutines.launch
 import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.Servicio
 import mx.donchambitas.app.ui.componentes.BarraSuperior
@@ -57,12 +60,13 @@ private val RellenoInferiorLista = 88.dp
  * Pantalla Mis servicios del trabajador (P-12).
  * Especificada en docs/producto/DISENO-PERFIL-SERVICIOS.md, seccion 3.
  *
- * Mientras no exista su ViewModel (S3-T06) no carga servicios, asi que se ve
- * vacia; aqui solo se abren y cierran la hoja de acciones y la confirmacion.
- * Pausar, reactivar y eliminar todavia no hacen nada.
+ * Conecta [MisServiciosContenido] con [MisServiciosViewModel] y recarga en
+ * cada ON_RESUME, para que lo guardado en P-13 aparezca al volver (8).
  *
  * @param alPublicar Abre P-13 en modo crear.
  * @param alEditar Abre P-13 con el servicio.
+ * @param tomarCambiosGuardados Dice, una sola vez, si se volvio de P-13 tras "Guardar cambios".
+ *   Lo responde el grafo con la entrada de P-12, que es donde P-13 deja la marca.
  */
 @Composable
 fun MisServiciosPantalla(
@@ -70,26 +74,31 @@ fun MisServiciosPantalla(
     alEditar: (String) -> Unit,
     alIrAMiPerfil: () -> Unit,
     alIrAMisPostulaciones: () -> Unit,
-    modifier: Modifier = Modifier
+    tomarCambiosGuardados: () -> Boolean,
+    modifier: Modifier = Modifier,
+    viewModel: MisServiciosViewModel = hiltViewModel()
 ) {
-    var estado by remember { mutableStateOf(EstadoMisServicios(cargando = false)) }
+    val estado by viewModel.estado.collectAsState()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.alCargar(tomarCambiosGuardados()) }
 
     MisServiciosContenido(
         estado = estado,
-        alAbrirAcciones = { estado = estado.copy(servicioEnAcciones = it) },
-        alCerrarAcciones = { estado = estado.copy(servicioEnAcciones = null) },
+        alAbrirAcciones = viewModel::alAbrirAcciones,
+        alCerrarAcciones = viewModel::alCerrarAcciones,
         alEditar = {
-            estado = estado.copy(servicioEnAcciones = null)
+            viewModel.alEditar()
             alEditar(it.id)
         },
-        alCambiarActivo = { estado = estado.copy(servicioEnAcciones = null) },
-        alPedirEliminar = { estado = estado.copy(servicioEnAcciones = null, servicioPorEliminar = it) },
-        alConfirmarEliminar = { estado = estado.copy(servicioPorEliminar = null) },
-        alCancelarEliminar = { estado = estado.copy(servicioPorEliminar = null) },
+        alCambiarActivo = viewModel::alCambiarActivo,
+        alPedirEliminar = viewModel::alPedirEliminar,
+        alConfirmarEliminar = viewModel::alConfirmarEliminar,
+        alCancelarEliminar = viewModel::alCancelarEliminar,
         alPublicar = alPublicar,
         alIrAMiPerfil = alIrAMiPerfil,
         alIrAMisPostulaciones = alIrAMisPostulaciones,
-        alConsumirAviso = { estado = estado.copy(aviso = null) },
+        alReintentar = { viewModel.alCargar() },
+        alConsumirAviso = viewModel::alConsumirAviso,
         modifier = modifier
     )
 }
@@ -116,13 +125,16 @@ fun MisServiciosContenido(
     alConsumirAviso: () -> Unit = {}
 ) {
     val avisos = remember { SnackbarHostState() }
+    val alcanceAvisos = rememberCoroutineScope()
     val textoAviso = estado.aviso?.let { stringResource(it) }
     val vacia = estado.servicios.isEmpty()
 
     LaunchedEffect(textoAviso) {
         if (textoAviso == null) return@LaunchedEffect
+        // En otro scope, como en P-18: consumir el aviso cambia la llave de este
+        // efecto y cancelaria el Snackbar mientras se muestra.
+        alcanceAvisos.launch { avisos.showSnackbar(textoAviso) }
         alConsumirAviso()
-        avisos.showSnackbar(textoAviso)
     }
 
     Scaffold(
