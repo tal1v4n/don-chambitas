@@ -50,6 +50,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -134,6 +136,7 @@ fun MiPerfilPantalla(
         alReintentarCarga = viewModel::alReintentarCarga,
         alReintentar = viewModel::alReintentarGuardado,
         alConsumirAviso = viewModel::alConsumirAviso,
+        alSalirDeCampo = viewModel::alPerderFoco,
         alRegresar = alRegresar,
         alVerComoCliente = { alVerComoCliente(estado.usuarioId) },
         modifier = modifier
@@ -166,7 +169,8 @@ fun MiPerfilContenido(
     modifier: Modifier = Modifier,
     alReintentarCarga: () -> Unit = {},
     alReintentar: (() -> Unit)? = null,
-    alConsumirAviso: () -> Unit = {}
+    alConsumirAviso: () -> Unit = {},
+    alSalirDeCampo: (CampoMiPerfil) -> Unit = {}
 ) {
     val administradorFoco = LocalFocusManager.current
     val siguienteCampo = KeyboardActions(onNext = { administradorFoco.moveFocus(FocusDirection.Down) })
@@ -174,6 +178,25 @@ fun MiPerfilContenido(
     val alcanceAvisos = rememberCoroutineScope()
     val textoAviso = estado.aviso?.let { stringResource(it) }
     var hojaAbierta by rememberSaveable { mutableStateOf<HojaMiPerfil?>(null) }
+    val solicitantesFoco = remember { CampoMiPerfil.entries.associateWith { FocusRequester() } }
+    var irAlPrimerError by remember { mutableStateOf(false) }
+    val guardar = {
+        alGuardar()
+        irAlPrimerError = true
+    }
+
+    // 5.4: el foco va al primero que fallo, en orden visual. El municipio no
+    // abre teclado: recibir el foco solo lo trae a la vista.
+    LaunchedEffect(irAlPrimerError) {
+        if (!irAlPrimerError) return@LaunchedEffect
+        irAlPrimerError = false
+        CampoMiPerfil.entries.firstOrNull { estado.errorDe(it) != null }
+            ?.let { solicitantesFoco.getValue(it).requestFocus() }
+    }
+
+    fun Modifier.campo(campo: CampoMiPerfil): Modifier = this
+        .focusRequester(solicitantesFoco.getValue(campo))
+        .alPerderFoco { alSalirDeCampo(campo) }
     val editable = !estado.guardando
 
     LaunchedEffect(textoAviso) {
@@ -233,7 +256,8 @@ fun MiPerfilContenido(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Next
                     ),
-                    tecladoAcciones = siguienteCampo
+                    tecladoAcciones = siguienteCampo,
+                    modifier = Modifier.campo(CampoMiPerfil.TITULO)
                 )
 
                 CampoTexto(
@@ -247,7 +271,7 @@ fun MiPerfilContenido(
                         imeAction = ImeAction.Next
                     ),
                     tecladoAcciones = siguienteCampo,
-                    modifier = Modifier.width(AnchoExperiencia)
+                    modifier = Modifier.width(AnchoExperiencia).campo(CampoMiPerfil.EXPERIENCIA)
                 )
 
                 CampoTexto(
@@ -318,7 +342,8 @@ fun MiPerfilContenido(
                         valor = estado.municipios.firstOrNull { it.id == estado.municipioId }?.nombre.orEmpty(),
                         habilitado = editable && estado.estadoId != null,
                         error = estado.errorMunicipio?.let { stringResource(it) },
-                        alAbrir = { hojaAbierta = HojaMiPerfil.MUNICIPIO }
+                        alAbrir = { hojaAbierta = HojaMiPerfil.MUNICIPIO },
+                        modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoMiPerfil.MUNICIPIO))
                     )
                     if (estado.estadoId == null) {
                         Ayuda(R.string.mi_perfil_municipio_ayuda)
@@ -338,7 +363,8 @@ fun MiPerfilContenido(
                             keyboardType = KeyboardType.Phone,
                             imeAction = ImeAction.Done
                         ),
-                        tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() })
+                        tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() }),
+                        modifier = Modifier.campo(CampoMiPerfil.TELEFONO)
                     )
                     Ayuda(R.string.mi_perfil_telefono_ayuda)
                 }
@@ -357,7 +383,7 @@ fun MiPerfilContenido(
 
                 BotonPrincipal(
                     texto = stringResource(R.string.mi_perfil_guardar),
-                    onClick = alGuardar,
+                    onClick = guardar,
                     cargando = estado.guardando,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -494,7 +520,8 @@ private fun Selector(
     valor: String,
     habilitado: Boolean,
     alAbrir: () -> Unit,
-    error: String? = null
+    error: String? = null,
+    modifier: Modifier = Modifier
 ) {
     Box {
         CampoTexto(
@@ -504,6 +531,7 @@ private fun Selector(
             error = error,
             habilitado = habilitado,
             soloLectura = true,
+            modifier = modifier,
             iconoFin = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowDropDown,
@@ -680,8 +708,13 @@ private fun MiPerfilCompletoPreview() {
 @Composable
 private fun MiPerfilConErroresPreview() {
     MiPerfilPreview(
-        // Los mensajes de titulo y municipio llegan con S3-T07; el del telefono ya existe.
         PerfilCompletoDeMuestra.copy(
+            titulo = "",
+            errorTitulo = R.string.validacion_perfil_titulo_vacio,
+            habilidadNueva = "Cobre",
+            errorHabilidad = R.string.validacion_habilidad_repetida,
+            municipioId = null,
+            errorMunicipio = R.string.validacion_municipio_sin_elegir,
             telefonoContacto = "33123",
             errorTelefono = R.string.validacion_telefono_digitos,
             errorPantalla = TipoError.RED

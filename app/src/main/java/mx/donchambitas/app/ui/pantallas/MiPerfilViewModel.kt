@@ -15,6 +15,7 @@ import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.PerfilTrabajador
 import mx.donchambitas.app.dominio.repositorio.RepositorioCatalogos
 import mx.donchambitas.app.dominio.repositorio.RepositorioTrabajador
+import mx.donchambitas.app.dominio.validacion.ValidacionesTrabajador
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
 import mx.donchambitas.app.util.Resultado
 
@@ -24,8 +25,9 @@ private const val MAXIMO_DIGITOS_EXPERIENCIA = 2
  * ViewModel de Mi perfil (P-11), HU-06.
  * Especificado en docs/producto/DISENO-PERFIL-SERVICIOS.md, secciones 2.2 a 2.5.
  *
- * Las validaciones de campo son de S3-T07: aqui solo se recorta lo escrito al
- * armar el perfil. Pedir a la IA es de S3-T13; aqui solo se recalcula el boton.
+ * Valida con ValidacionesTrabajador (5.2) cuando dice 1.5: al perder el foco
+ * un campo ya tocado y todos al guardar. Pedir a la IA es de S3-T13; aqui solo
+ * se recalcula el boton.
  */
 @HiltViewModel
 class MiPerfilViewModel @Inject constructor(
@@ -43,6 +45,9 @@ class MiPerfilViewModel @Inject constructor(
     private var habilidadesGuardadas: List<String> = emptyList()
 
     private var cargaMunicipios: Job? = null
+
+    /** Los campos en los que ya se escribio: solo esos se validan al perder el foco (1.5). */
+    private var tocados: Set<CampoMiPerfil> = emptySet()
 
     init {
         cargar()
@@ -97,12 +102,14 @@ class MiPerfilViewModel @Inject constructor(
     }
 
     fun alCambiarTitulo(valor: String) {
+        tocados = tocados + CampoMiPerfil.TITULO
         _estado.update {
             it.copy(titulo = valor, errorTitulo = null, ia = it.ia.recalcular(faltanDatos = valor.isBlank()))
         }
     }
 
     fun alCambiarExperiencia(valor: String) {
+        tocados = tocados + CampoMiPerfil.EXPERIENCIA
         _estado.update {
             it.copy(
                 experienciaAnios = valor.filter(Char::isDigit).take(MAXIMO_DIGITOS_EXPERIENCIA),
@@ -115,11 +122,15 @@ class MiPerfilViewModel @Inject constructor(
         _estado.update { it.copy(habilidadNueva = valor, errorHabilidad = null) }
     }
 
-    /** Sin validar todavia: vacia o repetida es de S3-T07. Lo que si se hace es no agregar nada. */
+    /** Se valida al agregarla, no al guardar: lo que ya esta en la lista ya paso (5.2). */
     fun alAgregarHabilidad() {
-        val habilidad = _estado.value.habilidadNueva.trim()
-        if (habilidad.isEmpty()) return
-        _estado.update { it.copy(habilidades = it.habilidades + habilidad, habilidadNueva = "") }
+        val actual = _estado.value
+        val fallo = ValidacionesTrabajador.validarHabilidadNueva(actual.habilidadNueva, actual.habilidades)
+        if (fallo != null) {
+            _estado.update { it.copy(errorHabilidad = fallo.mensaje()) }
+            return
+        }
+        _estado.update { it.copy(habilidades = it.habilidades + it.habilidadNueva.trim(), habilidadNueva = "") }
     }
 
     /** No llama al repositorio: se guarda con todo lo demas (2.3). */
@@ -149,6 +160,7 @@ class MiPerfilViewModel @Inject constructor(
     }
 
     fun alCambiarTelefono(valor: String) {
+        tocados = tocados + CampoMiPerfil.TELEFONO
         _estado.update { it.copy(telefonoContacto = valor.filter(Char::isDigit), errorTelefono = null) }
     }
 
@@ -156,10 +168,23 @@ class MiPerfilViewModel @Inject constructor(
         _estado.update { it.copy(disponible = valor) }
     }
 
-    /** Primero el perfil y luego las habilidades, que apuntan a el (2.4). */
+    fun alPerderFoco(campo: CampoMiPerfil) {
+        if (campo in tocados) _estado.update { it.validado(campo) }
+    }
+
+    /**
+     * Valida todo (5.2) y, con algun error, no llama al repositorio: la
+     * pantalla lleva el foco al primero (5.4). Si pasa, primero el perfil y
+     * luego las habilidades, que apuntan a el (2.4).
+     */
     fun alGuardar() {
         val actual = _estado.value
         if (actual.guardando || actual.cargando) return
+        val validado = CampoMiPerfil.entries.fold(actual) { parcial, campo -> parcial.validado(campo) }
+        if (CampoMiPerfil.entries.any { validado.errorDe(it) != null }) {
+            _estado.value = validado
+            return
+        }
         _estado.update { it.copy(guardando = true, errorPantalla = null, soloFaltanHabilidades = false) }
         viewModelScope.launch {
             when (val resultado = repositorioTrabajador.guardarMiPerfil(armarPerfil(actual))) {
@@ -185,7 +210,9 @@ class MiPerfilViewModel @Inject constructor(
         viewModelScope.launch { guardarHabilidades(actual.habilidades) }
     }
 
-    private suspend fun guardarHabilidades(habilidades: List<String>) {
+    /** Las habilidades van normalizadas (1.6): recortadas y sin repetidas. */
+    private suspend fun guardarHabilidades(escritas: List<String>) {
+        val habilidades = ValidacionesTrabajador.normalizarHabilidades(escritas)
         if (habilidades != habilidadesGuardadas) {
             val resultado = repositorioTrabajador.reemplazarHabilidades(habilidades)
             if (resultado is Resultado.Error) {
@@ -224,4 +251,16 @@ class MiPerfilViewModel @Inject constructor(
     fun alConsumirAviso() {
         _estado.update { it.copy(aviso = null) }
     }
+}
+
+/** El campo con su regla de 5.2 aplicada. */
+private fun EstadoMiPerfil.validado(campo: CampoMiPerfil): EstadoMiPerfil = when (campo) {
+    CampoMiPerfil.TITULO ->
+        copy(errorTitulo = ValidacionesTrabajador.validarTituloPerfil(titulo)?.mensaje())
+    CampoMiPerfil.EXPERIENCIA ->
+        copy(errorExperiencia = ValidacionesTrabajador.validarExperiencia(experienciaAnios)?.mensaje())
+    CampoMiPerfil.MUNICIPIO ->
+        copy(errorMunicipio = ValidacionesTrabajador.validarMunicipio(estadoId, municipioId)?.mensaje())
+    CampoMiPerfil.TELEFONO ->
+        copy(errorTelefono = ValidacionesTrabajador.validarTelefonoContacto(telefonoContacto)?.mensaje())
 }

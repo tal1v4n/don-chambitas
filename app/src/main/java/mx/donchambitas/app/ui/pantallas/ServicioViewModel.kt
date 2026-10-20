@@ -19,6 +19,7 @@ import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.Servicio
 import mx.donchambitas.app.dominio.repositorio.RepositorioCatalogos
 import mx.donchambitas.app.dominio.repositorio.RepositorioServicios
+import mx.donchambitas.app.dominio.validacion.ValidacionesTrabajador
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
 import mx.donchambitas.app.ui.navegacion.Ruta
 import mx.donchambitas.app.util.Resultado
@@ -31,9 +32,9 @@ import mx.donchambitas.app.util.TipoError
  * El servicioId sale del argumento de la ruta. Al publicar se guarda ahi el id
  * nuevo, asi que si Android mata el proceso la pantalla vuelve en modo editar.
  *
- * Las validaciones son de S3-T07: hasta entonces [alGuardar] solo se niega a lo
- * que no cabe en el modelo. Al editar, las fotos que ya tenia el servicio no se
- * pintan: nada las devuelve con su id (H-18).
+ * Valida con ValidacionesTrabajador (5.3) cuando dice 1.5: al perder el foco
+ * un campo ya tocado y todos al guardar. Al editar, las fotos que ya tenia el
+ * servicio no se pintan: nada las devuelve con su id (H-18).
  */
 @HiltViewModel
 class ServicioViewModel @Inject constructor(
@@ -52,6 +53,9 @@ class ServicioViewModel @Inject constructor(
 
     /** Una corrutina por posicion, para cancelar cada subida sin tocar las otras (HU-11). */
     private val subidas = mutableMapOf<Int, Job>()
+
+    /** Los campos en los que ya se escribio: solo esos se validan al perder el foco (1.5). */
+    private var tocados: Set<CampoServicio> = emptySet()
 
     init {
         cargar()
@@ -103,6 +107,7 @@ class ServicioViewModel @Inject constructor(
     }
 
     fun alCambiarTitulo(valor: String) {
+        tocados = tocados + CampoServicio.TITULO
         _estado.update { it.copy(titulo = valor, errorTitulo = null).conIaRecalculada() }
     }
 
@@ -111,26 +116,43 @@ class ServicioViewModel @Inject constructor(
     }
 
     fun alCambiarDescripcion(valor: String) {
+        tocados = tocados + CampoServicio.DESCRIPCION
         _estado.update { it.copy(descripcion = valor, errorDescripcion = null) }
     }
 
     fun alCambiarPrecioDesde(valor: String) {
+        tocados = tocados + CampoServicio.PRECIO_DESDE
         _estado.update { it.copy(precioDesde = filtrarPrecio(valor), errorPrecioDesde = null, errorPrecioHasta = null) }
     }
 
     fun alCambiarPrecioHasta(valor: String) {
+        tocados = tocados + CampoServicio.PRECIO_HASTA
         _estado.update { it.copy(precioHasta = filtrarPrecio(valor), errorPrecioDesde = null, errorPrecioHasta = null) }
     }
 
     fun alCambiarUnidad(valor: String) {
+        tocados = tocados + CampoServicio.UNIDAD
         _estado.update { it.copy(unidadPrecio = valor, errorUnidad = null) }
     }
 
-    /** Con una foto subiendo, espera (4.5). */
+    fun alPerderFoco(campo: CampoServicio) {
+        if (campo in tocados) _estado.update { it.validado(campo) }
+    }
+
+    /**
+     * Valida todo (5.3) y, con algun error, no llama al repositorio: la
+     * pantalla lleva el foco al primero (5.4). Con una foto subiendo, espera (4.5).
+     */
     fun alGuardar() {
         val actual = _estado.value
         if (actual.guardando || actual.cargando || actual.subiendoFoto) return
-        val servicio = armarServicio(actual) ?: return
+        val validado = CampoServicio.entries.fold(actual) { parcial, campo -> parcial.validado(campo) }
+        val categoriaId = validado.categoriaId
+        if (categoriaId == null || CampoServicio.entries.any { validado.errorDe(it) != null }) {
+            _estado.value = validado
+            return
+        }
+        val servicio = armarServicio(validado, categoriaId)
         _estado.update { it.copy(guardando = true, errorPantalla = null) }
         viewModelScope.launch {
             val resultado = if (actual.creando) {
@@ -219,14 +241,8 @@ class ServicioViewModel @Inject constructor(
         _estado.update { it.copy(aviso = null) }
     }
 
-    /**
-     * Nulo si lo escrito no cabe en [Servicio]: sin categoria, o con un precio
-     * que no se lee como numero. Marcar esos errores es de S3-T07.
-     */
-    private fun armarServicio(estado: EstadoServicio): Servicio? {
-        val categoriaId = estado.categoriaId ?: return null
-        val desde = leerPrecio(estado.precioDesde) ?: return null
-        val hasta = leerPrecio(estado.precioHasta) ?: return null
+    /** Ya validado: los precios se leen y van normalizados a dos decimales (1.6). */
+    private fun armarServicio(estado: EstadoServicio, categoriaId: Int): Servicio {
         val ahora = Instant.now()
         val guardado = servicioGuardado
         return Servicio(
@@ -235,8 +251,8 @@ class ServicioViewModel @Inject constructor(
             categoriaId = categoriaId,
             titulo = estado.titulo.trim(),
             descripcion = estado.descripcion.trim(),
-            precioDesde = desde.cantidad,
-            precioHasta = hasta.cantidad,
+            precioDesde = ValidacionesTrabajador.normalizarPrecio(estado.precioDesde),
+            precioHasta = ValidacionesTrabajador.normalizarPrecio(estado.precioHasta),
             unidadPrecio = estado.unidadPrecio.trim().takeIf { it.isNotEmpty() && estado.hayPrecio },
             activo = guardado?.activo ?: true,
             creadoEn = guardado?.creadoEn ?: ahora,
@@ -245,13 +261,24 @@ class ServicioViewModel @Inject constructor(
     }
 }
 
-/** Un precio leido: [cantidad] nula si el campo estaba vacio. */
-private class PrecioLeido(val cantidad: BigDecimal?)
-
-/** Nulo si el texto no es un numero; vacio es un precio leido sin cantidad. Acepta coma o punto (1.6). */
-private fun leerPrecio(texto: String): PrecioLeido? {
-    if (texto.isBlank()) return PrecioLeido(null)
-    return texto.replace(',', '.').toBigDecimalOrNull()?.let(::PrecioLeido)
+/** El campo con su regla de 5.3 aplicada. El rango se pinta en "Hasta", que es el que normalmente se corrige. */
+private fun EstadoServicio.validado(campo: CampoServicio): EstadoServicio = when (campo) {
+    CampoServicio.TITULO ->
+        copy(errorTitulo = ValidacionesTrabajador.validarTituloServicio(titulo)?.mensaje())
+    CampoServicio.CATEGORIA ->
+        copy(errorCategoria = ValidacionesTrabajador.validarCategoria(categoriaId)?.mensaje())
+    CampoServicio.DESCRIPCION ->
+        copy(errorDescripcion = ValidacionesTrabajador.validarDescripcionServicio(descripcion)?.mensaje())
+    CampoServicio.PRECIO_DESDE ->
+        copy(errorPrecioDesde = ValidacionesTrabajador.validarPrecio(precioDesde)?.mensaje())
+    CampoServicio.PRECIO_HASTA -> copy(
+        errorPrecioHasta = (
+            ValidacionesTrabajador.validarPrecio(precioHasta)
+                ?: ValidacionesTrabajador.validarRangoPrecio(precioDesde, precioHasta)
+            )?.mensaje()
+    )
+    CampoServicio.UNIDAD ->
+        copy(errorUnidad = ValidacionesTrabajador.validarUnidad(unidadPrecio)?.mensaje())
 }
 
 /** Como lo escribiria el trabajador: "350" si es entero, "350.50" si no. */
