@@ -5,15 +5,15 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import mx.donchambitas.app.datos.falso.RepositorioCatalogosFalso
 import mx.donchambitas.app.datos.falso.RepositorioChatFalso
 import mx.donchambitas.app.datos.falso.RepositorioIaFalso
 import mx.donchambitas.app.datos.falso.RepositorioPostulacionesFalso
 import mx.donchambitas.app.datos.falso.RepositorioResenasFalso
-import mx.donchambitas.app.datos.falso.RepositorioServiciosFalso
 import mx.donchambitas.app.datos.falso.RepositorioSolicitudesFalso
-import mx.donchambitas.app.datos.falso.RepositorioTrabajadorFalso
 import mx.donchambitas.app.datos.repositorio.RepositorioAuthReal
+import mx.donchambitas.app.datos.repositorio.RepositorioCatalogosReal
+import mx.donchambitas.app.datos.repositorio.RepositorioServiciosReal
+import mx.donchambitas.app.datos.repositorio.RepositorioTrabajadorReal
 import mx.donchambitas.app.datos.repositorio.RepositorioUsuarioReal
 import mx.donchambitas.app.dominio.repositorio.RepositorioAuth
 import mx.donchambitas.app.dominio.repositorio.RepositorioCatalogos
@@ -30,8 +30,10 @@ import mx.donchambitas.app.dominio.repositorio.RepositorioUsuario
  * Modulo de Hilt que enlaza las diez interfaces de repositorio del dominio
  * con sus implementaciones activas.
  *
- * RepositorioAuth y RepositorioUsuario ya enlazan a su implementacion real;
- * los otros ocho, a la falsa en memoria (FuenteDatosFalsa).
+ * RepositorioAuth, RepositorioUsuario, RepositorioTrabajador y
+ * RepositorioServicios ya enlazan a su implementacion real, y tambien
+ * RepositorioCatalogos, salvo buscarTrabajadores, que sigue en el falso hasta
+ * S4-T09 (S3-T09). Los otros cinco, a la falsa en memoria (FuenteDatosFalsa).
  * Cuando cada tarea real aterriza (S2-T07, S2-T12, S2-T14, S3-T09, S4-T09, S5-T07),
  * este archivo es el unico que cambia su enlace.
  */
@@ -54,13 +56,13 @@ abstract class ModuloRepositorios {
     @Binds
     @Singleton
     abstract fun enlazarRepositorioTrabajador(
-        impl: RepositorioTrabajadorFalso
+        impl: RepositorioTrabajadorReal
     ): RepositorioTrabajador
 
     @Binds
     @Singleton
     abstract fun enlazarRepositorioServicios(
-        impl: RepositorioServiciosFalso
+        impl: RepositorioServiciosReal
     ): RepositorioServicios
 
     @Binds
@@ -90,7 +92,7 @@ abstract class ModuloRepositorios {
     @Binds
     @Singleton
     abstract fun enlazarRepositorioCatalogos(
-        impl: RepositorioCatalogosFalso
+        impl: RepositorioCatalogosReal
     ): RepositorioCatalogos
 
     @Binds

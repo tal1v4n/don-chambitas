@@ -48,7 +48,8 @@
 | 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios | #35 | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
 | 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador | #36 | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
 | 2026-10-19 | S3-T07 | GRI | feat/S3-T07-validaciones-trabajador | #37 | ValidacionesTrabajador.kt con las 16 reglas de 5.2 y 5.3 (FalloTrabajador, LimitesTrabajador) y la normalizacion de 1.6: precio con coma o punto a dos decimales, habilidades sin repetidas. MiPerfilViewModel y ServicioViewModel validan como P-03: al perder el foco lo tocado, todo al guardar sin llamar al repositorio y foco al primer error; la habilidad, al agregarla. El municipio y la categoria reciben el foco aunque no abran teclado. Se quito el renglon duplicado de S3-T06 que entro con el #36. 296 unitarias (19 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
-| 2026-10-19 | S3-T08 | BCJL | docs/S3-T08-contrato-trabajador-servicios |  | CONTRATOS-API.md detalla RepositorioTrabajador y RepositorioServicios contra supabase-kt 3.0.3: consulta, columnas, retorno y errores de cada operacion, sin probar contra Supabase (lo verifica S3-T09). Tres huecos cerrados por el lider: H-18 con fotos embebidas (Servicio.fotos, el falso, la miniatura de P-12 y las fotos de P-13 al editar), H-20 sin porcentaje y H-06 con la fila primero y el archivo despues; MODELO-ER.md decia lo contrario y se reporto antes de escribirlo. Tres huecos nuevos: H-25 perfil publico sin estado o municipio, H-26 reemplazarHabilidades no atomico, H-27 servicio antes del perfil. 296 unitarias y 108 instrumentadas pasando |
+| 2026-10-19 | S3-T08 | BCJL | docs/S3-T08-contrato-trabajador-servicios | #38 | CONTRATOS-API.md detalla RepositorioTrabajador y RepositorioServicios contra supabase-kt 3.0.3: consulta, columnas, retorno y errores de cada operacion, sin probar contra Supabase (lo verifica S3-T09). Tres huecos cerrados por el lider: H-18 con fotos embebidas (Servicio.fotos, el falso, la miniatura de P-12 y las fotos de P-13 al editar), H-20 sin porcentaje y H-06 con la fila primero y el archivo despues; MODELO-ER.md decia lo contrario y se reporto antes de escribirlo. Tres huecos nuevos: H-25 perfil publico sin estado o municipio, H-26 reemplazarHabilidades no atomico, H-27 servicio antes del perfil. 296 unitarias y 108 instrumentadas pasando |
+| 2026-10-20 | S3-T09 | LMM | feat/S3-T09-persistencia-trabajador-servicios |  | RepositorioTrabajadorReal y RepositorioServiciosReal segun el contrato de S3-T08, enlazados en ModuloRepositorios: P-11, P-12 y P-13 guardan en Supabase y sobreviven al reinicio. Por decision del lider, tambien RepositorioCatalogosReal (categorias, estados y municipios): los ids de municipio del falso no coincidian con la base. buscarTrabajadores sigue falso hasta S4-T09. Que falta verificar, probado contra el proyecto: embebido en update, nulls, 400 y 409. Las categorias salen sin acentos hasta que el lider corra la semilla. 298 unitarias y 117 instrumentadas (9 contra Supabase) pasando |
 
 ---
 
@@ -67,6 +68,36 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T08` — Contrato de la API de perfil del trabajador y de servicios.**
+2026-10-19. Rama `docs/S3-T08-contrato-trabajador-servicios`, desde `main` con
+`S3-T07` ya integrada (#37), pull request **#38**. Ticket
+redactado por el agente al tomar la tarea.
+
+- **`CONTRATOS-API.md` detalla `RepositorioTrabajador` y
+  `RepositorioServicios`** como "Usuario": para cada operación, el código de
+  `supabase-kt` 3.0.3, las columnas que manda, qué devuelve, qué pasa si falla
+  cada paso y la tabla de errores. **No se probó contra Supabase.** Al final de
+  "Servicios", "Qué falta verificar" lista lo que `S3-T09` tiene que probar
+  primero.
+- **Tres huecos cerrados por el líder al tomar la tarea:**
+  - `H-18` con fotos embebidas: `Servicio` ganó `fotos` y el falso las
+    devuelve. P-12 pinta la miniatura de la posición 1, y P-13 pinta y deja
+    quitar al editar las fotos que el servicio ya tenía.
+  - `H-20` sin porcentaje: HU-11 se cumple con el indicador indeterminado.
+  - `H-06` con la fila primero y el archivo después, con las URL leídas antes.
+    `MODELO-ER.md` decía lo contrario: el agente lo reportó antes de
+    escribirlo, y lleva la nota de cierre.
+- **Tres huecos nuevos**, `H-25` a `H-27`, abajo. `H-27` es el urgente.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 296 pruebas unitarias, 0 fallas. Dos se ajustaron, porque el servicio
+    sembrado ya trae su foto, y el falso tiene una prueba nueva de fotos
+    embebidas.
+  - 108 instrumentadas, 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: publicar, subir una foto de la
+    galería ("1 de 3"), ver la miniatura en P-12, volver a editar con la foto
+    ya cargada y quitarla ("0 de 3").
 
 **`S3-T07` — Validaciones y reglas de negocio de la publicación de
 servicios.** 2026-10-19. Rama `feat/S3-T07-validaciones-trabajador`, desde

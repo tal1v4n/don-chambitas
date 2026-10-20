@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 8 |
+| Terminadas | 9 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -40,9 +40,10 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas la pestaña **Cuenta** | P-18 real: tu ficha de `public.usuarios`, editar datos, cambiar contraseña y cerrar sesión. El trabajador ve además "Mi perfil profesional" (P-11) y "Mis postulaciones" (P-14) | — |
 | Editas nombre, apellidos o teléfono y guardas | La tarjeta cambia en ese momento y sigue así al reabrir. El teléfono es obligatorio, como en P-03 | — |
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
-| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 carga y guarda: hojas de estado y municipio con datos (solo los municipios del estado), "Perfil guardado" y el aviso de incompleto recalculado al guardar. **Contra el repositorio falso**: lo guardado vive en memoria hasta cerrar la aplicación, y la fuente falsa lo atribuye a `cliente1`, no a tu cuenta (`DEC-31`). Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error; una habilidad vacía, larga o repetida no se agrega | `S3-T09` |
-| Como trabajador, tocas la pestaña **Servicios** | P-12 carga tus servicios, activos primero. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13. Arranca vacía por lo mismo que P-11: el falso no conoce tu cuenta | `S3-T09` |
-| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Con campos mal, "Publicar" los marca todos y lleva el foco al primero; el rango de precio se marca en "Hasta". Al editar salen las fotos que el servicio ya tenía, y se pueden quitar; las que agregas se suben y se quitan en el momento, y la de la posición 1 es la miniatura de P-12. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T13` |
+| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 **guarda en Supabase** (`S3-T09`): estados y municipios salen de la base, "Perfil guardado" y el aviso de incompleto recalculado, y al reabrir la aplicación lo guardado sigue. Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error. Probado con `beto.rls@…` y Puebla → Cholula | — |
+| Como trabajador, tocas la pestaña **Servicios** | P-12 **lee de Supabase** tus servicios, activos primero, con la miniatura de la foto de la posición 1. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13 | — |
+| Como trabajador, publicas un servicio en P-13 | **Guarda en Supabase.** Las 16 categorías salen de la base, **todavía sin acentos** ("Plomeria"), hasta que el líder vuelva a correr la semilla (`S3-T02`). "Publicar" deja la pantalla en "Editar servicio"; las fotos suben a la cubeta `servicios` con un indicador que gira. **Sin haber guardado antes el perfil profesional, "Publicar" falla con el error genérico** (`H-27`). "Redactar con IA" se habilita, pero aún no hace nada | `H-27`, `S3-T13` |
+
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -86,35 +87,44 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T08` — Contrato de la API de perfil del trabajador y de servicios.**
-2026-10-19. Rama `docs/S3-T08-contrato-trabajador-servicios`, desde `main` con
-`S3-T07` ya integrada (#37), pull request **sin abrir todavía**. Ticket
+**`S3-T09` — Persistencia real de perfiles y servicios en Supabase.**
+2026-10-20. Rama `feat/S3-T09-persistencia-trabajador-servicios`, desde `main`
+con `S3-T08` ya integrada (#38), pull request **sin abrir todavía**. Ticket
 redactado por el agente al tomar la tarea.
 
-- **`CONTRATOS-API.md` detalla `RepositorioTrabajador` y
-  `RepositorioServicios`** como "Usuario": para cada operación, el código de
-  `supabase-kt` 3.0.3, las columnas que manda, qué devuelve, qué pasa si falla
-  cada paso y la tabla de errores. **No se probó contra Supabase.** Al final de
-  "Servicios", "Qué falta verificar" lista lo que `S3-T09` tiene que probar
-  primero.
-- **Tres huecos cerrados por el líder al tomar la tarea:**
-  - `H-18` con fotos embebidas: `Servicio` ganó `fotos` y el falso las
-    devuelve. P-12 pinta la miniatura de la posición 1, y P-13 pinta y deja
-    quitar al editar las fotos que el servicio ya tenía.
-  - `H-20` sin porcentaje: HU-11 se cumple con el indicador indeterminado.
-  - `H-06` con la fila primero y el archivo después, con las URL leídas antes.
-    `MODELO-ER.md` decía lo contrario: el agente lo reportó antes de
-    escribirlo, y lleva la nota de cierre.
-- **Tres huecos nuevos**, `H-25` a `H-27`, abajo. `H-27` es el urgente.
+- **`RepositorioTrabajadorReal` y `RepositorioServiciosReal`** implementan el
+  contrato de `S3-T08`, y `ModuloRepositorios` los enlaza: ninguna pantalla
+  cambió. P-11, P-12 y P-13 ya guardan de verdad y lo guardado sobrevive al
+  reinicio. Storage sigue el orden de `H-06`.
+- **Los catálogos también pasaron a reales**, por decisión del líder al tomar
+  la tarea: los ids de municipio del falso no coincidían con los de la base (el
+  falso numeraba Cholula como 19, y en la base el 19 es Naucalpan), y P-11 habría
+  guardado el municipio equivocado sin error. `RepositorioCatalogosReal` lee
+  categorías, estados y municipios y los guarda en memoria; `buscarTrabajadores`
+  sigue en el falso hasta `S4-T09`.
+- **"Qué falta verificar" se probó contra el proyecto** y el contrato dice qué
+  pasó (ahora "Qué se verificó"): el embebido en un `update` funciona, los
+  `null` viajan, y un `CHECK` llega como `400` y una llave como `409`.
+- **Visible en la app:** las categorías llegan sin acentos porque la semilla
+  del proyecto es la vieja. **Falta que el líder la vuelva a correr** (`S3-T02`).
+- `H-27` quedó reportado, como decidió el líder: publicar sin perfil guardado
+  falla con el error genérico.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 296 pruebas unitarias, 0 fallas. Dos se ajustaron, porque el servicio
-    sembrado ya trae su foto, y el falso tiene una prueba nueva de fotos
-    embebidas.
-  - 108 instrumentadas, 0 fallas.
-  - A mano en el emulador con `beto.rls@…`: publicar, subir una foto de la
-    galería ("1 de 3"), ver la miniatura en P-12, volver a editar con la foto
-    ya cargada y quitarla ("0 de 3").
+  - 298 pruebas unitarias (2 nuevas en `TipoImagenTest`), 0 fallas.
+  - 117 instrumentadas, 0 fallas y 0 omitidas, con 9 nuevas en
+    `RepositorioTrabajadorServiciosRealTest` contra el proyecto. La primera
+    corrida completa se cortó en la prueba 100 porque el emulador se cayó;
+    reiniciado, pasaron todas.
+  - A mano en el emulador con `beto.rls@…`: guardar el perfil con Puebla →
+    Cholula, salir y volver a entrar con todo cargado de la base; publicar un
+    servicio y subirle una foto desde la galería; cerrar la aplicación a la
+    fuerza y reabrirla, con el servicio y su miniatura ahí. Quitar y eliminar
+    no se repitieron a mano: después de reiniciarse, el emulador dejó de pintar
+    hojas y diálogos a tiempo. Los cubren las pruebas contra el proyecto.
+  - **Quedaron en la cuenta `beto.rls`** el perfil "Plomero" (Puebla, Cholula,
+    habilidad "Boilers") y el servicio "Fugas" con su foto. Se pueden borrar
+    desde P-12.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -180,14 +190,14 @@ y el esquema. Están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T09` — Persistencia real de perfiles y servicios en Supabase**
-(prioridad 650, LMM, depende de `S3-T08`, hecha). Todavía no tiene ticket: se
-redacta al tomarla. Es una de las seis tareas reales de `AGENTS.md` §6:
-`RepositorioTrabajadorReal` y `RepositorioServiciosReal` según
-`CONTRATOS-API.md`, y su enlace en `ModuloRepositorios`. **Lo primero es probar
-contra el proyecto lo de "Qué falta verificar"** al final de "Servicios". Con
-ella, P-11, P-12 y P-13 dejan de atribuirle todo a `cliente1`. `H-27` se nota
-en cuanto entra: si el líder no lo decide antes, publicar sin perfil falla.
+**`S3-T11` — Diseño del prompt de redacción de perfil y descripción de
+servicio** (prioridad 600, GRI, sin dependencias). Todavía no tiene ticket: se
+redacta al tomarla. Es el primer eslabón de la IA del Sprint 3: de ella
+dependen `S3-T10`, el GPT, y `S3-T12`, el contrato del proxy. Lee `IA.md`.
+`DISENO-PERFIL-SERVICIOS.md` §1.9 ya fija de qué campos sale la entrada.
+
+**Antes conviene que el líder vuelva a correr `04_datos_semilla.sql`**: con
+los catálogos reales, la app ya muestra las categorías sin acentos.
 
 ## Tres huecos nuevos de S3-T08
 

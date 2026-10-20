@@ -541,9 +541,9 @@ que lo impide hoy es la validación de la aplicación.
 ## Perfil del trabajador · `RepositorioTrabajador`
 
 Escrito a detalle en `S3-T08`, contra `supabase-kt` 3.0.3 y contra los scripts
-de `basedatos/`. **No se probó contra el proyecto de Supabase**: es un
-documento, y lo verifica `S3-T09`, que lo implementa. Lo que más conviene
-probar primero está al final, en "Qué falta verificar".
+de `basedatos/`. **Lo implementa `RepositorioTrabajadorReal` (`S3-T09`)**, que lo
+probó contra el proyecto el 2026-10-20 con `RepositorioTrabajadorServiciosRealTest`.
+Lo que se verificó está al final de "Servicios", en "Qué se verificó".
 
 ### Resumen
 
@@ -712,8 +712,8 @@ Devuelve:
 
 ## Servicios · `RepositorioServicios`
 
-Escrito a detalle en `S3-T08`, con la misma advertencia que "Perfil del
-trabajador": **sin probar contra Supabase**, lo verifica `S3-T09`.
+Escrito a detalle en `S3-T08`. **Lo implementa `RepositorioServiciosReal`
+(`S3-T09`)**, probado contra el proyecto igual que "Perfil del trabajador".
 
 ### Resumen
 
@@ -958,22 +958,29 @@ mensaje genérico de `VALIDACION` (`obtenerMensajeErrorRes`) y nunca el
 trigger", en estas tablas eso es el mensaje genérico. Las validaciones de
 `S3-T07` evitan casi todos estos casos antes de salir de la aplicación.
 
-### Qué falta verificar
+### Qué se verificó
 
-Lo que `S3-T09` tiene que probar primero contra el proyecto, porque este
-documento lo da por hecho sin haberlo visto:
+`S3-T08` dejó cuatro cosas dadas por hecho sin haberlas visto. `S3-T09` las
+probó contra el proyecto el 2026-10-20, con `beto.rls@…`, en
+`RepositorioTrabajadorServiciosRealTest`:
 
-1. **El embebido en la respuesta de un `update`**
-   (`select("*, servicio_fotos(*)")` en `actualizar` y `pausar`). Si PostgREST
-   no lo arma en una escritura, se vuelve a leer el servicio con
-   `obtenerMisServicios` y se dice aquí.
-2. **Que los `null` viajen** en `PerfilEscrituraDto` y `ServicioEscrituraDto`:
-   vaciar la descripción del perfil y el precio de un servicio, y volver a leer.
-3. **Los códigos de la tabla de errores**: `400` para un `CHECK`, `409` para
-   una llave, `403` para RLS. Son los de "Usuario", que sí se probaron, pero en
-   otras tablas.
-4. **Los cuatro rechazos de Storage** de la cubeta `servicios`, que deberían
-   llegar como en `perfiles` (`H-17`).
+1. **El embebido en la respuesta de un `update` funciona.** `actualizar` y
+   `pausar` devuelven el servicio con sus `servicio_fotos`; no hace falta
+   volver a leerlo.
+2. **Los `null` viajan.** Guardar el perfil con `descripcion = null` la borra,
+   y actualizar un servicio con `precio_desde = null` también. Los DTO de
+   escritura sin valores por omisión funcionan como se esperaba.
+3. **Los códigos son los de la tabla.** Un `CHECK` (experiencia de 71, hasta
+   menor que desde) llega como `400` y una llave (habilidad repetida, posición
+   de foto ocupada) como `409`: las dos van a `VALIDACION`. El `403` de RLS no
+   se provocó, porque la aplicación no tiene cómo escribir lo ajeno.
+4. **Storage, a medias.** Subir, quitar y eliminar dejan la cubeta como dice
+   `H-06`: la foto rechazada por posición ocupada no deja archivo, y quitar una
+   foto o eliminar el servicio borra los suyos. Los cuatro rechazos propios de
+   la cubeta no se provocaron: el tipo no admitido se detiene antes de subir,
+   y los otros tres la aplicación no los produce.
+
+Los precios llegan exactos: `350.50` se guarda y se lee como `350.50`.
 
 ## Búsqueda y catálogos · `RepositorioCatalogos`
 
@@ -996,6 +1003,24 @@ La vista devuelve por renglón: `trabajador_id`, `nombre`, `apellidos`,
 `categorias` y `creado_en`.
 
 Los catálogos son de lectura pública, incluso sin sesión.
+
+**Los tres catálogos ya son reales desde `S3-T09`**, en
+`RepositorioCatalogosReal`, por decisión del líder del 2026-10-19. Los ids de
+municipio del catálogo falso no coinciden con los de la base: el falso numera
+Cholula como 19, y en la base el 19 es Naucalpan. Con el perfil real y el
+catálogo falso, P-11 habría guardado el municipio equivocado, y la base no lo
+rechaza porque no revisa que el municipio sea del estado. Las tres son un
+`select` de la tabla:
+
+| Operación | Filtro y orden |
+|---|---|
+| `obtenerCategorias()` | `activa = true`, por `orden` |
+| `obtenerEstados()` | Todos, por `nombre` |
+| `obtenerMunicipios(estadoId)` | `estado_id = estadoId`, por `nombre` |
+
+Se guardan en memoria después de la primera lectura buena: no cambian
+mientras la aplicación está abierta. **`buscarTrabajadores` sigue en el
+falso** hasta `S4-T09`; `RepositorioCatalogosReal` se lo pasa al falso tal cual.
 
 ## Solicitudes · `RepositorioSolicitudes`
 
