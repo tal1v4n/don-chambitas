@@ -123,13 +123,13 @@ class ServicioViewModelTest {
         assertEquals(R.string.servicio_publicado, estado.aviso)
         assertEquals(creado.id, estadoGuardado.get<String>(Ruta.CrearEditarServicio.ARG_SERVICIO_ID))
         assertEquals("Instalación de boiler", creado.titulo)
-        assertEquals(BigDecimal("350.5"), creado.precioDesde)
+        assertEquals(BigDecimal("350.50"), creado.precioDesde)
         assertNull(creado.precioHasta)
         assertEquals(ID_TRABAJADOR, creado.perfilId)
     }
 
     @Test
-    fun noDebeGuardar_sinCategoria() = runTest(reglaCorrutinas.testDispatcher) {
+    fun debeMarcarTodosYNoGuardar_cuandoHayErrores() = runTest(reglaCorrutinas.testDispatcher) {
         val viewModel = crearViewModel()
         advanceUntilIdle()
         val antes = fuente.servicios.size
@@ -138,8 +138,13 @@ class ServicioViewModelTest {
         viewModel.alGuardar()
         advanceUntilIdle()
 
-        assertFalse(viewModel.estado.value.guardando)
+        val estado = viewModel.estado.value
+        assertFalse(estado.guardando)
         assertEquals(antes, fuente.servicios.size)
+        assertNull(estado.errorTitulo)
+        assertEquals(R.string.validacion_categoria_sin_elegir, estado.errorCategoria)
+        assertEquals(R.string.validacion_servicio_descripcion_vacia, estado.errorDescripcion)
+        assertEquals(CampoServicio.CATEGORIA, CampoServicio.entries.first { estado.errorDe(it) != null })
     }
 
     @Test
@@ -286,6 +291,51 @@ class ServicioViewModelTest {
 
         assertEquals(listOf(foto), viewModel.estado.value.fotos)
         assertEquals(obtenerMensajeErrorRes(TipoError.RED), viewModel.estado.value.aviso)
+    }
+
+    @Test
+    fun debeMarcarElRangoEnHasta() = runTest(reglaCorrutinas.testDispatcher) {
+        val viewModel = crearViewModel("serv-1")
+        advanceUntilIdle()
+
+        viewModel.alCambiarPrecioDesde("800")
+        viewModel.alCambiarPrecioHasta("300")
+        viewModel.alGuardar()
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertNull(estado.errorPrecioDesde)
+        assertEquals(R.string.validacion_precio_rango, estado.errorPrecioHasta)
+        assertFalse(estado.cambiosGuardados)
+        assertEquals(BigDecimal("350.00"), fuente.servicios.first { it.id == "serv-1" }.precioDesde)
+    }
+
+    @Test
+    fun debeValidarAlPerderElFoco_soloLoTocado() = runTest(reglaCorrutinas.testDispatcher) {
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.alPerderFoco(CampoServicio.TITULO)
+        assertNull(viewModel.estado.value.errorTitulo)
+
+        viewModel.alCambiarTitulo("  ")
+        viewModel.alPerderFoco(CampoServicio.TITULO)
+        assertEquals(R.string.validacion_servicio_titulo_vacio, viewModel.estado.value.errorTitulo)
+
+        viewModel.alCambiarTitulo("Boiler")
+        assertNull(viewModel.estado.value.errorTitulo)
+    }
+
+    @Test
+    fun debeLimpiarElErrorDeCategoria_alElegirUna() = runTest(reglaCorrutinas.testDispatcher) {
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+        viewModel.alGuardar()
+        assertEquals(R.string.validacion_categoria_sin_elegir, viewModel.estado.value.errorCategoria)
+
+        viewModel.alElegirCategoria(1)
+
+        assertNull(viewModel.estado.value.errorCategoria)
     }
 
     private companion object {

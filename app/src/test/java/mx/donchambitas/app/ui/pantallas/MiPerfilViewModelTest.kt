@@ -220,6 +220,74 @@ class MiPerfilViewModelTest {
         )
     }
 
+    @Test
+    fun debeRechazarLaHabilidadRepetida_sinAgregarla() = runTest(reglaCorrutinas.testDispatcher) {
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.alCambiarHabilidadNueva(" cobre ")
+        viewModel.alAgregarHabilidad()
+
+        val estado = viewModel.estado.value
+        assertEquals(R.string.validacion_habilidad_repetida, estado.errorHabilidad)
+        assertEquals(" cobre ", estado.habilidadNueva)
+        assertEquals(4, estado.habilidades.size)
+
+        viewModel.alCambiarHabilidadNueva("Tinacos")
+        assertNull(viewModel.estado.value.errorHabilidad)
+    }
+
+    @Test
+    fun noDebeLlamarAlRepositorio_cuandoHayErrores() = runTest(reglaCorrutinas.testDispatcher) {
+        val trabajador = trabajadorSimulado()
+        val viewModel = crearViewModel(trabajador)
+        advanceUntilIdle()
+
+        viewModel.alCambiarTitulo("")
+        viewModel.alCambiarExperiencia("85")
+        viewModel.alCambiarTelefono("33123")
+        viewModel.alGuardar()
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertEquals(R.string.validacion_perfil_titulo_vacio, estado.errorTitulo)
+        assertEquals(R.string.validacion_experiencia_rango, estado.errorExperiencia)
+        assertEquals(R.string.validacion_telefono_digitos, estado.errorTelefono)
+        assertNull(estado.errorMunicipio)
+        assertFalse(estado.guardando)
+        coVerify(exactly = 0) { trabajador.guardarMiPerfil(any()) }
+    }
+
+    @Test
+    fun debePedirMunicipio_cuandoHayEstadoSinMunicipio() = runTest(reglaCorrutinas.testDispatcher) {
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.alElegirEstado(fuente.estados.first { it.clave == "JAL" }.id)
+        advanceUntilIdle()
+        viewModel.alGuardar()
+
+        assertEquals(R.string.validacion_municipio_sin_elegir, viewModel.estado.value.errorMunicipio)
+        assertEquals(CampoMiPerfil.MUNICIPIO, CampoMiPerfil.entries.first { viewModel.estado.value.errorDe(it) != null })
+
+        viewModel.alElegirMunicipio(viewModel.estado.value.municipios.first().id)
+        assertNull(viewModel.estado.value.errorMunicipio)
+    }
+
+    @Test
+    fun debeValidarAlPerderElFoco_soloLoTocado() = runTest(reglaCorrutinas.testDispatcher) {
+        fuente.perfilesTrabajador.removeAll { it.usuarioId == ID_TRABAJADOR }
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.alPerderFoco(CampoMiPerfil.TITULO)
+        assertNull(viewModel.estado.value.errorTitulo)
+
+        viewModel.alCambiarTelefono("123")
+        viewModel.alPerderFoco(CampoMiPerfil.TELEFONO)
+        assertEquals(R.string.validacion_telefono_digitos, viewModel.estado.value.errorTelefono)
+    }
+
     /** Un perfil con una habilidad, para contar llamadas sin depender de la fuente falsa. */
     private fun trabajadorSimulado(): RepositorioTrabajador {
         val perfil = fuente.perfilesTrabajador.first { it.usuarioId == ID_TRABAJADOR }
