@@ -10,7 +10,8 @@ import mx.donchambitas.app.util.Resultado
  */
 interface RepositorioServicios {
     /**
-     * Obtiene los servicios publicados por el trabajador autenticado.
+     * Obtiene los servicios publicados por el trabajador autenticado, activos y
+     * pausados, cada uno con sus fotos ordenadas por posicion (H-18).
      */
     suspend fun obtenerMisServicios(): Resultado<List<Servicio>>
 
@@ -30,12 +31,13 @@ interface RepositorioServicios {
     suspend fun eliminar(id: String): Resultado<Unit>
 
     /**
-     * Pausa o reactiva la publicacion de un servicio.
+     * Pausa o reactiva la publicacion de un servicio. Devuelve el servicio con sus fotos.
      */
     suspend fun pausar(id: String, activo: Boolean): Resultado<Servicio>
 
     /**
-     * Sube una foto asociada a un servicio (maximo 3 por servicio).
+     * Sube una foto asociada a un servicio (maximo 3 por servicio). No informa
+     * avance: la pantalla pinta un indicador indeterminado (H-20).
      */
     suspend fun subirFoto(servicioId: String, bytes: ByteArray, posicion: Int): Resultado<ServicioFoto>
 

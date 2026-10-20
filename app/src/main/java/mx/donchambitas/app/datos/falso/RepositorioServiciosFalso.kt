@@ -24,13 +24,18 @@ class RepositorioServiciosFalso @Inject constructor(
         return errorForzado?.let { Resultado.Error(it, "Error simulado en RepositorioServicios: $it") }
     }
 
+    /** Las fotos viven en fuente.fotosServicio, no dentro del servicio guardado: se pegan al leer (H-18). */
+    private fun conFotos(servicio: Servicio): Servicio = servicio.copy(
+        fotos = fuente.fotosServicio.filter { it.servicioId == servicio.id }.sortedBy { it.posicion }
+    )
+
     override suspend fun obtenerMisServicios(): Resultado<List<Servicio>> {
         verificarSimulacion()?.let { return it }
 
         val usuarioId = fuente.obtenerUsuarioActivoId()
             ?: return Resultado.Error(TipoError.AUTENTICACION, "No hay sesion activa")
 
-        val lista = fuente.servicios.filter { it.perfilId == usuarioId }
+        val lista = fuente.servicios.filter { it.perfilId == usuarioId }.map(::conFotos)
         return Resultado.Exito(lista)
     }
 
@@ -45,7 +50,8 @@ class RepositorioServiciosFalso @Inject constructor(
             id = "serv-${UUID.randomUUID().toString().take(8)}",
             perfilId = usuarioId,
             creadoEn = ahora,
-            actualizadoEn = ahora
+            actualizadoEn = ahora,
+            fotos = emptyList()
         )
         fuente.servicios.add(nuevoServicio)
         return Resultado.Exito(nuevoServicio)
@@ -62,9 +68,9 @@ class RepositorioServiciosFalso @Inject constructor(
             return Resultado.Error(TipoError.VALIDACION, "Servicio no encontrado o sin permisos")
         }
 
-        val actualizado = servicio.copy(actualizadoEn = Instant.now())
+        val actualizado = servicio.copy(actualizadoEn = Instant.now(), fotos = emptyList())
         fuente.servicios[index] = actualizado
-        return Resultado.Exito(actualizado)
+        return Resultado.Exito(conFotos(actualizado))
     }
 
     override suspend fun eliminar(id: String): Resultado<Unit> {
@@ -94,7 +100,7 @@ class RepositorioServiciosFalso @Inject constructor(
 
         val actualizado = fuente.servicios[index].copy(activo = activo, actualizadoEn = Instant.now())
         fuente.servicios[index] = actualizado
-        return Resultado.Exito(actualizado)
+        return Resultado.Exito(conFotos(actualizado))
     }
 
     override suspend fun subirFoto(

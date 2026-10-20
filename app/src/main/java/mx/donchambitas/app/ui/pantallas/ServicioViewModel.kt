@@ -34,7 +34,7 @@ import mx.donchambitas.app.util.TipoError
  *
  * Valida con ValidacionesTrabajador (5.3) cuando dice 1.5: al perder el foco
  * un campo ya tocado y todos al guardar. Al editar, las fotos que ya tenia el
- * servicio no se pintan: nada las devuelve con su id (H-18).
+ * servicio llegan embebidas en obtenerMisServicios(), con su id (H-18).
  */
 @HiltViewModel
 class ServicioViewModel @Inject constructor(
@@ -97,7 +97,8 @@ class ServicioViewModel @Inject constructor(
                                 descripcion = servicio.descripcion,
                                 precioDesde = servicio.precioDesde?.let(::textoDePrecio).orEmpty(),
                                 precioHasta = servicio.precioHasta?.let(::textoDePrecio).orEmpty(),
-                                unidadPrecio = servicio.unidadPrecio.orEmpty()
+                                unidadPrecio = servicio.unidadPrecio.orEmpty(),
+                                fotos = servicio.fotos.map { FotoEnPantalla.Guardada(it) }
                             ).conIaRecalculada()
                         }
                     }

@@ -188,6 +188,7 @@ fun MisServiciosContenido(
                             titulo = servicio.titulo,
                             categoria = estado.categorias[servicio.categoriaId].orEmpty(),
                             precioTexto = textoPrecio(servicio),
+                            fotoUrl = servicio.fotos.firstOrNull { it.posicion == 1 }?.url,
                             pausado = !servicio.activo,
                             onClick = { if (estado.procesandoId != servicio.id) alAbrirAcciones(servicio) }
                         )
