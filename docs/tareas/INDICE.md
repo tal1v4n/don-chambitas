@@ -23,11 +23,11 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 |---|---|---|---|---|---|
 | 1 | 16 | 0 | 0 | 0 | 16 |
 | 2 | 16 | 0 | 0 | 0 | 16 |
-| 3 | 15 | 10 | 0 | 0 | 5 |
+| 3 | 15 | 9 | 0 | 0 | 6 |
 | 4 | 15 | 13 | 0 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
 | 6 | 13 | 13 | 0 | 0 | 0 |
-| **Total** | **87** | **48** | **0** | **2** | **37** |
+| **Total** | **87** | **47** | **0** | **2** | **38** |
 
 > **No queda ninguna tarea bloqueada, ni ningún pendiente abierto.** PEND-01 se
 > resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el 2026-09-22
@@ -92,7 +92,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S3-T03` | 950 | Pantalla del perfil del trabajador (habilidades, experiencia, contacto) | GRI | hecha | S1-T10 |
 | `S3-T04` | 900 | Pantalla de creacion y edicion de un servicio | BCJL | hecha | S3-T02 |
 | `S3-T05` | 850 | Listado 'mis servicios publicados' con acciones (editar, pausar, eliminar) | LMM | hecha | — |
-| `S3-T06` | 800 | ViewModels y estados de UI del módulo del trabajador | RRC | pendiente | S3-T04 |
+| `S3-T06` | 800 | ViewModels y estados de UI del módulo del trabajador | RRC | hecha | S3-T04 |
 | `S3-T07` | 750 | Validaciones y reglas de negocio de la publicación de servicios | GRI | pendiente | S1-T13 |
 | `S3-T08` | 700 | Contrato de la API de perfil del trabajador y de servicios | BCJL | pendiente | — |
 | `S3-T09` | 650 | Persistencia real de perfiles y servicios en Supabase | LMM | pendiente | S3-T08 |
@@ -176,7 +176,7 @@ criterios de aceptación y cómo probarla.
 
 Los tickets se redactan **al iniciar cada sprint**, no los seis por adelantado:
 detallar hoy el Sprint 5 es trabajo que se va a tirar. Hoy están escritos los
-16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T05`. Para los
+16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T06`. Para los
 siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 
 > **Los del Sprint 2 se están redactando tarde, tarea por tarea.** `S2-T01` y
