@@ -42,7 +42,7 @@ object ModuloSupabase {
                 sessionManager = crearAlmacenSesionCifrada(contexto)
             }
             install(Postgrest)
-            // Fotos de perfil, cubeta perfiles (S2-T14).
+            // Fotos de perfil, cubeta perfiles (S2-T14), y de servicios, cubeta servicios (S3-T09).
             install(Storage)
         }
     }
