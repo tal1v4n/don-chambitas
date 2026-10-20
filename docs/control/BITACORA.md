@@ -46,8 +46,8 @@
 | 2026-10-18 | S3-T03 | GRI | feat/S3-T03-pantalla-mi-perfil | #33 | P-11 construida segun DISENO-PERFIL-SERVICIOS.md 2: MiPerfilContenido sin estado, EstadoMiPerfil, EstadoBotonIa y FaltaPerfil, hojas de estado y municipio. Aun no carga ni guarda (S3-T06) ni valida (S3-T07). H-19 cerrado por el lider con obtenerMisHabilidades() en la interfaz, el falso y CONTRATOS-API.md. 234 unitarias y 84 instrumentadas pasando (17 nuevas); en la primera corrida fallaron 5 de RepositorioUsuarioRealTest porque el proyecto de Supabase estaba pausado. Probada a mano con beto.rls. Experiencia a 200 dp: con 120 la etiqueta se partia |
 | 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio | #34 | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
 | 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios | #35 | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
-| 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador |  | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
-| 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador |  | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
+| 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador | #36 | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
+| 2026-10-19 | S3-T07 | GRI | feat/S3-T07-validaciones-trabajador |  | ValidacionesTrabajador.kt con las 16 reglas de 5.2 y 5.3 (FalloTrabajador, LimitesTrabajador) y la normalizacion de 1.6: precio con coma o punto a dos decimales, habilidades sin repetidas. MiPerfilViewModel y ServicioViewModel validan como P-03: al perder el foco lo tocado, todo al guardar sin llamar al repositorio y foco al primer error; la habilidad, al agregarla. El municipio y la categoria reciben el foco aunque no abran teclado. Se quito el renglon duplicado de S3-T06 que entro con el #36. 296 unitarias (19 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
 
 ---
 
@@ -66,6 +66,39 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T06` — ViewModels y estados de UI del módulo del trabajador.**
+2026-10-19. Rama `feat/S3-T06-viewmodels-trabajador`, desde `main` con
+`S3-T05` ya integrada (#35), pull request **#36**. Ticket
+redactado por el agente al tomar la tarea.
+
+- **P-11, P-12 y P-13 cargan y guardan** contra sus interfaces de
+  repositorio, con `MiPerfilViewModel`, `MisServiciosViewModel` y
+  `ServicioViewModel`. Siguen enlazadas a los falsos hasta `S3-T09`.
+- **P-11** guarda en dos pasos (2.4): primero el perfil, luego las habilidades
+  si cambiaron. Si fallan solo las habilidades, "Reintentar" repite solo ese
+  paso (`soloFaltanHabilidades`). El aviso de incompleto se calcula con
+  `calcularFaltantes` sobre lo guardado.
+- **P-12** recarga en cada `ON_RESUME` sin volver a tapar la lista. Pausar,
+  reactivar y eliminar dan su aviso; un error deja la lista igual.
+- **P-13** pasa a modo editar al publicar, sin navegar, y guarda el `id` nuevo
+  en su `SavedStateHandle`. "Guardar cambios" regresa a P-12, y P-12 da el
+  aviso. Las fotos se suben, se cancelan y se quitan en el momento.
+- **Lo que falta**: las validaciones de campo (`S3-T07`); pedir a la IA
+  (`S3-T13`), aunque el botón ya se habilita con los datos; las fotos que el
+  servicio ya tenía (`H-18`).
+- **Desvío**: los avisos no salían en ninguna de las tres pantallas. Consumir
+  el aviso dentro del mismo `LaunchedEffect` cancelaba el Snackbar. Se corrigió
+  como en P-18, y está en el ticket.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 277 pruebas unitarias (35 nuevas en los tres `…ViewModelTest`), 0 fallas.
+  - 108 instrumentadas, 0 fallas. La primera corrida se cortó en la prueba 83
+    porque el emulador `Pixel_10` se cayó; reiniciado, pasaron todas.
+  - A mano en el emulador con `beto.rls@…`: publicar, editar con "Cambios
+    guardados", pausar, eliminar con confirmación hasta el vacío; en P-11,
+    estado Puebla con solo sus municipios, guardar con "Perfil guardado", y al
+    reabrir lo guardado sigue ahí.
 
 **`S3-T05` — Listado "mis servicios publicados" con acciones (editar,
 pausar, eliminar).** 2026-10-18. Rama `feat/S3-T05-mis-servicios`, desde

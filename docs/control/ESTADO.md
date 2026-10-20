@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 6 |
+| Terminadas | 7 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -40,9 +40,9 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas la pestaña **Cuenta** | P-18 real: tu ficha de `public.usuarios`, editar datos, cambiar contraseña y cerrar sesión. El trabajador ve además "Mi perfil profesional" (P-11) y "Mis postulaciones" (P-14) | — |
 | Editas nombre, apellidos o teléfono y guardas | La tarjeta cambia en ese momento y sigue así al reabrir. El teléfono es obligatorio, como en P-03 | — |
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
-| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 carga y guarda: hojas de estado y municipio con datos (solo los municipios del estado), "Perfil guardado" y el aviso de incompleto recalculado al guardar. **Contra el repositorio falso**: lo guardado vive en memoria hasta cerrar la aplicación, y la fuente falsa lo atribuye a `cliente1`, no a tu cuenta (`DEC-31`). Sin validaciones de campo | `S3-T07`, `S3-T09` |
+| Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 carga y guarda: hojas de estado y municipio con datos (solo los municipios del estado), "Perfil guardado" y el aviso de incompleto recalculado al guardar. **Contra el repositorio falso**: lo guardado vive en memoria hasta cerrar la aplicación, y la fuente falsa lo atribuye a `cliente1`, no a tu cuenta (`DEC-31`). Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error; una habilidad vacía, larga o repetida no se agrega | `S3-T09` |
 | Como trabajador, tocas la pestaña **Servicios** | P-12 carga tus servicios, activos primero. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13. Arranca vacía por lo mismo que P-11: el falso no conoce tu cuenta | `S3-T09` |
-| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Sin categoría, "Publicar" no hace nada todavía. **Al editar, las fotos que ya tenía no salen** (`H-18`); las que agregas se suben y se quitan en el momento. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T07`, `S3-T08`, `S3-T13` |
+| Como trabajador, publicas un servicio en P-13 | Las 16 categorías cargan. "Publicar" deja la pantalla en "Editar servicio" con "Servicio publicado. Ya puedes agregarle fotos"; "Guardar cambios" regresa a P-12 con "Cambios guardados". Con campos mal, "Publicar" los marca todos y lleva el foco al primero; el rango de precio se marca en "Hasta". **Al editar, las fotos que ya tenía no salen** (`H-18`); las que agregas se suben y se quitan en el momento. "Redactar con IA" se habilita con título y categoría, pero aún no hace nada | `S3-T08`, `S3-T13` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -86,38 +86,36 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T06` — ViewModels y estados de UI del módulo del trabajador.**
-2026-10-19. Rama `feat/S3-T06-viewmodels-trabajador`, desde `main` con
-`S3-T05` ya integrada (#35), pull request **sin abrir todavía**. Ticket
-redactado por el agente al tomar la tarea.
+**`S3-T07` — Validaciones y reglas de negocio de la publicación de
+servicios.** 2026-10-19. Rama `feat/S3-T07-validaciones-trabajador`, desde
+`main` con `S3-T06` ya integrada (#36), pull request **sin abrir todavía**.
+Ticket redactado por el agente al tomar la tarea.
 
-- **P-11, P-12 y P-13 cargan y guardan** contra sus interfaces de
-  repositorio, con `MiPerfilViewModel`, `MisServiciosViewModel` y
-  `ServicioViewModel`. Siguen enlazadas a los falsos hasta `S3-T09`.
-- **P-11** guarda en dos pasos (2.4): primero el perfil, luego las habilidades
-  si cambiaron. Si fallan solo las habilidades, "Reintentar" repite solo ese
-  paso (`soloFaltanHabilidades`). El aviso de incompleto se calcula con
-  `calcularFaltantes` sobre lo guardado.
-- **P-12** recarga en cada `ON_RESUME` sin volver a tapar la lista. Pausar,
-  reactivar y eliminar dan su aviso; un error deja la lista igual.
-- **P-13** pasa a modo editar al publicar, sin navegar, y guarda el `id` nuevo
-  en su `SavedStateHandle`. "Guardar cambios" regresa a P-12, y P-12 da el
-  aviso. Las fotos se suben, se cancelan y se quitan en el momento.
-- **Lo que falta**: las validaciones de campo (`S3-T07`); pedir a la IA
-  (`S3-T13`), aunque el botón ya se habilita con los datos; las fotos que el
-  servicio ya tenía (`H-18`).
-- **Desvío**: los avisos no salían en ninguna de las tres pantallas. Consumir
-  el aviso dentro del mismo `LaunchedEffect` cancelaba el Snackbar. Se corrigió
-  como en P-18, y está en el ticket.
+- **`ValidacionesTrabajador.kt`** en el dominio, junto a `ValidacionesAuth.kt`:
+  las 8 reglas de §5.2 y las 8 de §5.3 como funciones puras que devuelven
+  `FalloTrabajador`, con los topes del esquema en `LimitesTrabajador`. La ui
+  las traduce con `mensaje()` a las 15 claves `validacion_*` nuevas, y
+  `validacion_telefono_digitos` se reutiliza.
+- **La normalización de §1.6** también es dominio: el precio con coma o punto
+  se envía como `BigDecimal` de dos decimales, y las habilidades van sin
+  repetidas, sin distinguir mayúsculas.
+- **P-11 y P-13 validan igual que P-03**: al perder el foco un campo ya tocado;
+  todos al guardar, sin llamar al repositorio y con el foco en el primer error.
+  El selector de municipio y el bloque "Categoría" reciben el foco aunque no
+  abran teclado. La habilidad se valida al agregarla, y el rango de precio se
+  marca en "Hasta".
+- **Corrección de la bitácora**: el renglón de `S3-T06` había entrado
+  duplicado con el #36. Se quitó el sobrante.
 - Verificación del proyecto:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 277 pruebas unitarias (35 nuevas en los tres `…ViewModelTest`), 0 fallas.
-  - 108 instrumentadas, 0 fallas. La primera corrida se cortó en la prueba 83
-    porque el emulador `Pixel_10` se cayó; reiniciado, pasaron todas.
-  - A mano en el emulador con `beto.rls@…`: publicar, editar con "Cambios
-    guardados", pausar, eliminar con confirmación hasta el vacío; en P-11,
-    estado Puebla con solo sus municipios, guardar con "Perfil guardado", y al
-    reabrir lo guardado sigue ahí.
+  - 296 pruebas unitarias (12 en `ValidacionesTrabajadorTest` y 7 más en los
+    ViewModels), 0 fallas.
+  - 108 instrumentadas, 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: "Publicar" vacío marca título,
+    categoría y descripción, con el foco en el título; "Desde" 800 y "Hasta"
+    300 se marca en "Hasta" y no publica; "Cobre" dos veces da "Ya agregaste
+    esa habilidad"; un teléfono de 5 dígitos se marca al salir del campo, y
+    guardar sin título lleva el foco al título.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -182,11 +180,12 @@ quedan cuatro.**
 
 ## Siguiente en la cola
 
-**`S3-T07` — Validaciones y reglas de negocio de la publicación de servicios**
-(prioridad 750, GRI, depende de `S1-T13`, hecha). Todavía no tiene ticket: se
-redacta al tomarla. Son las secciones 1.6 y 5 de `DISENO-PERFIL-SERVICIOS.md`,
-en `ValidacionesTrabajador.kt`. Los tres ViewModels de `S3-T06` ya tienen dónde
-llamarlas: `alGuardar()` de P-11 y P-13 y `alAgregarHabilidad()` de P-11.
+**`S3-T08` — Contrato de la API de perfil del trabajador y de servicios**
+(prioridad 700, BCJL, sin dependencias). Todavía no tiene ticket: se redacta al
+tomarla. Es documentación de `CONTRATOS-API.md`, sin Supabase. Le tocan dos
+huecos abiertos: `H-18`, para leer las fotos de un servicio propio con su `id`,
+y `H-20`, sobre si `subirFoto` informa avance. También le toca `H-06`: en qué
+orden se borran la fila y el archivo de Storage.
 
 ## Un hueco nuevo de S3-T05
 
