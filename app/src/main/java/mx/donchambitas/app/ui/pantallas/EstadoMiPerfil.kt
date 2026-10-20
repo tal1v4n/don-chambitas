@@ -6,6 +6,12 @@ import mx.donchambitas.app.dominio.modelo.Municipio
 import mx.donchambitas.app.dominio.modelo.PerfilTrabajador
 import mx.donchambitas.app.util.TipoError
 
+/**
+ * Campos de P-11 que se validan al guardar, en orden visual: el foco salta al
+ * primero que falle (5.4). La habilidad nueva no esta: se valida al agregarla.
+ */
+enum class CampoMiPerfil { TITULO, EXPERIENCIA, MUNICIPIO, TELEFONO }
+
 /** Lo que el aviso de perfil incompleto puede listar, en el orden en que se lista (2.5). */
 enum class FaltaPerfil { DESCRIPCION, HABILIDAD, UBICACION, TELEFONO }
 
@@ -53,7 +59,15 @@ data class EstadoMiPerfil(
     val ia: EstadoBotonIa = EstadoBotonIa.FaltanDatos,
     val propuestaIa: String? = null,
     @StringRes val aviso: Int? = null
-)
+) {
+    @StringRes
+    fun errorDe(campo: CampoMiPerfil): Int? = when (campo) {
+        CampoMiPerfil.TITULO -> errorTitulo
+        CampoMiPerfil.EXPERIENCIA -> errorExperiencia
+        CampoMiPerfil.MUNICIPIO -> errorMunicipio
+        CampoMiPerfil.TELEFONO -> errorTelefono
+    }
+}
 
 /**
  * Lo que le falta al perfil guardado, en el orden del aviso (2.5). Sin perfil

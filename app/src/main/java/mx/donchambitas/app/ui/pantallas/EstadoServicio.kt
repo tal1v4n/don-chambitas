@@ -5,6 +5,9 @@ import mx.donchambitas.app.dominio.modelo.Categoria
 import mx.donchambitas.app.dominio.modelo.ServicioFoto
 import mx.donchambitas.app.util.TipoError
 
+/** Campos de P-13 en orden visual: el foco salta al primero que falle (5.4). */
+enum class CampoServicio { TITULO, CATEGORIA, DESCRIPCION, PRECIO_DESDE, PRECIO_HASTA, UNIDAD }
+
 /** Maximo de fotos por servicio: lo impone la base con ck_foto_posicion (HU-11). */
 const val MAXIMO_FOTOS_SERVICIO = 3
 
@@ -65,6 +68,16 @@ data class EstadoServicio(
     val creando: Boolean get() = servicioId == null
     val hayPrecio: Boolean get() = precioDesde.isNotBlank() || precioHasta.isNotBlank()
     val subiendoFoto: Boolean get() = fotos.any { it is FotoEnPantalla.Subiendo }
+
+    @StringRes
+    fun errorDe(campo: CampoServicio): Int? = when (campo) {
+        CampoServicio.TITULO -> errorTitulo
+        CampoServicio.CATEGORIA -> errorCategoria
+        CampoServicio.DESCRIPCION -> errorDescripcion
+        CampoServicio.PRECIO_DESDE -> errorPrecioDesde
+        CampoServicio.PRECIO_HASTA -> errorPrecioHasta
+        CampoServicio.UNIDAD -> errorUnidad
+    }
 }
 
 /**

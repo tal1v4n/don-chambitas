@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -181,6 +184,7 @@ fun ServicioPantalla(
         alReintentarCarga = viewModel::alReintentarCarga,
         alReintentar = viewModel::alGuardar,
         alConsumirAviso = viewModel::alConsumirAviso,
+        alSalirDeCampo = viewModel::alPerderFoco,
         alRegresar = alRegresar,
         modifier = modifier
     )
@@ -211,7 +215,8 @@ fun ServicioContenido(
     modifier: Modifier = Modifier,
     alReintentarCarga: () -> Unit = {},
     alReintentar: (() -> Unit)? = null,
-    alConsumirAviso: () -> Unit = {}
+    alConsumirAviso: () -> Unit = {},
+    alSalirDeCampo: (CampoServicio) -> Unit = {}
 ) {
     val administradorFoco = LocalFocusManager.current
     val siguienteCampo = KeyboardActions(onNext = { administradorFoco.moveFocus(FocusDirection.Down) })
@@ -219,6 +224,25 @@ fun ServicioContenido(
     val alcanceAvisos = rememberCoroutineScope()
     val textoAviso = estado.aviso?.let { stringResource(it) }
     var eligiendoFoto by rememberSaveable { mutableStateOf(false) }
+    val solicitantesFoco = remember { CampoServicio.entries.associateWith { FocusRequester() } }
+    var irAlPrimerError by remember { mutableStateOf(false) }
+    val guardar = {
+        alGuardar()
+        irAlPrimerError = true
+    }
+
+    // 5.4: el foco va al primero que fallo, en orden visual. Una categoria sin
+    // elegir lo lleva al titulo del bloque, que es donde se pinta su error.
+    LaunchedEffect(irAlPrimerError) {
+        if (!irAlPrimerError) return@LaunchedEffect
+        irAlPrimerError = false
+        CampoServicio.entries.firstOrNull { estado.errorDe(it) != null }
+            ?.let { solicitantesFoco.getValue(it).requestFocus() }
+    }
+
+    fun Modifier.campo(campo: CampoServicio): Modifier = this
+        .focusRequester(solicitantesFoco.getValue(campo))
+        .alPerderFoco { alSalirDeCampo(campo) }
     val editable = !estado.guardando
 
     LaunchedEffect(textoAviso) {
@@ -272,7 +296,8 @@ fun ServicioContenido(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Next
                     ),
-                    tecladoAcciones = siguienteCampo
+                    tecladoAcciones = siguienteCampo,
+                    modifier = Modifier.campo(CampoServicio.TITULO)
                 )
 
                 SelectorCategoria(
@@ -280,7 +305,8 @@ fun ServicioContenido(
                     elegida = estado.categoriaId,
                     error = estado.errorCategoria,
                     habilitado = editable,
-                    alElegir = alElegirCategoria
+                    alElegir = alElegirCategoria,
+                    modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoServicio.CATEGORIA))
                 )
 
                 BotonIa(
@@ -298,7 +324,8 @@ fun ServicioContenido(
                     habilitado = editable,
                     lineasMinimas = 4,
                     lineasMaximas = 8,
-                    tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    modifier = Modifier.campo(CampoServicio.DESCRIPCION)
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
@@ -318,7 +345,7 @@ fun ServicioContenido(
                         error = estado.errorPrecioDesde,
                         habilitado = editable,
                         siguiente = siguienteCampo,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_DESDE)
                     )
                     CampoPrecio(
                         valor = estado.precioHasta,
@@ -327,7 +354,7 @@ fun ServicioContenido(
                         error = estado.errorPrecioHasta,
                         habilitado = editable,
                         siguiente = siguienteCampo,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_HASTA)
                     )
                 }
 
@@ -339,7 +366,8 @@ fun ServicioContenido(
                     error = estado.errorUnidad?.let { stringResource(it) },
                     habilitado = editable && estado.hayPrecio,
                     tecladoOpciones = KeyboardOptions(imeAction = ImeAction.Done),
-                    tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() })
+                    tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() }),
+                    modifier = Modifier.campo(CampoServicio.UNIDAD)
                 )
 
                 BloqueFotos(
@@ -356,7 +384,7 @@ fun ServicioContenido(
                     if (estado.creando) {
                         BotonDestacado(
                             texto = stringResource(R.string.servicio_publicar),
-                            onClick = alGuardar,
+                            onClick = guardar,
                             habilitado = habilitado,
                             cargando = estado.guardando,
                             modifier = Modifier.fillMaxWidth()
@@ -364,7 +392,7 @@ fun ServicioContenido(
                     } else {
                         BotonPrincipal(
                             texto = stringResource(R.string.servicio_guardar_cambios),
-                            onClick = alGuardar,
+                            onClick = guardar,
                             habilitado = habilitado,
                             cargando = estado.guardando,
                             modifier = Modifier.fillMaxWidth()
@@ -433,10 +461,12 @@ private fun SelectorCategoria(
     elegida: Int?,
     @StringRes error: Int?,
     habilitado: Boolean,
-    alElegir: (Int) -> Unit
+    alElegir: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)) {
-        TituloBloqueServicio(R.string.servicio_bloque_categoria)
+        // Enfocable solo para recibir el foco cuando falta elegir (5.4).
+        TituloBloqueServicio(R.string.servicio_bloque_categoria, modifier.focusable())
         FlowRow(
             modifier = Modifier.selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(Espaciado.dp8),
@@ -684,8 +714,18 @@ private fun ServicioEditarPreview() {
 @Preview(showBackground = true, widthDp = 360, heightDp = 1300, name = "P-13 con errores")
 @Composable
 private fun ServicioConErroresPreview() {
-    // Los mensajes de cada campo llegan con S3-T07; aqui se ve el error de pantalla.
-    ServicioPreview(ServicioDeMuestra.copy(fotos = emptyList(), errorPantalla = TipoError.SERVIDOR))
+    ServicioPreview(
+        ServicioDeMuestra.copy(
+            titulo = "",
+            errorTitulo = R.string.validacion_servicio_titulo_vacio,
+            categoriaId = null,
+            errorCategoria = R.string.validacion_categoria_sin_elegir,
+            precioHasta = "200",
+            errorPrecioHasta = R.string.validacion_precio_rango,
+            fotos = emptyList(),
+            errorPantalla = TipoError.SERVIDOR
+        )
+    )
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "P-13 ya no existe")

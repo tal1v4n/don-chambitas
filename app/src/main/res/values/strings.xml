@@ -142,6 +142,23 @@
     <string name="validacion_telefono_vacio">Escribe tu teléfono</string>
     <string name="validacion_telefono_digitos">El teléfono lleva 10 dígitos</string>
 
+    <!-- Validaciones de P-11 y P-13 (S3-T07) -->
+    <string name="validacion_perfil_titulo_vacio">Escribe el título de tu oficio</string>
+    <string name="validacion_perfil_titulo_largo">El título es demasiado largo</string>
+    <string name="validacion_experiencia_rango">Escribe un número de años entre 0 y 70</string>
+    <string name="validacion_habilidad_vacia">Escribe la habilidad antes de agregarla</string>
+    <string name="validacion_habilidad_larga">La habilidad es demasiado larga</string>
+    <string name="validacion_habilidad_repetida">Ya agregaste esa habilidad</string>
+    <string name="validacion_municipio_sin_elegir">Elige tu municipio</string>
+    <string name="validacion_servicio_titulo_vacio">Escribe qué servicio ofreces</string>
+    <string name="validacion_servicio_titulo_largo">El título es demasiado largo</string>
+    <string name="validacion_categoria_sin_elegir">Elige la categoría del servicio</string>
+    <string name="validacion_servicio_descripcion_vacia">Describe tu servicio</string>
+    <string name="validacion_precio_formato">Escribe una cantidad válida</string>
+    <string name="validacion_precio_grande">La cantidad es demasiado grande</string>
+    <string name="validacion_precio_rango">El precio hasta no puede ser menor que el precio desde</string>
+    <string name="validacion_unidad_larga">La unidad es demasiado larga</string>
+
     <!-- Botón de IA de P-11 y P-13 (DISENO-PERFIL-SERVICIOS.md, 1.9) -->
     <string name="ia_redactar">Redactar con IA</string>
     <string name="ia_restantes">Te quedan %1$d de 10 hoy</string>
