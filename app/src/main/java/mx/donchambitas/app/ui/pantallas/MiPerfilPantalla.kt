@@ -40,10 +40,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,6 +62,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.Estado
 import mx.donchambitas.app.dominio.modelo.Municipio
@@ -91,7 +94,6 @@ import mx.donchambitas.app.util.TipoError
 
 private val AnchoExperiencia = 200.dp
 private val AltoRenglonHoja = 48.dp
-private const val MAXIMO_DIGITOS_EXPERIENCIA = 2
 
 /** Hoja inferior abierta en P-11 (2.6). */
 private enum class HojaMiPerfil { ESTADO, MUNICIPIO }
@@ -100,9 +102,8 @@ private enum class HojaMiPerfil { ESTADO, MUNICIPIO }
  * Pantalla Mi perfil del trabajador (P-11).
  * Especificada en docs/producto/DISENO-PERFIL-SERVICIOS.md, seccion 2.
  *
- * Mientras no exista su ViewModel (S3-T06), guarda el estado aqui con
- * rememberSaveable y aplica los cambios de campo; no carga ni guarda contra
- * RepositorioTrabajador, y "Guardar perfil" todavia no hace nada.
+ * Conecta [MiPerfilContenido] con [MiPerfilViewModel]. Pedir a la IA todavia
+ * no hace nada: es S3-T13.
  *
  * @param alRegresar Regresa a P-18 o a P-12, de donde haya venido. Descarta lo no guardado.
  * @param alVerComoCliente Abre P-07 con el identificador del propio trabajador (HU-08).
@@ -111,79 +112,33 @@ private enum class HojaMiPerfil { ESTADO, MUNICIPIO }
 fun MiPerfilPantalla(
     alRegresar: () -> Unit,
     alVerComoCliente: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: MiPerfilViewModel = hiltViewModel()
 ) {
-    var estado by rememberSaveable(stateSaver = GuardadoEstadoMiPerfil) {
-        mutableStateOf(
-            EstadoMiPerfil(cargando = false, faltantes = FaltaPerfil.entries)
-        )
-    }
+    val estado by viewModel.estado.collectAsState()
 
     MiPerfilContenido(
         estado = estado,
-        alCambiarTitulo = { estado = estado.copy(titulo = it, errorTitulo = null) },
-        alCambiarExperiencia = { valor ->
-            estado = estado.copy(
-                experienciaAnios = valor.filter(Char::isDigit).take(MAXIMO_DIGITOS_EXPERIENCIA),
-                errorExperiencia = null
-            )
-        },
-        alCambiarHabilidadNueva = { estado = estado.copy(habilidadNueva = it, errorHabilidad = null) },
-        alAgregarHabilidad = {
-            val habilidad = estado.habilidadNueva.trim()
-            if (habilidad.isNotEmpty()) {
-                estado = estado.copy(habilidades = estado.habilidades + habilidad, habilidadNueva = "")
-            }
-        },
-        alQuitarHabilidad = { quitada -> estado = estado.copy(habilidades = estado.habilidades - quitada) },
-        alCambiarDescripcion = { estado = estado.copy(descripcion = it) },
-        alElegirEstado = { id ->
-            if (id != estado.estadoId) estado = estado.copy(estadoId = id, municipioId = null)
-        },
-        alElegirMunicipio = { estado = estado.copy(municipioId = it, errorMunicipio = null) },
-        alCambiarTelefono = { valor ->
-            estado = estado.copy(telefonoContacto = valor.filter(Char::isDigit), errorTelefono = null)
-        },
-        alCambiarDisponible = { estado = estado.copy(disponible = it) },
-        alGuardar = {},
+        alCambiarTitulo = viewModel::alCambiarTitulo,
+        alCambiarExperiencia = viewModel::alCambiarExperiencia,
+        alCambiarHabilidadNueva = viewModel::alCambiarHabilidadNueva,
+        alAgregarHabilidad = viewModel::alAgregarHabilidad,
+        alQuitarHabilidad = viewModel::alQuitarHabilidad,
+        alCambiarDescripcion = viewModel::alCambiarDescripcion,
+        alElegirEstado = viewModel::alElegirEstado,
+        alElegirMunicipio = viewModel::alElegirMunicipio,
+        alCambiarTelefono = viewModel::alCambiarTelefono,
+        alCambiarDisponible = viewModel::alCambiarDisponible,
+        alGuardar = viewModel::alGuardar,
         alPedirIa = {},
-        alReintentarCarga = {},
-        alConsumirAviso = { estado = estado.copy(aviso = null) },
+        alReintentarCarga = viewModel::alReintentarCarga,
+        alReintentar = viewModel::alReintentarGuardado,
+        alConsumirAviso = viewModel::alConsumirAviso,
         alRegresar = alRegresar,
         alVerComoCliente = { alVerComoCliente(estado.usuarioId) },
         modifier = modifier
     )
 }
-
-/**
- * Lo que sobrevive a una rotacion mientras el estado viva en la pantalla. Los
- * catalogos y los errores no se guardan: los vuelve a poner quien los trajo.
- */
-private val GuardadoEstadoMiPerfil = listSaver<EstadoMiPerfil, Any?>(
-    save = {
-        listOf(
-            it.titulo, it.experienciaAnios, it.habilidadNueva, ArrayList(it.habilidades),
-            it.descripcion, it.estadoId, it.municipioId, it.telefonoContacto, it.disponible,
-            ArrayList(it.faltantes.map(FaltaPerfil::name))
-        )
-    },
-    restore = {
-        @Suppress("UNCHECKED_CAST")
-        EstadoMiPerfil(
-            cargando = false,
-            titulo = it[0] as String,
-            experienciaAnios = it[1] as String,
-            habilidadNueva = it[2] as String,
-            habilidades = it[3] as List<String>,
-            descripcion = it[4] as String,
-            estadoId = it[5] as Int?,
-            municipioId = it[6] as Int?,
-            telefonoContacto = it[7] as String,
-            disponible = it[8] as Boolean,
-            faltantes = (it[9] as List<String>).map(FaltaPerfil::valueOf)
-        )
-    }
-)
 
 /**
  * Contenido visual puro de P-11, sin estado propio, para previsualizarlo y
@@ -216,14 +171,17 @@ fun MiPerfilContenido(
     val administradorFoco = LocalFocusManager.current
     val siguienteCampo = KeyboardActions(onNext = { administradorFoco.moveFocus(FocusDirection.Down) })
     val avisos = remember { SnackbarHostState() }
+    val alcanceAvisos = rememberCoroutineScope()
     val textoAviso = estado.aviso?.let { stringResource(it) }
     var hojaAbierta by rememberSaveable { mutableStateOf<HojaMiPerfil?>(null) }
     val editable = !estado.guardando
 
     LaunchedEffect(textoAviso) {
         if (textoAviso == null) return@LaunchedEffect
+        // En otro scope, como en P-18: consumir el aviso cambia la llave de este
+        // efecto y cancelaria el Snackbar mientras se muestra.
+        alcanceAvisos.launch { avisos.showSnackbar(textoAviso) }
         alConsumirAviso()
-        avisos.showSnackbar(textoAviso)
     }
 
     Scaffold(
@@ -393,6 +351,7 @@ fun MiPerfilContenido(
 
                 ErrorDePantalla(
                     tipoError = estado.errorPantalla,
+                    soloFaltanHabilidades = estado.soloFaltanHabilidades,
                     alReintentar = alReintentar
                 )
 
@@ -639,15 +598,28 @@ private fun HojaLista(
 
 /**
  * Error al guardar. Se pinta en linea, encima del boton y sin tapar el
- * formulario, como en P-03.
+ * formulario, como en P-03. Si el perfil se guardo y las habilidades no, lo
+ * dice en vez del mensaje del tipo (2.4).
  */
 @Composable
-private fun ErrorDePantalla(tipoError: TipoError?, alReintentar: (() -> Unit)?) {
+private fun ErrorDePantalla(
+    tipoError: TipoError?,
+    soloFaltanHabilidades: Boolean,
+    alReintentar: (() -> Unit)?
+) {
     if (tipoError == null) return
     val reintento = alReintentar.takeIf {
         tipoError in setOf(TipoError.RED, TipoError.SERVIDOR, TipoError.DESCONOCIDO)
     }
-    EstadoError(tipoError = tipoError, alReintentar = reintento)
+    EstadoError(
+        tipoError = tipoError,
+        alReintentar = reintento,
+        mensajePersonalizado = if (soloFaltanHabilidades) {
+            stringResource(R.string.mi_perfil_habilidades_no_guardadas)
+        } else {
+            null
+        }
+    )
 }
 
 private val EstadosDeMuestra = listOf(Estado(14, "Jalisco", "JAL"), Estado(21, "Puebla", "PUE"))

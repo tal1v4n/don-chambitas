@@ -180,6 +180,8 @@
     <string name="mi_perfil_disponible">Disponible</string>
     <string name="mi_perfil_no_disponible">No estoy tomando trabajos</string>
     <string name="mi_perfil_guardar">Guardar perfil</string>
+    <string name="mi_perfil_guardado">Perfil guardado</string>
+    <string name="mi_perfil_habilidades_no_guardadas">Tu perfil se guardó, pero tus habilidades no. Intenta de nuevo</string>
 
     <!-- P-13 Crear o editar servicio (S3-T04) -->
     <string name="trabajador_cancelar">Cancelar</string>
@@ -207,9 +209,12 @@
     <string name="servicio_cancelar_subida">Cancelar subida</string>
     <string name="servicio_quitar_foto_titulo">¿Quitar esta foto?</string>
     <string name="servicio_quitar_foto">Quitar</string>
+    <string name="servicio_foto_no_subio">No se pudo subir la foto. Intenta de nuevo</string>
     <string name="servicio_espera_fotos">Espera a que terminen de subir las fotos</string>
     <string name="servicio_publicar">Publicar</string>
     <string name="servicio_guardar_cambios">Guardar cambios</string>
+    <string name="servicio_publicado">Servicio publicado. Ya puedes agregarle fotos</string>
+    <string name="servicio_cambios_guardados">Cambios guardados</string>
     <string name="servicio_no_existe">Este servicio ya no existe</string>
     <string name="servicio_volver">Volver a mis servicios</string>
 
@@ -233,6 +238,9 @@
     <string name="mis_servicios_eliminar">Eliminar</string>
     <string name="mis_servicios_eliminar_titulo">¿Eliminar este servicio?</string>
     <string name="mis_servicios_eliminar_texto">«%1$s» y sus fotos se borran. No se puede deshacer.</string>
+    <string name="mis_servicios_aviso_pausado">Servicio pausado</string>
+    <string name="mis_servicios_aviso_reactivado">Servicio reactivado</string>
+    <string name="mis_servicios_aviso_eliminado">Servicio eliminado</string>
     <string name="mis_servicios_vacio_titulo">Aún no publicas servicios</string>
     <string name="mis_servicios_vacio_mensaje">Publica lo que haces y su precio para que los clientes te encuentren</string>
     <string name="mis_servicios_vacio_accion">Publicar mi primer servicio</string>
