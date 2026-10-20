@@ -388,6 +388,17 @@ y la primera y la tercera tocan además `CONTRATOS-API.md`.
 
 ### H-06 · Nada borra el archivo de Storage cuando desaparece su fila
 
+> **CERRADO el 2026-10-19 por el líder, en `S3-T08`: la fila primero y el
+> archivo después.** La aplicación **lee las URL antes** de borrar, así que la
+> cascada ya no se lleva la única copia. Así, ninguna fila apunta a un archivo
+> que ya no existe. Si falla el borrado del archivo, la operación es un éxito
+> igual y el archivo queda sin fila, sin que nadie lo vea. Eso no cumple al pie
+> de la letra el "no quedan archivos huérfanos" de HU-11: se eligió a
+> sabiendas, porque la alternativa deja imágenes rotas a la vista. Es el mismo
+> criterio que `subirFotoPerfil` (`S2-T14`). El orden de cada operación está
+> en `CONTRATOS-API.md`, en "Servicios". El hallazgo, como se reportó, sigue
+> abajo; su última frase del párrafo del orden ya no aplica.
+
 **Qué dicen las historias.** HU-11: *"cuando confirmo, entonces se borra el
 archivo además del registro: no quedan archivos huérfanos."* Y HU-07: la foto
 nueva *"reemplaza a la anterior."*
