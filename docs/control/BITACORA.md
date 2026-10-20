@@ -47,7 +47,8 @@
 | 2026-10-18 | S3-T04 | BCJL | feat/S3-T04-pantalla-servicio | #34 | P-13 construida segun DISENO-PERFIL-SERVICIOS.md 4: crear y editar, 16 categorias con su icono, precio con dos decimales, miniaturas y cuadro Agregar, confirmacion de quitar foto y servicio que ya no existe. Aun no carga, guarda ni sube (S3-T06, con H-18). La hoja de galeria o camara paso a OpcionesFoto.kt y el boton de IA a BotonIa.kt. 238 unitarias y 96 instrumentadas pasando (16 nuevas). El AVD Pixel_10 subio de 2 a 4 GB de RAM: con 2 tumbaba la suite |
 | 2026-10-18 | S3-T05 | LMM | feat/S3-T05-mis-servicios | #35 | P-12 construida segun DISENO-PERFIL-SERVICIOS.md 3: accesos, resumen, lista con pausados al final, hoja de acciones, confirmacion de eliminar, boton flotante y vacio. H-21 cerrado por el lider: TarjetaServicio con pausado y sin renglon de precio vacio, primero en DISENO.md. Aun no carga, pausa ni elimina (S3-T06). Hueco nuevo H-24: ninguna tarea construye P-14. 242 unitarias y 108 instrumentadas pasando (16 nuevas) |
 | 2026-10-19 | S3-T06 | RRC | feat/S3-T06-viewmodels-trabajador | #36 | MiPerfilViewModel, MisServiciosViewModel y ServicioViewModel contra los falsos: P-11, P-12 y P-13 cargan y guardan. P-11 guarda en dos pasos y reintenta solo las habilidades; P-12 recarga en cada ON_RESUME, pausa, reactiva y elimina; P-13 pasa a editar al publicar, regresa con "Cambios guardados" y sube, cancela y quita fotos. Sin validaciones (S3-T07) ni IA (S3-T13); al editar, las fotos previas no salen (H-18). **Desvio:** los tres Contenido consumian el aviso dentro del LaunchedEffect y cancelaban el Snackbar; ahora se lanza en otro scope, como en P-18. 277 unitarias (35 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
-| 2026-10-19 | S3-T07 | GRI | feat/S3-T07-validaciones-trabajador |  | ValidacionesTrabajador.kt con las 16 reglas de 5.2 y 5.3 (FalloTrabajador, LimitesTrabajador) y la normalizacion de 1.6: precio con coma o punto a dos decimales, habilidades sin repetidas. MiPerfilViewModel y ServicioViewModel validan como P-03: al perder el foco lo tocado, todo al guardar sin llamar al repositorio y foco al primer error; la habilidad, al agregarla. El municipio y la categoria reciben el foco aunque no abran teclado. Se quito el renglon duplicado de S3-T06 que entro con el #36. 296 unitarias (19 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
+| 2026-10-19 | S3-T07 | GRI | feat/S3-T07-validaciones-trabajador | #37 | ValidacionesTrabajador.kt con las 16 reglas de 5.2 y 5.3 (FalloTrabajador, LimitesTrabajador) y la normalizacion de 1.6: precio con coma o punto a dos decimales, habilidades sin repetidas. MiPerfilViewModel y ServicioViewModel validan como P-03: al perder el foco lo tocado, todo al guardar sin llamar al repositorio y foco al primer error; la habilidad, al agregarla. El municipio y la categoria reciben el foco aunque no abran teclado. Se quito el renglon duplicado de S3-T06 que entro con el #36. 296 unitarias (19 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
+| 2026-10-19 | S3-T08 | BCJL | docs/S3-T08-contrato-trabajador-servicios |  | CONTRATOS-API.md detalla RepositorioTrabajador y RepositorioServicios contra supabase-kt 3.0.3: consulta, columnas, retorno y errores de cada operacion, sin probar contra Supabase (lo verifica S3-T09). Tres huecos cerrados por el lider: H-18 con fotos embebidas (Servicio.fotos, el falso, la miniatura de P-12 y las fotos de P-13 al editar), H-20 sin porcentaje y H-06 con la fila primero y el archivo despues; MODELO-ER.md decia lo contrario y se reporto antes de escribirlo. Tres huecos nuevos: H-25 perfil publico sin estado o municipio, H-26 reemplazarHabilidades no atomico, H-27 servicio antes del perfil. 296 unitarias y 108 instrumentadas pasando |
 
 ---
 
@@ -66,6 +67,37 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T07` — Validaciones y reglas de negocio de la publicación de
+servicios.** 2026-10-19. Rama `feat/S3-T07-validaciones-trabajador`, desde
+`main` con `S3-T06` ya integrada (#36), pull request **#37**.
+Ticket redactado por el agente al tomar la tarea.
+
+- **`ValidacionesTrabajador.kt`** en el dominio, junto a `ValidacionesAuth.kt`:
+  las 8 reglas de §5.2 y las 8 de §5.3 como funciones puras que devuelven
+  `FalloTrabajador`, con los topes del esquema en `LimitesTrabajador`. La ui
+  las traduce con `mensaje()` a las 15 claves `validacion_*` nuevas, y
+  `validacion_telefono_digitos` se reutiliza.
+- **La normalización de §1.6** también es dominio: el precio con coma o punto
+  se envía como `BigDecimal` de dos decimales, y las habilidades van sin
+  repetidas, sin distinguir mayúsculas.
+- **P-11 y P-13 validan igual que P-03**: al perder el foco un campo ya tocado;
+  todos al guardar, sin llamar al repositorio y con el foco en el primer error.
+  El selector de municipio y el bloque "Categoría" reciben el foco aunque no
+  abran teclado. La habilidad se valida al agregarla, y el rango de precio se
+  marca en "Hasta".
+- **Corrección de la bitácora**: el renglón de `S3-T06` había entrado
+  duplicado con el #36. Se quitó el sobrante.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 296 pruebas unitarias (12 en `ValidacionesTrabajadorTest` y 7 más en los
+    ViewModels), 0 fallas.
+  - 108 instrumentadas, 0 fallas.
+  - A mano en el emulador con `beto.rls@…`: "Publicar" vacío marca título,
+    categoría y descripción, con el foco en el título; "Desde" 800 y "Hasta"
+    300 se marca en "Hasta" y no publica; "Cobre" dos veces da "Ya agregaste
+    esa habilidad"; un teléfono de 5 dígitos se marca al salir del campo, y
+    guardar sin título lleva el foco al título.
 
 **`S3-T06` — ViewModels y estados de UI del módulo del trabajador.**
 2026-10-19. Rama `feat/S3-T06-viewmodels-trabajador`, desde `main` con

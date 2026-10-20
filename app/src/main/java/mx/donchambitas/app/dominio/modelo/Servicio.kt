@@ -6,6 +6,10 @@ import java.time.Instant
 /**
  * Oficio o servicio ofrecido por un trabajador.
  * Corresponde a la tabla `public.servicios`.
+ *
+ * [fotos] son las filas de `servicio_fotos` del servicio, ordenadas por
+ * posicion. Las trae obtenerMisServicios() embebidas (H-18, CONTRATOS-API.md);
+ * al crear o actualizar no se mandan: las fotos se suben y se quitan aparte.
  */
 data class Servicio(
     val id: String,
@@ -18,7 +22,8 @@ data class Servicio(
     val unidadPrecio: String? = null,
     val activo: Boolean = true,
     val creadoEn: Instant,
-    val actualizadoEn: Instant
+    val actualizadoEn: Instant,
+    val fotos: List<ServicioFoto> = emptyList()
 )
 
 /**

@@ -540,23 +540,151 @@ que lo impide hoy es la validación de la aplicación.
 
 ## Perfil del trabajador · `RepositorioTrabajador`
 
-| Operación | Con qué |
+Escrito a detalle en `S3-T08`, contra `supabase-kt` 3.0.3 y contra los scripts
+de `basedatos/`. **No se probó contra el proyecto de Supabase**: es un
+documento, y lo verifica `S3-T09`, que lo implementa. Lo que más conviene
+probar primero está al final, en "Qué falta verificar".
+
+### Resumen
+
+| Operación | Con qué | Devuelve |
+|---|---|---|
+| `obtenerPerfilPublico(id)` | RPC `fn_perfil_publico_trabajador(p_trabajador_id)` | `Resultado<PerfilPublicoTrabajador>` |
+| `obtenerMiPerfil()` | `select` sobre `perfiles_trabajador` con `usuario_id = <uid>` | `Resultado<PerfilTrabajador?>`; `null` si aún no hay perfil |
+| `obtenerMisHabilidades()` | `select` sobre `perfil_habilidades` con `perfil_id = <uid>`, ordenadas por `habilidad` | `Resultado<List<String>>`, vacía si no hay |
+| `guardarMiPerfil(perfil)` | `upsert` sobre `perfiles_trabajador`, conflicto en `usuario_id` | `Resultado<PerfilTrabajador>`, ya guardado |
+| `reemplazarHabilidades(lista)` | `delete` y luego `insert` sobre `perfil_habilidades` | `Resultado<List<PerfilHabilidad>>` |
+
+**El `<uid>` sale de la sesión de `supabase-kt`**, como en "Usuario", y nunca
+del objeto que manda la pantalla: `guardarMiPerfil` ignora
+`perfil.usuarioId`. Sin sesión, `AUTENTICACION` sin ir a la red.
+
+**El repositorio no valida ni normaliza.** Las reglas de `ValidacionesTrabajador`
+y la normalización de 1.6 las aplica `MiPerfilViewModel` (`S3-T07`).
+
+**Leer siempre lleva el filtro del uid.** Las políticas "perfil de trabajador
+visible" y "habilidades visibles" dejan leer las filas de **todos** los
+trabajadores, porque P-07 las necesita. Una consulta sin
+`eq("usuario_id", uid)` devuelve los perfiles de todo el mundo, sin error.
+
+### `obtenerMiPerfil`
+
+```kotlin
+from("perfiles_trabajador")
+    .select { filter { eq("usuario_id", uid) } }
+    .decodeList<PerfilTrabajadorDto>()
+    .firstOrNull()
+    ?.aPerfilTrabajador()
+```
+
+`PerfilTrabajadorDto` trae las once columnas con su `@SerialName`:
+`usuario_id`, `rol`, `titulo`, `descripcion`, `experiencia_anios`,
+`telefono_contacto`, `estado_id`, `municipio_id`, `disponible`, `creado_en` y
+`actualizado_en`.
+
+**Cero filas es `Exito(null)`, no `AUTENTICACION`.** Es al revés que en
+"Usuario": un trabajador sin perfil es el estado normal de quien acaba de
+registrarse (HU-06), y P-11 arranca en blanco con él (`DISENO-PERFIL-SERVICIOS.md`
+1.3).
+
+### `obtenerMisHabilidades`
+
+```kotlin
+from("perfil_habilidades")
+    .select(Columns.list("habilidad")) {
+        filter { eq("perfil_id", uid) }
+        order("habilidad", Order.ASCENDING)
+    }
+    .decodeList<HabilidadDto>()
+    .map { it.habilidad }
+```
+
+Cerró `H-19` (líder, 2026-10-18). P-11 tiene que pintar las habilidades ya
+guardadas, y `reemplazarHabilidades` borra todas antes de insertar: si la
+pantalla no las leyera, guardar el perfil las perdería. Sin perfil o sin
+habilidades devuelve una lista vacía, no un error.
+
+### `guardarMiPerfil`
+
+```kotlin
+from("perfiles_trabajador")
+    .upsert(
+        PerfilEscrituraDto(
+            usuarioId = uid,
+            titulo = perfil.titulo,
+            descripcion = perfil.descripcion,
+            experienciaAnios = perfil.experienciaAnios,
+            telefonoContacto = perfil.telefonoContacto,
+            estadoId = perfil.estadoId,
+            municipioId = perfil.municipioId,
+            disponible = perfil.disponible
+        )
+    ) {
+        onConflict = "usuario_id"
+        select()
+    }
+    .decodeSingle<PerfilTrabajadorDto>()
+```
+
+- **Es un `upsert`** porque el primer guardado crea la fila y los siguientes la
+  editan (2.4). Necesita las dos políticas, "trabajador crea su perfil" y
+  "trabajador edita su perfil", y las dos exigen `usuario_id = auth.uid()`.
+- **Manda ocho columnas.** No manda `rol`: su valor por omisión es
+  `'trabajador'` y `ck_perfil_rol` no admite otro. Tampoco las fechas: al
+  insertar las pone `now()`, y al editar `creado_en` no se toca y
+  `actualizado_en` lo pone `tg_perfiles_actualizado`.
+- **Un `null` borra.** La descripción y el teléfono vacíos llegan como `null`
+  desde el ViewModel (1.6) y tienen que viajar como `null` en el JSON. Por eso
+  `PerfilEscrituraDto` **no tiene valores por omisión**: `kotlinx.serialization`
+  no escribe una propiedad que vale lo mismo que su valor por omisión, y una
+  descripción vaciada no se guardaría.
+- `select()` devuelve la fila guardada, con las fechas que puso la base. No
+  hay segunda lectura.
+- **Si la cuenta no es de trabajador, falla con `409`.** La llave
+  `fk_perfil_usuario_trabajador` amarra `(usuario_id, rol)` a
+  `usuarios(id, rol)`. Las guardas de rol de `S2-T15` impiden llegar a P-11
+  como cliente.
+
+### `reemplazarHabilidades`
+
+```kotlin
+from("perfil_habilidades").delete { filter { eq("perfil_id", uid) } }   // 1. borrar todas
+if (lista.isEmpty()) return Resultado.Exito(emptyList())
+from("perfil_habilidades")                                               // 2. insertar las nuevas
+    .insert(lista.map { HabilidadEscrituraDto(perfilId = uid, habilidad = it) }) { select() }
+    .decodeList<HabilidadEscrituraDto>()
+    .map { PerfilHabilidad(it.perfilId, it.habilidad) }
+```
+
+- **Va después de `guardarMiPerfil`.** `perfil_habilidades.perfil_id` apunta a
+  `perfiles_trabajador`: sin la fila del perfil, el `insert` falla con `409`
+  (2.4).
+- **La lista llega normalizada** (1.6): sin repetidas, ni siquiera por
+  mayúsculas. Una repetida rompe la llave primaria `(perfil_id, habilidad)`
+  con `409`, y con ella todo el `insert`.
+- **No es atómico.** Si 1 pasa y 2 falla, el perfil queda sin habilidades en
+  la base. P-11 conserva la lista en pantalla y "Reintentar" repite los dos
+  pasos (2.4), así que nada se pierde mientras no se cierre la pantalla. Ver
+  `H-26`.
+
+| Si falla… | Qué pasa |
 |---|---|
-| `obtenerPerfilPublico(id)` | RPC `fn_perfil_publico_trabajador(id)` |
-| `obtenerMiPerfil()` | `perfiles_trabajador` where `usuario_id = auth.uid()` |
-| `obtenerMisHabilidades()` | `perfil_habilidades` where `perfil_id = auth.uid()`, ordenadas por `habilidad` |
-| `guardarMiPerfil(perfil)` | `upsert` sobre `perfiles_trabajador` |
-| `reemplazarHabilidades(lista)` | `delete` + `insert` sobre `perfil_habilidades` |
+| 1, borrar | Nada cambió. Se devuelve el error |
+| 2, insertar | El perfil quedó sin habilidades. Se devuelve el error y P-11 ofrece "Reintentar", que repite solo este paso (`soloFaltanHabilidades`) |
 
-**`obtenerMisHabilidades` cierra `H-19`** (líder, 2026-10-18). P-11 tiene que
-pintar las habilidades ya guardadas, y `reemplazarHabilidades` borra todas antes
-de insertar: si la pantalla no las leyera, guardar el perfil las perdería.
-Devuelve una lista vacía, no un error, si el trabajador aún no tiene perfil o no
-declaró ninguna. La política de lectura de `perfil_habilidades` ya deja leer las
-propias. La implementación real es de `S3-T09`.
+### `obtenerPerfilPublico`
 
-`obtenerPerfilPublico` es RPC y no cinco consultas porque **P-07 necesita perfil,
-habilidades, servicios, fotos, calificación y reseñas de un golpe**. Devuelve:
+```kotlin
+postgrest.rpc(
+    "fn_perfil_publico_trabajador",
+    buildJsonObject { put("p_trabajador_id", id) }
+).decodeAsOrNull<PerfilPublicoDto>()
+```
+
+Es RPC y no cinco consultas porque **P-07 necesita perfil, habilidades,
+servicios, fotos, calificación y reseñas de un golpe**. Solo trae los
+servicios activos, con sus fotos como lista de URL en orden de posición.
+Devuelve:
 
 ```json
 {
@@ -575,20 +703,277 @@ habilidades, servicios, fotos, calificación y reseñas de un golpe**. Devuelve:
 }
 ```
 
+- **Sin perfil, o con la cuenta inactiva, la función devuelve `null`**, con
+  `200`. Se traduce a `Resultado.Error(VALIDACION, "Trabajador no
+  encontrado")`, como ya hace el repositorio falso.
+- **`estado` y `municipio` llegan `null`** si el trabajador no los ha elegido:
+  la función los une con `left join`. `PerfilPublicoTrabajador` los declara no
+  nulos. Ver `H-25`.
+
 ## Servicios · `RepositorioServicios`
 
-| Operación | Con qué |
-|---|---|
-| `obtenerMisServicios()` | `servicios` where `perfil_id = auth.uid()` |
-| `crear(servicio)` / `actualizar(servicio)` / `eliminar(id)` | `servicios` |
-| `pausar(id, activo)` | `update servicios set activo` |
-| `subirFoto(servicioId, bytes, posicion)` | Storage `servicios/<uid>/…` y luego `servicio_fotos` |
-| `eliminarFoto(fotoId)` | `servicio_fotos` y el archivo en Storage |
+Escrito a detalle en `S3-T08`, con la misma advertencia que "Perfil del
+trabajador": **sin probar contra Supabase**, lo verifica `S3-T09`.
 
-**Máximo 3 fotos por servicio**, y lo impone la base (`ck_foto_posicion` más
-`uq_foto_posicion_unica`), no la aplicación. Se sube el archivo primero y se
-inserta la fila después; si la fila falla por el tope, hay que borrar el archivo
-recién subido o quedan huérfanos.
+### Resumen
+
+| Operación | Con qué | Devuelve |
+|---|---|---|
+| `obtenerMisServicios()` | `select` sobre `servicios` con `servicio_fotos` embebidas, `perfil_id = <uid>` | `Resultado<List<Servicio>>`, activos y pausados, cada uno con sus fotos |
+| `crear(servicio)` | `insert` sobre `servicios` | `Resultado<Servicio>`, con el `id` nuevo y sin fotos |
+| `actualizar(servicio)` | `update` sobre `servicios` con `id = servicio.id` | `Resultado<Servicio>`, con sus fotos |
+| `pausar(id, activo)` | `update servicios set activo` | `Resultado<Servicio>`, con sus fotos |
+| `eliminar(id)` | Lee las fotos, borra la fila y después los archivos | `Resultado<Unit>` |
+| `subirFoto(servicioId, bytes, posicion)` | Storage, cubeta `servicios`, ruta `<uid>/<servicioId>/<milisegundos>.<ext>`; luego `servicio_fotos` | `Resultado<ServicioFoto>` |
+| `eliminarFoto(fotoId)` | Borra la fila de `servicio_fotos` y después el archivo | `Resultado<Unit>` |
+
+El uid, la falta de validación y el filtro obligatorio al leer valen igual que
+en "Perfil del trabajador": la política "servicios visibles" deja leer los
+servicios de todos.
+
+**Máximo 3 fotos por servicio, y lo impone la base**, no la aplicación:
+`ck_foto_posicion` (posición de 1 a 3) más `uq_foto_posicion_unica`
+(`servicio_id`, `posicion`). Storage no sabe contar fotos.
+
+### `obtenerMisServicios`
+
+```kotlin
+from("servicios")
+    .select(Columns.raw("*, servicio_fotos(*)")) {
+        filter { eq("perfil_id", uid) }
+        order("posicion", Order.ASCENDING, referencedTable = "servicio_fotos")
+    }
+    .decodeList<ServicioDto>()
+    .map { it.aServicio() }
+```
+
+- **Las fotos vienen embebidas: así se cerró `H-18`** (líder, 2026-10-19).
+  `ServicioDto` lleva `@SerialName("servicio_fotos") val fotos:
+  List<ServicioFotoDto>`, y `Servicio` ganó `fotos: List<ServicioFoto>`. P-13
+  las necesita con su `id` para pintarlas y quitarlas al editar, y P-12 pinta
+  la de la posición 1 en la tarjeta. Es una sola petición: PostgREST arma la
+  relación por la llave `servicio_fotos.servicio_id`.
+- **`aServicio()` vuelve a ordenar las fotos por posición**, para no depender de
+  que el `order` sobre la tabla embebida llegue como se pidió.
+- Trae activos y pausados: P-12 muestra los dos (HU-10). El orden de la lista lo
+  pone la pantalla, con `ordenarMisServicios`.
+- Sin servicios devuelve una lista vacía, no un error: es el vacío de P-12.
+
+### `crear`
+
+```kotlin
+from("servicios")
+    .insert(
+        ServicioEscrituraDto(
+            perfilId = uid,
+            categoriaId = servicio.categoriaId,
+            titulo = servicio.titulo,
+            descripcion = servicio.descripcion,
+            precioDesde = servicio.precioDesde,
+            precioHasta = servicio.precioHasta,
+            unidadPrecio = servicio.unidadPrecio
+        )
+    ) { select() }
+    .decodeSingle<ServicioDto>()
+```
+
+- **Manda siete columnas.** No manda `id` (`gen_random_uuid()`), `activo`
+  (`true` por omisión) ni las fechas. `servicio.id` y `servicio.perfilId` se
+  ignoran.
+- **Los precios viajan como texto con punto y dos decimales**, `"350.50"`, con
+  un serializador propio de `BigDecimal`: `kotlinx.serialization` no trae uno,
+  y pasarlos por `Double` pierde exactitud. PostgREST convierte el texto a
+  `numeric`. Al leer, el número del JSON se convierte con `toBigDecimal()`
+  desde su texto, nunca desde `Double`.
+- Como en `guardarMiPerfil`, `ServicioEscrituraDto` no tiene valores por
+  omisión, para que un precio `null` viaje como `null`.
+- Devuelve el servicio con `fotos` vacía: todavía no tiene ninguna. P-13 pasa a
+  modo editar con ese `id` (4.1).
+- **Si el trabajador todavía no guarda su perfil, falla con `409`.**
+  `servicios.perfil_id` apunta a `perfiles_trabajador`, no a `usuarios`. Ver
+  `H-27`.
+
+### `actualizar`
+
+```kotlin
+from("servicios")
+    .update({
+        set("categoria_id", servicio.categoriaId)
+        set("titulo", servicio.titulo)
+        set("descripcion", servicio.descripcion)
+        set("precio_desde", servicio.precioDesde?.toPlainString())
+        set("precio_hasta", servicio.precioHasta?.toPlainString())
+        set("unidad_precio", servicio.unidadPrecio)
+    }) {
+        filter { eq("id", servicio.id) }
+        select(Columns.raw("*, servicio_fotos(*)"))
+    }
+    .decodeList<ServicioDto>()
+```
+
+- **Manda seis columnas y ninguna más.** `activo` lo cambia `pausar`; las
+  fechas, la base (`tg_servicios_actualizado`). `perfil_id` no se manda: la
+  política exige que siga siendo el uid, y no hay por qué tocarlo.
+- `set(..., null)` borra el precio o la unidad.
+- **La respuesta trae las fotos embebidas**, para que P-12 no pierda la
+  miniatura al recibir el servicio actualizado.
+- **Cero filas es `VALIDACION`**, no `AUTENTICACION` como en "Usuario". Aquí es
+  un caso normal: el servicio se borró desde otro teléfono (1.3). RLS también
+  filtra el servicio ajeno, y no se distingue del borrado. El repositorio falso
+  responde igual.
+
+### `pausar`
+
+```kotlin
+from("servicios")
+    .update({ set("activo", activo) }) {
+        filter { eq("id", id) }
+        select(Columns.raw("*, servicio_fotos(*)"))
+    }
+    .decodeList<ServicioDto>()
+```
+
+Cero filas, `VALIDACION`, igual que `actualizar`. Pausar no borra nada: el
+servicio pausado deja de salir en la búsqueda y en P-07 porque la vista y la
+RPC filtran `activo` (HU-10).
+
+### `eliminar`
+
+El orden lo cerró el líder en `H-06` (2026-10-19): **la fila primero, el
+archivo después**, con las URL leídas antes. Así ninguna fila apunta a un archivo que ya no existe; lo
+peor que queda es un archivo sin fila, que nadie ve.
+
+```kotlin
+val urls = from("servicio_fotos")                                       // 1. leer las fotos
+    .select(Columns.list("url")) { filter { eq("servicio_id", id) } }
+    .decodeList<UrlDto>()
+val borrados = from("servicios")                                        // 2. borrar la fila
+    .delete { filter { eq("id", id) }; select() }
+    .decodeList<ServicioDto>()
+if (borrados.isEmpty()) return Resultado.Error(TipoError.VALIDACION, "Servicio no encontrado")
+storage.from("servicios").delete(urls.map { rutaEnCubeta(it.url) })     // 3. borrar los archivos
+```
+
+- **El paso 1 va antes porque la cascada no avisa.** `servicio_fotos` cae con
+  `on delete cascade` al borrar el servicio, y con ella las URL. Después del
+  paso 2 ya no hay cómo saber qué archivos borrar: eso era `H-06`.
+- **`rutaEnCubeta(url)`** es lo que sigue a `/object/public/servicios/` en la
+  URL pública: `<uid>/<servicioId>/<archivo>`. La tabla guarda la URL, no la
+  ruta.
+
+| Si falla… | Qué pasa |
+|---|---|
+| 1, leer | Nada cambió. Se devuelve el error |
+| 2, borrar la fila | Nada cambió. Se devuelve el error. Cero filas, `VALIDACION` |
+| 3, borrar los archivos | **Es un éxito igual**: el servicio ya no existe para nadie. Los archivos se quedan en la cubeta sin fila que los nombre. Nada los vuelve a borrar; limpiarlos es manual, desde la consola, y no urge |
+
+### `subirFoto`
+
+Sigue el orden que `03_almacenamiento.sql` pide y que ya usa
+`subirFotoPerfil`: **primero el archivo, después la fila.**
+
+```kotlin
+val tipo = tipoDeImagen(bytes)                                          // JPEG, PNG o WebP
+    ?: return Resultado.Error(TipoError.VALIDACION, "Tipo de imagen no admitido")
+val cubeta = storage.from("servicios")
+val ruta = "$uid/$servicioId/${System.currentTimeMillis()}.${tipo.extension}"
+cubeta.upload(ruta, bytes) { contentType = tipo.contentType }           // 1. subir
+from("servicio_fotos")                                                  // 2. registrar
+    .insert(FotoEscrituraDto(servicioId = servicioId, url = cubeta.publicUrl(ruta), posicion = posicion)) {
+        select()
+    }
+    .decodeSingle<ServicioFotoDto>()
+```
+
+- **La ruta empieza con el uid**: las políticas de la cubeta solo dejan
+  escribir y borrar dentro de `servicios/<uid>/`. La carpeta del servicio
+  agrupa sus fotos para limpiarlas a mano si algún paso 3 falla.
+- **Los bytes llegan tal como el usuario los eligió**: JPG, PNG o WebP de hasta
+  5 MB, sin recorte ni recompresión (4.2). El tipo se lee de los primeros bytes:
+  `FF D8 FF` es JPEG, `89 50 4E 47` es PNG, y `RIFF` con `WEBP` en el byte 8 es
+  WebP. Cualquier otro no se sube. P-13 ya lo rechazó antes, con `LimitesFoto`.
+- **La posición la elige P-13**: la primera libre. Si otra ya la ocupa, o pasa
+  de 3, el paso 2 falla con `409` o `400`.
+- **Sin avance, así se cerró `H-20`** (líder, 2026-10-19). Se usa `upload`, no
+  `uploadAsFlow`, y P-13 pinta un indicador indeterminado sobre la miniatura.
+  HU-11 se cumple así; con fotos de 5 MB como máximo, el porcentaje no se
+  justifica.
+- **Cancelar es cancelar la corrutina** (4.4). Si la cancelación llega antes
+  del paso 2, el archivo puede quedar sin fila. Si llega después, la foto quedó
+  guardada y aparece la próxima vez que se abra P-13.
+
+| Si falla… | Qué pasa |
+|---|---|
+| 1, subir | Nada cambió. Se devuelve el error de Storage |
+| 2, registrar | Se borra el archivo recién subido y se devuelve el error. Si el borrado también falla, el archivo se queda sin fila; nadie lo ve |
+
+### `eliminarFoto`
+
+```kotlin
+val borradas = from("servicio_fotos")                                   // 1. borrar la fila
+    .delete { filter { eq("id", fotoId) }; select() }
+    .decodeList<ServicioFotoDto>()
+if (borradas.isEmpty()) return Resultado.Error(TipoError.VALIDACION, "Foto no encontrada")
+storage.from("servicios").delete(rutaEnCubeta(borradas.single().url))   // 2. borrar el archivo
+```
+
+- **La fila primero, por `H-06`.** El `delete` con `select()` devuelve la fila
+  borrada, y de ahí sale la URL: no hace falta leerla antes.
+- **Cero filas, `VALIDACION`**: la foto ya no está, o no es de un servicio
+  propio. La política usa `fn_es_dueno_del_servicio`.
+
+| Si falla… | Qué pasa |
+|---|---|
+| 1, borrar la fila | Nada cambió. La miniatura se queda en P-13 y sale el aviso (4.4) |
+| 2, borrar el archivo | **Es un éxito igual**: la foto ya no está en el servicio. El archivo se queda sin fila |
+
+### Errores de `RepositorioTrabajador` y `RepositorioServicios`
+
+Los dos usan `traducirErrorDatos` para PostgREST y `traducirErrorStorage`
+para la cubeta, las mismas de "Usuario". Se clasifica por código HTTP, porque
+`supabase-kt` 3.0.3 no deja pasar el código de Postgres.
+
+| Qué llega | Cuándo pasa aquí | `TipoError` |
+|---|---|---|
+| `HttpRequestException`, `HttpRequestTimeoutException` | Sin red, tiempo agotado | `RED` |
+| Sin usuario en `auth` | No hay sesión abierta | `AUTENTICACION` |
+| `401` | El token no se puede leer o venció | `AUTENTICACION` |
+| `403` | RLS rechaza la escritura: un servicio o una foto ajenos. **Es un defecto nuestro**: la aplicación solo escribe lo propio | `AUTENTICACION` |
+| `400` | Un `CHECK` o un valor que no cabe: experiencia fuera de 0 a 70, precio negativo, hasta menor que desde, posición fuera de 1 a 3, un texto más largo que su columna | `VALIDACION` |
+| `409` | Una llave: habilidad repetida, posición ocupada, perfil inexistente (`H-27`), categoría inexistente, cuenta que no es de trabajador | `VALIDACION` |
+| Cero filas en `actualizar`, `pausar`, `eliminar` o `eliminarFoto` | El servicio o la foto ya no están, o no son propios | `VALIDACION` |
+| Cero filas en `obtenerMiPerfil` | Todavía no hay perfil | **`Exito(null)`**, no es error |
+| `null` de `fn_perfil_publico_trabajador` | Ese trabajador no tiene perfil o su cuenta está inactiva | `VALIDACION` |
+| Cualquier `RestException` de Storage | Ver "Errores de Storage" en `subirFotoPerfil` (`H-17`) | `SERVIDOR` |
+| `5xx` | El servidor falla | `SERVIDOR` |
+| Cualquier otra cosa | | `DESCONOCIDO` |
+
+**El `mensaje` es `RestException.error`, nunca `message`** (`H-13`).
+
+**Estos `VALIDACION` no traen un texto en español.** Las cuatro tablas no
+tienen triggers con mensaje propio: un `CHECK` o una llave que fallan devuelven
+el texto de Postgres, en inglés. Por eso P-11, P-12 y P-13 pintan siempre el
+mensaje genérico de `VALIDACION` (`obtenerMensajeErrorRes`) y nunca el
+`mensaje`. Cuando `DISENO-PERFIL-SERVICIOS.md` §6 dice "con el mensaje del
+trigger", en estas tablas eso es el mensaje genérico. Las validaciones de
+`S3-T07` evitan casi todos estos casos antes de salir de la aplicación.
+
+### Qué falta verificar
+
+Lo que `S3-T09` tiene que probar primero contra el proyecto, porque este
+documento lo da por hecho sin haberlo visto:
+
+1. **El embebido en la respuesta de un `update`**
+   (`select("*, servicio_fotos(*)")` en `actualizar` y `pausar`). Si PostgREST
+   no lo arma en una escritura, se vuelve a leer el servicio con
+   `obtenerMisServicios` y se dice aquí.
+2. **Que los `null` viajen** en `PerfilEscrituraDto` y `ServicioEscrituraDto`:
+   vaciar la descripción del perfil y el precio de un servicio, y volver a leer.
+3. **Los códigos de la tabla de errores**: `400` para un `CHECK`, `409` para
+   una llave, `403` para RLS. Son los de "Usuario", que sí se probaron, pero en
+   otras tablas.
+4. **Los cuatro rechazos de Storage** de la cubeta `servicios`, que deberían
+   llegar como en `perfiles` (`H-17`).
 
 ## Búsqueda y catálogos · `RepositorioCatalogos`
 
@@ -749,8 +1134,8 @@ Y todos viven en `strings.xml`.
 
 Las traducciones concretas de arriba son **el contrato**, no la
 implementación. Cada tarea de contrato detalla su módulo con los nombres de
-columna exactos y los DTO: S2-T06 autenticación y S2-T12 perfil de usuario (ya escritos, arriba),
-S3-T08 trabajador y servicios, S3-T12 la Edge Function de IA, S4-T08 solicitudes
+columna exactos y los DTO: S2-T06 autenticación, S2-T12 perfil de usuario y S3-T08 trabajador y
+servicios (ya escritos, arriba), S3-T12 la Edge Function de IA, S4-T08 solicitudes
 y búsqueda, S5-T06 mensajería y postulaciones.
 
 Mientras esas tareas no lleguen, la implementación activa de todos estos
@@ -861,3 +1246,41 @@ teléfono.**
   key` es pública: cualquiera con una cuenta puede escribir directo.
 - El daño se limita a la ficha propia. Cerrarlo es un cambio de
   `01_esquema.sql`. **Lo decide el líder.**
+
+Salen de escribir el contrato de trabajador y servicios en `S3-T08`.
+**Ninguno se resolvió aquí.**
+
+**`H-25` · El perfil público de un trabajador sin estado o sin municipio no
+se puede leer.**
+- `fn_perfil_publico_trabajador` une `estados` y `municipios` con `left join`:
+  si el trabajador no los ha elegido, `estado` y `municipio` llegan `null`.
+- `PerfilPublicoTrabajador` los declara `String`, no nulos. La deserialización
+  falla, y P-07 de ese trabajador sale como error.
+- Pasa justo en la vista previa de HU-08: un trabajador que guardó su perfil
+  sin ubicación y pulsa "Ver mi perfil como cliente". Es lo que ya anotaba
+  `H-19` cuando se descartó usar esta RPC en P-11.
+- La salida simple es volver nulos los dos campos del modelo y que P-07 pinte
+  el vacío; eso es de `S3-T14` y `S4-T03`. **Lo decide el líder.**
+
+**`H-26` · `reemplazarHabilidades` no es atómico.**
+- Son dos peticiones: borrar todas y luego insertar. Si la segunda falla, el
+  perfil queda sin habilidades en la base.
+- P-11 no pierde nada mientras la pantalla siga abierta: conserva la lista y
+  "Reintentar" repite el paso (2.4). Si el usuario sale antes de reintentar,
+  las habilidades se perdieron.
+- La salida completa es una función en la base que haga las dos cosas en una
+  transacción, y eso es una operación nueva de `RepositorioTrabajador` y un
+  cambio de `basedatos/`. Con lo que hay, el riesgo es bajo. **Lo decide el
+  líder.**
+
+**`H-27` · Un trabajador no puede publicar un servicio antes de guardar su
+perfil.**
+- `servicios.perfil_id` apunta a `perfiles_trabajador(usuario_id)`, no a
+  `usuarios`. Sin la fila del perfil, `crear` falla con `409` y P-13 pinta el
+  error genérico de `VALIDACION`, que no dice qué hacer.
+- Es el camino natural de quien se acaba de registrar: la pestaña Servicios,
+  "Publicar mi primer servicio", y P-13 ya está a la mano sin haber pasado por
+  P-11. El repositorio falso no lo detecta, porque no revisa la llave.
+- Salidas posibles: P-12 o P-13 piden guardar primero el perfil, o
+  `guardarMiPerfil` se llama solo con un título mínimo. Cualquiera de las dos
+  cambia el diseño de P-12 o P-13. **Lo decide el líder.**

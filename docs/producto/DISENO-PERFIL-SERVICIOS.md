@@ -619,9 +619,8 @@ sealed interface FotoEnPantalla {
 }
 ```
 
-**`fotos` necesita `H-18`.** Hoy nada devuelve las `ServicioFoto` de un
-servicio propio con su `id`, y sin el `id` no se puede llamar a
-`eliminarFoto`.
+**`fotos` sale de `Servicio.fotos`**, que `obtenerMisServicios()` trae
+embebidas con su `id` desde que `S3-T08` cerró `H-18`.
 
 ### 4.4 Eventos
 
@@ -1011,7 +1010,13 @@ las sustituyen `S3-T03`, `S3-T04` y `S3-T05`.
 Salen de cruzar las ocho historias con los repositorios, `CONTRATOS-API.md` y
 el esquema. **Ninguno se resolvió aquí**, conforme a `AGENTS.md` §9.
 
-**`H-18` · Las fotos de un servicio propio no se pueden leer.** `Servicio` no
+**`H-18` · CERRADO el 2026-10-19 por el líder: fotos embebidas.** Lo aplicó
+`S3-T08`: `obtenerMisServicios()` trae `servicio_fotos(*)` y `Servicio` ganó
+`fotos: List<ServicioFoto>`, en el modelo, el falso y `CONTRATOS-API.md`; P-12
+pinta la miniatura y P-13 las fotos al editar. La real es de `S3-T09`. El
+hallazgo, como se reportó:
+
+**Las fotos de un servicio propio no se pueden leer.** `Servicio` no
 trae fotos y `obtenerMisServicios()` lee solo `servicios`. La RPC de P-07 sí
 devuelve fotos, pero como una lista de URL sin `id`, y solo de lo que ve un
 cliente. Sin el `id` de cada `ServicioFoto`, P-13 no puede llamar a
@@ -1034,7 +1039,11 @@ tiene estado y municipio, porque `PerfilPublicoTrabajador` los pide no nulos.
 **Le toca a `S3-T08`**: que `obtenerMiPerfil()` traiga `perfil_habilidades`
 embebidas o que haya una operación de lectura.
 
-**`H-20` · `subirFoto` no informa avance.** HU-11 dice "veo el progreso". El
+**`H-20` · CERRADO el 2026-10-19 por el líder: sin porcentaje.** `subirFoto` no
+informa avance y HU-11 se cumple con el indicador indeterminado de 4.4. Lo
+anotó `S3-T08` en `CONTRATOS-API.md`. El hallazgo, como se reportó:
+
+**`subirFoto` no informa avance.** HU-11 dice "veo el progreso". El
 diseño pinta un indicador indeterminado sobre la miniatura (4.4). Si el líder
 quiere porcentaje, `S3-T08` tiene que agregar un parámetro de avance a la
 firma; `supabase-kt` lo permite con `uploadAsFlow`.
