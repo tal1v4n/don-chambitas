@@ -74,8 +74,9 @@ class ServicioViewModelTest {
         assertEquals("800", estado.precioHasta)
         assertEquals("por trabajo", estado.unidadPrecio)
         assertEquals(EstadoBotonIa.Disponible(null), estado.ia)
-        // H-18: las fotos que ya tenia no se pueden leer con su id.
-        assertTrue(estado.fotos.isEmpty())
+        // H-18: la foto sembrada llega con su id, lista para quitarse.
+        val sembrada = fuente.fotosServicio.single { it.servicioId == "serv-1" }
+        assertEquals(listOf(FotoEnPantalla.Guardada(sembrada)), estado.fotos)
     }
 
     @Test
@@ -252,7 +253,9 @@ class ServicioViewModelTest {
         viewModel.alAgregarFoto(byteArrayOf(1))
         advanceUntilIdle()
 
-        assertTrue(viewModel.estado.value.fotos.isEmpty())
+        // Se va la miniatura que subia; la sembrada se queda.
+        assertEquals(listOf(1), viewModel.estado.value.fotos.map { it.posicion })
+        assertFalse(viewModel.estado.value.subiendoFoto)
         assertEquals(R.string.servicio_foto_no_subio, viewModel.estado.value.aviso)
     }
 

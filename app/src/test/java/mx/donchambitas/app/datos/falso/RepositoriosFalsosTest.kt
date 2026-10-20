@@ -152,6 +152,17 @@ class RepositoriosFalsosTest {
         val f4 = repoServicios.subirFoto(servId, byteArrayOf(3), 4)
         assertTrue(f4 is Resultado.Error)
         assertEquals(TipoError.VALIDACION, (f4 as Resultado.Error).tipo)
+
+        // H-18: obtenerMisServicios trae las tres, ordenadas por posicion, con su id.
+        val conFotos = (repoServicios.obtenerMisServicios() as Resultado.Exito).dato.first { it.id == servId }
+        assertEquals(listOf(1, 2, 3), conFotos.fotos.map { it.posicion })
+        assertEquals((f2 as Resultado.Exito).dato, conFotos.fotos[1])
+
+        // Pausar devuelve el servicio con sus fotos; actualizar no las duplica en la fuente.
+        assertEquals(3, (repoServicios.pausar(servId, false) as Resultado.Exito).dato.fotos.size)
+        val actualizado = (repoServicios.actualizar(conFotos.copy(titulo = "Nuevo")) as Resultado.Exito).dato
+        assertEquals(3, actualizado.fotos.size)
+        assertTrue(fuente.servicios.first { it.id == servId }.fotos.isEmpty())
     }
 
     @Test
