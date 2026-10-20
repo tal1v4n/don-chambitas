@@ -18,6 +18,9 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import mx.donchambitas.app.R
+import mx.donchambitas.app.datos.falso.FuenteDatosFalsa
+import mx.donchambitas.app.datos.falso.RepositorioCatalogosFalso
+import mx.donchambitas.app.datos.falso.RepositorioTrabajadorFalso
 import mx.donchambitas.app.dominio.modelo.Estado
 import mx.donchambitas.app.dominio.modelo.Municipio
 import mx.donchambitas.app.ui.tema.DonChambitasTema
@@ -83,7 +86,7 @@ class MiPerfilPantallaTest {
     private fun montarPantalla() {
         composeTestRule.setContent {
             DonChambitasTema {
-                MiPerfilPantalla(alRegresar = {}, alVerComoCliente = {})
+                MiPerfilPantalla(alRegresar = {}, alVerComoCliente = {}, viewModel = viewModelSinRetraso())
             }
         }
     }
@@ -264,4 +267,16 @@ class MiPerfilPantallaTest {
             .assertIsDisplayed()
         boton(R.string.mi_perfil_vista_previa).assertIsNotEnabled()
     }
+}
+
+/**
+ * P-11 contra los falsos, sin retraso. La fuente arranca con la sesion de
+ * cliente1, que no tiene perfil: la pantalla abre como perfil nuevo.
+ */
+private fun viewModelSinRetraso(): MiPerfilViewModel {
+    val fuente = FuenteDatosFalsa()
+    return MiPerfilViewModel(
+        RepositorioTrabajadorFalso(fuente).apply { retrasoMs = 0 },
+        RepositorioCatalogosFalso(fuente).apply { retrasoMs = 0 }
+    )
 }
