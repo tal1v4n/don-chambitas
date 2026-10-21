@@ -393,7 +393,7 @@ Cruzando todos los wireframes contra [`DISENO.md`](../tecnico/DISENO.md):
    - `Cargando` (utilizado en P-01)
    - `EstadoVacio` (utilizado en P-05 vacío, P-10 vacío y P-12 vacío)
    - `EstadoError` (utilizado en P-05 error y P-10 error)
-   - **Ningún componente fuera de catálogo:** Cero componentes inventados o no registrados en `DISENO.md`. La única excepción pendiente es la marca "Pausado" de `TarjetaServicio` en P-12, que se reportó como `H-21` en `DISENO-PERFIL-SERVICIOS.md` en vez de inventarse.
+   - **Ningún componente fuera de catálogo:** Cero componentes inventados o no registrados en `DISENO.md`. La marca "Pausado" de `TarjetaServicio` en P-12, que se reportó como `H-21` en vez de inventarse, ya está en el catálogo: el líder lo cerró el 2026-10-18 extendiendo `TarjetaServicio` (`S3-T05`).
 
 2. **Paleta Taller:**
    - Mostaza (`#E0A11B`), Mostaza Oscuro (`#B37D08`), Terracota (`#C1440E`), Carbon (`#2B1F14`), Cafe (`#7A6A58`), Crema (`#FFFDF8`), Arena (`#F7F0E4`), Borde (`#E6DAC6`).

@@ -495,7 +495,7 @@ desde la aplicación no se distingue el motivo (`H-17`). `traducirErrorStorage`
 
 La aplicación evita los cuatro motivos: sube JPEG de 512 × 512, a su carpeta y
 con un nombre nuevo. El `mensaje` es `RestException.error`, nunca `message`
-(`H-13`).
+(`H-28`).
 
 ### La `Sesion` no se entera de la edición
 
@@ -532,7 +532,7 @@ el código de Postgres: arma la excepción con `message`, `details` y `hint`, y
 **El `mensaje` del `Resultado.Error` es `RestException.error`**, el texto que
 mandó el servidor. **Nunca `RestException.message`**: en 3.0.3 ese texto
 incluye las cabeceras de la petición, con `Authorization: Bearer <token>`
-(`H-13`).
+(`H-28`).
 
 **La base no valida el contenido.** `public.usuarios` no tiene `CHECK` sobre
 `nombre`, `apellidos` ni `telefono`: un nombre vacío devuelve `200`. Lo único
@@ -948,7 +948,7 @@ para la cubeta, las mismas de "Usuario". Se clasifica por código HTTP, porque
 | `5xx` | El servidor falla | `SERVIDOR` |
 | Cualquier otra cosa | | `DESCONOCIDO` |
 
-**El `mensaje` es `RestException.error`, nunca `message`** (`H-13`).
+**El `mensaje` es `RestException.error`, nunca `message`** (`H-28`).
 
 **Estos `VALIDACION` no traen un texto en español.** Las cuatro tablas no
 tienen triggers con mensaje propio: un `CHECK` o una llave que fallan devuelven
@@ -1251,7 +1251,7 @@ esos tickets. **Lo decide el líder.**
 Salen de escribir el contrato de perfil de usuario en `S2-T12`. **Ninguno se
 resolvió aquí.**
 
-**`H-13` · El `mensaje` de los errores de autenticación lleva el token.**
+**`H-28` · El `mensaje` de los errores de autenticación lleva el token.**
 - `traducirErrorAuth` y `traducirErrorFicha` guardan `error.message` en
   `Resultado.Error.mensaje`.
 - En `supabase-kt` 3.0.3, `RestException.message` incluye las cabeceras de la

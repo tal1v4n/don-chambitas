@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-10-19
+**Última actualización:** 2026-10-21
 
 ---
 
@@ -43,7 +43,6 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 **guarda en Supabase** (`S3-T09`): estados y municipios salen de la base, "Perfil guardado" y el aviso de incompleto recalculado, y al reabrir la aplicación lo guardado sigue. Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error. Probado con `beto.rls@…` y Puebla → Cholula | — |
 | Como trabajador, tocas la pestaña **Servicios** | P-12 **lee de Supabase** tus servicios, activos primero, con la miniatura de la foto de la posición 1. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13 | — |
 | Como trabajador, publicas un servicio en P-13 | **Guarda en Supabase.** Las 16 categorías salen de la base, **todavía sin acentos** ("Plomeria"), hasta que el líder vuelva a correr la semilla (`S3-T02`). "Publicar" deja la pantalla en "Editar servicio"; las fotos suben a la cubeta `servicios` con un indicador que gira. **Sin haber guardado antes el perfil profesional, "Publicar" falla con el error genérico** (`H-27`). "Redactar con IA" se habilita, pero aún no hace nada | `H-27`, `S3-T13` |
-
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -89,7 +88,7 @@ _Ninguna._
 
 **`S3-T09` — Persistencia real de perfiles y servicios en Supabase.**
 2026-10-20. Rama `feat/S3-T09-persistencia-trabajador-servicios`, desde `main`
-con `S3-T08` ya integrada (#38), pull request **sin abrir todavía**. Ticket
+con `S3-T08` ya integrada (#38), pull request **#39**. Ticket
 redactado por el agente al tomar la tarea.
 
 - **`RepositorioTrabajadorReal` y `RepositorioServiciosReal`** implementan el
@@ -137,7 +136,9 @@ y `trabajador.s2t15@donchambitas.test`) siguen en el proyecto. Borrarlas necesit
 `service_role`, que no entra al repositorio:
 
 ```sql
-delete from auth.users where email like '%@prueba.donchambitas.mx';
+delete from auth.users
+where email like '%@prueba.donchambitas.mx'
+   or email like '%@donchambitas.test';
 ```
 
 ## Los cuatro huecos de S1-T03, uno ya cerrado
