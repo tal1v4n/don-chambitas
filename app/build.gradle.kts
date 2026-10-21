@@ -20,14 +20,14 @@ val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?
 
 android {
     namespace = "mx.donchambitas.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "mx.donchambitas.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
