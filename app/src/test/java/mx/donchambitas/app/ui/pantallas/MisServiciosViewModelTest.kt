@@ -1,6 +1,7 @@
 package mx.donchambitas.app.ui.pantallas
 
 import java.time.Instant
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import mx.donchambitas.app.R
@@ -19,6 +20,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MisServiciosViewModelTest {
 
     @get:Rule
