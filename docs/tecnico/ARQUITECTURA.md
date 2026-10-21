@@ -17,7 +17,7 @@
 | Imágenes | Coil |
 | Pruebas | JUnit, MockK y Compose UI Test |
 | minSdk | 26 |
-| targetSdk | 35 |
+| compileSdk y targetSdk | 36, requisito de Play Console |
 
 No se cambia nada de esta tabla sin una decisión registrada en
 `docs/control/DECISIONES.md`.
