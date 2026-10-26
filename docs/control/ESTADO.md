@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-10-25
+**Última actualización:** 2026-10-21
 
 ---
 
@@ -16,7 +16,7 @@
 | Tareas del sprint | 15 |
 | Terminadas | 10 |
 | En curso | 0 |
-| Bloqueadas | 0 |
+| Bloqueadas | 4 |
 
 > Sprint 3 abierto el 2026-10-18 por autorización del líder. Sus tickets se
 > redactan uno por uno al tomar cada tarea, como en el Sprint 2.
@@ -86,32 +86,26 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T11` — Diseño del prompt de redacción de perfil y descripción de
-servicio.** 2026-10-25. Rama `docs/S3-T11-diseno-prompt-redaccion`, desde
-`main` con `S3-T09` ya integrada (#39). El pull request lo abre la persona.
-Ticket redactado por el agente al tomar la tarea.
+**`S3-T15` — Pruebas del módulo de perfil y servicios con datos falsos.**
+2026-10-25. Rama `test/S3-T15-pruebas-perfil-servicios`, desde
+`docs/S3-T11-diseno-prompt-redaccion` para llevar la pausa de la IA, pull
+request **sin abrir todavía**. Ticket redactado por el agente al tomar la tarea.
 
-- **`docs/producto/PROMPT-REDACCION.md`**, documento nuevo: las reglas del
-  texto (40 a 80 palabras, primera persona, sin inventar, sin precios ni
-  contacto), el formato exacto de `entrada` para P-11 y P-13 y las dos
-  instrucciones del modelo, cada una en un bloque listo para copiar al GPT de
-  `S3-T10` y a la Edge Function de `S4-T10`.
-- **La entrada es determinista** para que la caché de HU-31 funcione:
-  renglones `Etiqueta: valor` en orden fijo, sin renglones vacíos y con los
-  espacios colapsados. No viajan a OpenAI nombre, teléfono, ubicación ni
-  precio.
-- **Una salida fija, `NO_PUEDO_REDACTAR`**, para la entrada sin sentido,
-  ofensiva o que solo trae instrucciones. Su traducción en el proxy es `H-30`.
-- **13 casos de prueba** para `S3-T10`, con qué revisar en cada uno, y los
-  parámetros recomendados para `S4-T10` (200 tokens de salida, temperatura
-  0.5).
-- `IA.md` y `DISENO-PERFIL-SERVICIOS.md` §1.9 apuntan al documento nuevo.
-- **No toca código.** Las instrucciones no se probaron en ChatGPT: eso es
-  `S3-T10`.
-- Verificación del proyecto: compilación exitosa (`./gradlew assembleDebug`) y
-  298 pruebas unitarias, 0 fallas. Sin instalación en el dispositivo: no hay
-  nada nuevo que ver en la aplicación.
-
+- **`FlujoTrabajadorTest`**, 15 pruebas con los tres repositorios falsos sobre
+  una sola fuente, sin `mockk`: seis recorridos entre P-11, P-12 y P-13 (lo
+  guardado se relee, lo publicado aparece en P-12, lo pausado sale del perfil
+  público, lo eliminado es "no existe" en P-13) y las filas que faltaban de
+  2.4, 3.3, 4.4 y 4.5.
+- **`app/src/main` no cambió** y ninguna prueba encontró un defecto.
+- **Fuera, por la pausa de la IA:** el botón "Redactar con IA" y la columna
+  `LIMITE_IA` de §6.
+- Verificación:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 313 pruebas unitarias, 0 fallas. `FlujoTrabajadorTest` pasó diez corridas
+    seguidas con `--rerun`.
+  - Con `ServicioViewModel` sin guardar el id nuevo al publicar, fallaron 2
+    (publicar y listar, y las tres fotos). La línea se regresó.
+  - No hay nada que probar en el dispositivo: la tarea no cambia la aplicación.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -179,30 +173,19 @@ y el esquema. Están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T10` — Entrenar el GPT: instrucciones, base de conocimiento y pruebas en
-ChatGPT** (prioridad 550, RRC, depende de `S3-T11`). Todavía no tiene ticket:
-se redacta al tomarla. Toma las instrucciones y los 13 casos de
-`PROMPT-REDACCION.md`; si cambia una instrucción al afinarla, la cambia también
-en ese documento. `S3-T12` (500) también quedó libre.
+**Ninguna tarea del Sprint 3 se puede tomar.** Las cinco abiertas son de la IA
+o dependen de ella. Abrir el Sprint 4 lo decide el líder (`AGENTS.md` §3).
+
+**La IA quedó en pausa el 2026-10-25**, por indicación del equipo: `S3-T10`,
+`S3-T11`, `S3-T12` y `S3-T13` (y `S4-T10` y `S4-T11`) están `bloqueada`. El
+diseño del prompt que se había hecho para `S3-T11` se revirtió; queda en el
+historial de git (`df37851`) y su ticket sigue en `docs/tareas/S3-T11.md`.
+`S3-T14` depende de `S3-T13`, así que tampoco se puede tomar. **El líder tiene
+que registrar la pausa en `PENDIENTES.md` y decidir si `S3-T14` se desliga de
+`S3-T13`.**
 
 **Antes conviene que el líder vuelva a correr `04_datos_semilla.sql`**: con
 los catálogos reales, la app ya muestra las categorías sin acentos.
-
-## Tres huecos nuevos de S3-T11
-
-Salen de diseñar el prompt. Están explicados en la sección 6 de
-`docs/producto/PROMPT-REDACCION.md`. **Ninguno se corrigió.**
-
-- **`H-29` — `IA.md` pone el botón de F1 también en P-08, y no hay función
-  para redactar la solicitud.** Ni `FuncionIa` ni el contrato del proxy la
-  tienen, y ninguna historia la pide. **Lo decide el líder**: quitar P-08 de F1
-  o agregar la función en el Sprint 4.
-- **`H-30` — `NO_PUEDO_REDACTAR` no tiene traducción en el contrato.** Un `200`
-  con esa cadena la pegaría en el campo. **Le toca a `S3-T12`** (código, caché
-  y tope) y a `S3-T13` (el aviso en pantalla).
-- **`H-31` — `RepositorioIaFalso` inventa lo que el prompt prohíbe**
-  ("garantía por escrito") e intercala la `entrada` cruda. **Le toca a
-  `S3-T13`**, que conecta el botón.
 
 ## Tres huecos nuevos de S3-T08
 
