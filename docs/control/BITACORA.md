@@ -50,6 +50,7 @@
 | 2026-10-19 | S3-T07 | GRI | feat/S3-T07-validaciones-trabajador | #37 | ValidacionesTrabajador.kt con las 16 reglas de 5.2 y 5.3 (FalloTrabajador, LimitesTrabajador) y la normalizacion de 1.6: precio con coma o punto a dos decimales, habilidades sin repetidas. MiPerfilViewModel y ServicioViewModel validan como P-03: al perder el foco lo tocado, todo al guardar sin llamar al repositorio y foco al primer error; la habilidad, al agregarla. El municipio y la categoria reciben el foco aunque no abran teclado. Se quito el renglon duplicado de S3-T06 que entro con el #36. 296 unitarias (19 nuevas) y 108 instrumentadas pasando. Probada a mano con beto.rls |
 | 2026-10-19 | S3-T08 | BCJL | docs/S3-T08-contrato-trabajador-servicios | #38 | CONTRATOS-API.md detalla RepositorioTrabajador y RepositorioServicios contra supabase-kt 3.0.3: consulta, columnas, retorno y errores de cada operacion, sin probar contra Supabase (lo verifica S3-T09). Tres huecos cerrados por el lider: H-18 con fotos embebidas (Servicio.fotos, el falso, la miniatura de P-12 y las fotos de P-13 al editar), H-20 sin porcentaje y H-06 con la fila primero y el archivo despues; MODELO-ER.md decia lo contrario y se reporto antes de escribirlo. Tres huecos nuevos: H-25 perfil publico sin estado o municipio, H-26 reemplazarHabilidades no atomico, H-27 servicio antes del perfil. 296 unitarias y 108 instrumentadas pasando |
 | 2026-10-20 | S3-T09 | LMM | feat/S3-T09-persistencia-trabajador-servicios | #39 | RepositorioTrabajadorReal y RepositorioServiciosReal segun el contrato de S3-T08, enlazados en ModuloRepositorios: P-11, P-12 y P-13 guardan en Supabase y sobreviven al reinicio. Por decision del lider, tambien RepositorioCatalogosReal (categorias, estados y municipios): los ids de municipio del falso no coincidian con la base. buscarTrabajadores sigue falso hasta S4-T09. Que falta verificar, probado contra el proyecto: embebido en update, nulls, 400 y 409. Las categorias salen sin acentos hasta que el lider corra la semilla. 298 unitarias y 117 instrumentadas (9 contra Supabase) pasando |
+| 2026-10-25 | S3-T11 | GRI | docs/S3-T11-diseno-prompt-redaccion | — | PROMPT-REDACCION.md con las instrucciones de redactar_perfil y redactar_servicio listas para copiar, el formato determinista de entrada (renglones Etiqueta: valor, sin nombre, telefono, ubicacion ni precio), la salida fija NO_PUEDO_REDACTAR, 13 casos de prueba para S3-T10 y parametros recomendados para S4-T10. No toca codigo; las instrucciones no se probaron en ChatGPT (es S3-T10). Tres huecos nuevos: H-29 P-08 sin funcion de redaccion, H-30 NO_PUEDO_REDACTAR sin traduccion en el contrato, H-31 el falso inventa lo que el prompt prohibe. 298 unitarias pasando |
 
 ---
 
@@ -68,6 +69,45 @@ que se descubrió y no estaba previsto. Si no pasó nada, se deja vacía.
 > Lo que cada tarea dejó escrito en `ESTADO.md` como "Última tarea terminada"
 > antes de que la siguiente la relevara. La más reciente va arriba. Se agrega,
 > no se edita.
+
+**`S3-T09` — Persistencia real de perfiles y servicios en Supabase.**
+2026-10-20. Rama `feat/S3-T09-persistencia-trabajador-servicios`, desde `main`
+con `S3-T08` ya integrada (#38), pull request **#39**. Ticket
+redactado por el agente al tomar la tarea.
+
+- **`RepositorioTrabajadorReal` y `RepositorioServiciosReal`** implementan el
+  contrato de `S3-T08`, y `ModuloRepositorios` los enlaza: ninguna pantalla
+  cambió. P-11, P-12 y P-13 ya guardan de verdad y lo guardado sobrevive al
+  reinicio. Storage sigue el orden de `H-06`.
+- **Los catálogos también pasaron a reales**, por decisión del líder al tomar
+  la tarea: los ids de municipio del falso no coincidían con los de la base (el
+  falso numeraba Cholula como 19, y en la base el 19 es Naucalpan), y P-11 habría
+  guardado el municipio equivocado sin error. `RepositorioCatalogosReal` lee
+  categorías, estados y municipios y los guarda en memoria; `buscarTrabajadores`
+  sigue en el falso hasta `S4-T09`.
+- **"Qué falta verificar" se probó contra el proyecto** y el contrato dice qué
+  pasó (ahora "Qué se verificó"): el embebido en un `update` funciona, los
+  `null` viajan, y un `CHECK` llega como `400` y una llave como `409`.
+- **Visible en la app:** las categorías llegan sin acentos porque la semilla
+  del proyecto es la vieja. **Falta que el líder la vuelva a correr** (`S3-T02`).
+- `H-27` quedó reportado, como decidió el líder: publicar sin perfil guardado
+  falla con el error genérico.
+- Verificación del proyecto:
+  - Compilación exitosa (`./gradlew assembleDebug`).
+  - 298 pruebas unitarias (2 nuevas en `TipoImagenTest`), 0 fallas.
+  - 117 instrumentadas, 0 fallas y 0 omitidas, con 9 nuevas en
+    `RepositorioTrabajadorServiciosRealTest` contra el proyecto. La primera
+    corrida completa se cortó en la prueba 100 porque el emulador se cayó;
+    reiniciado, pasaron todas.
+  - A mano en el emulador con `beto.rls@…`: guardar el perfil con Puebla →
+    Cholula, salir y volver a entrar con todo cargado de la base; publicar un
+    servicio y subirle una foto desde la galería; cerrar la aplicación a la
+    fuerza y reabrirla, con el servicio y su miniatura ahí. Quitar y eliminar
+    no se repitieron a mano: después de reiniciarse, el emulador dejó de pintar
+    hojas y diálogos a tiempo. Los cubren las pruebas contra el proyecto.
+  - **Quedaron en la cuenta `beto.rls`** el perfil "Plomero" (Puebla, Cholula,
+    habilidad "Boilers") y el servicio "Fugas" con su foto. Se pueden borrar
+    desde P-12.
 
 **`S3-T08` — Contrato de la API de perfil del trabajador y de servicios.**
 2026-10-19. Rama `docs/S3-T08-contrato-trabajador-servicios`, desde `main` con
