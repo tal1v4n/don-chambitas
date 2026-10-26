@@ -176,7 +176,7 @@ criterios de aceptación y cómo probarla.
 
 Los tickets se redactan **al iniciar cada sprint**, no los seis por adelantado:
 detallar hoy el Sprint 5 es trabajo que se va a tirar. Hoy están escritos los
-16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09`. Para los
+16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09` y el de `S3-T11`, que quedó pendiente. Para los
 siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 
 > **Los del Sprint 2 se están redactando tarde, tarea por tarea.** `S2-T01` y
