@@ -16,7 +16,7 @@
 | Tareas del sprint | 15 |
 | Terminadas | 9 |
 | En curso | 0 |
-| Bloqueadas | 0 |
+| Bloqueadas | 4 |
 
 > Sprint 3 abierto el 2026-10-18 por autorización del líder. Sus tickets se
 > redactan uno por uno al tomar cada tarea, como en el Sprint 2.
@@ -191,11 +191,17 @@ y el esquema. Están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T11` — Diseño del prompt de redacción de perfil y descripción de
-servicio** (prioridad 600, GRI, sin dependencias). Todavía no tiene ticket: se
-redacta al tomarla. Es el primer eslabón de la IA del Sprint 3: de ella
-dependen `S3-T10`, el GPT, y `S3-T12`, el contrato del proxy. Lee `IA.md`.
-`DISENO-PERFIL-SERVICIOS.md` §1.9 ya fija de qué campos sale la entrada.
+**`S3-T15` — Pruebas del módulo de perfil y servicios con datos falsos**
+(prioridad 300, GRI, sin dependencias). Todavía no tiene ticket: se redacta al
+tomarla.
+
+**La IA quedó en pausa el 2026-10-25**, por indicación del equipo: `S3-T10`,
+`S3-T11`, `S3-T12` y `S3-T13` (y `S4-T10` y `S4-T11`) están `bloqueada`. El
+diseño del prompt que se había hecho para `S3-T11` se revirtió; queda en el
+historial de git (`df37851`) y su ticket sigue en `docs/tareas/S3-T11.md`.
+`S3-T14` depende de `S3-T13`, así que tampoco se puede tomar. **El líder tiene
+que registrar la pausa en `PENDIENTES.md` y decidir si `S3-T14` se desliga de
+`S3-T13`.**
 
 **Antes conviene que el líder vuelva a correr `04_datos_semilla.sql`**: con
 los catálogos reales, la app ya muestra las categorías sin acentos.

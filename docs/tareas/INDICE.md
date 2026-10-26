@@ -23,15 +23,18 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 |---|---|---|---|---|---|
 | 1 | 16 | 0 | 0 | 0 | 16 |
 | 2 | 16 | 0 | 0 | 0 | 16 |
-| 3 | 15 | 6 | 0 | 0 | 9 |
-| 4 | 15 | 13 | 0 | 2 | 0 |
+| 3 | 15 | 2 | 4 | 0 | 9 |
+| 4 | 15 | 11 | 2 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
 | 6 | 13 | 13 | 0 | 0 | 0 |
-| **Total** | **87** | **44** | **0** | **2** | **41** |
+| **Total** | **87** | **38** | **6** | **2** | **41** |
 
-> **No queda ninguna tarea bloqueada, ni ningún pendiente abierto.** PEND-01 se
-> resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el 2026-09-22
-> a favor de los 26 municipios sembrados (`DEC-26`).
+> **La línea de inteligencia artificial está en pausa desde el 2026-10-25**, por
+> indicación del equipo: `S3-T10`, `S3-T11`, `S3-T12`, `S3-T13`, `S4-T10` y
+> `S4-T11` quedan `bloqueada` hasta que el líder la retome. `S3-T14` y `S4-T14`
+> siguen `pendiente`, pero dependen de una de ellas y no se pueden tomar.
+> PEND-01 se resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el
+> 2026-09-22 a favor de los 26 municipios sembrados (`DEC-26`).
 
 ---
 
@@ -96,10 +99,10 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S3-T07` | 750 | Validaciones y reglas de negocio de la publicación de servicios | GRI | hecha | S1-T13 |
 | `S3-T08` | 700 | Contrato de la API de perfil del trabajador y de servicios | BCJL | hecha | — |
 | `S3-T09` | 650 | Persistencia real de perfiles y servicios en Supabase | LMM | hecha | S3-T08 |
-| `S3-T11` | 600 | Diseño del prompt de redacción de perfil y descripción de servicio | GRI | pendiente | — |
-| `S3-T10` | 550 | Entrenar el GPT: instrucciones, base de conocimiento y pruebas en ChatGPT | RRC | pendiente | S3-T11 |
-| `S3-T12` | 500 | Contrato del proxy de IA (la llave de la API nunca vive dentro de la app) | BCJL | pendiente | S3-T11 |
-| `S3-T13` | 450 | Boton 'Redactar con IA' dentro del formulario de servicio (interfaz) | LMM | pendiente | S3-T12 |
+| `S3-T11` | 600 | Diseño del prompt de redacción de perfil y descripción de servicio | GRI | bloqueada | — |
+| `S3-T10` | 550 | Entrenar el GPT: instrucciones, base de conocimiento y pruebas en ChatGPT | RRC | bloqueada | S3-T11 |
+| `S3-T12` | 500 | Contrato del proxy de IA (la llave de la API nunca vive dentro de la app) | BCJL | bloqueada | S3-T11 |
+| `S3-T13` | 450 | Boton 'Redactar con IA' dentro del formulario de servicio (interfaz) | LMM | bloqueada | S3-T12 |
 | `S3-T14` | 400 | Estado vacío y vista previa del perfil público del trabajador | RRC | pendiente | S3-T13 |
 | `S3-T15` | 300 | Pruebas del módulo de perfil y servicios con datos falsos | GRI | pendiente | — |
 
@@ -118,8 +121,8 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S4-T07` | 750 | ViewModels, paginación y ordenamiento de resultados | BCJL | pendiente | — |
 | `S4-T08` | 700 | Contrato de la API de solicitudes, búsqueda y filtros | LMM | pendiente | S4-T03 |
 | `S4-T09` | 650 | Implementación real de la búsqueda y el filtrado en Supabase | RRC | pendiente | S4-T08 |
-| `S4-T10` | 600 | Consumir la API del GPT previamente entrenado desde la Edge Function (PRIORITARIO) | GRI | pendiente | S3-T10, S3-T12 |
-| `S4-T11` | 550 | Tope de llamadas de IA por usuario al día y caché de respuestas | BCJL | pendiente | S3-T13 |
+| `S4-T10` | 600 | Consumir la API del GPT previamente entrenado desde la Edge Function (PRIORITARIO) | GRI | bloqueada | S3-T10, S3-T12 |
+| `S4-T11` | 550 | Tope de llamadas de IA por usuario al día y caché de respuestas | BCJL | bloqueada | S3-T13 |
 | `S4-T12` | 500 | Categorización automática de la solicitud a partir de texto libre | LMM | opcional | S4-T11 |
 | `S4-T13` | 450 | Ranking de trabajadores sugeridos para una solicitud (sin ubicacion) | RRC | opcional | S4-T11 |
 | `S4-T14` | 400 | Manejo de errores y reintentos | GRI | pendiente | S4-T11 |
