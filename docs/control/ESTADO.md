@@ -3,7 +3,7 @@
 > Archivo **vivo**. Quien termina una tarea lo actualiza. Es la primera cosa
 > que lee el agente y la única fuente confiable sobre qué está pasando hoy.
 
-**Última actualización:** 2026-10-21
+**Última actualización:** 2026-10-25
 
 ---
 
@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 9 |
+| Terminadas | 10 |
 | En curso | 0 |
 | Bloqueadas | 0 |
 
@@ -86,44 +86,32 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T09` — Persistencia real de perfiles y servicios en Supabase.**
-2026-10-20. Rama `feat/S3-T09-persistencia-trabajador-servicios`, desde `main`
-con `S3-T08` ya integrada (#38), pull request **#39**. Ticket
-redactado por el agente al tomar la tarea.
+**`S3-T11` — Diseño del prompt de redacción de perfil y descripción de
+servicio.** 2026-10-25. Rama `docs/S3-T11-diseno-prompt-redaccion`, desde
+`main` con `S3-T09` ya integrada (#39). El pull request lo abre la persona.
+Ticket redactado por el agente al tomar la tarea.
 
-- **`RepositorioTrabajadorReal` y `RepositorioServiciosReal`** implementan el
-  contrato de `S3-T08`, y `ModuloRepositorios` los enlaza: ninguna pantalla
-  cambió. P-11, P-12 y P-13 ya guardan de verdad y lo guardado sobrevive al
-  reinicio. Storage sigue el orden de `H-06`.
-- **Los catálogos también pasaron a reales**, por decisión del líder al tomar
-  la tarea: los ids de municipio del falso no coincidían con los de la base (el
-  falso numeraba Cholula como 19, y en la base el 19 es Naucalpan), y P-11 habría
-  guardado el municipio equivocado sin error. `RepositorioCatalogosReal` lee
-  categorías, estados y municipios y los guarda en memoria; `buscarTrabajadores`
-  sigue en el falso hasta `S4-T09`.
-- **"Qué falta verificar" se probó contra el proyecto** y el contrato dice qué
-  pasó (ahora "Qué se verificó"): el embebido en un `update` funciona, los
-  `null` viajan, y un `CHECK` llega como `400` y una llave como `409`.
-- **Visible en la app:** las categorías llegan sin acentos porque la semilla
-  del proyecto es la vieja. **Falta que el líder la vuelva a correr** (`S3-T02`).
-- `H-27` quedó reportado, como decidió el líder: publicar sin perfil guardado
-  falla con el error genérico.
-- Verificación del proyecto:
-  - Compilación exitosa (`./gradlew assembleDebug`).
-  - 298 pruebas unitarias (2 nuevas en `TipoImagenTest`), 0 fallas.
-  - 117 instrumentadas, 0 fallas y 0 omitidas, con 9 nuevas en
-    `RepositorioTrabajadorServiciosRealTest` contra el proyecto. La primera
-    corrida completa se cortó en la prueba 100 porque el emulador se cayó;
-    reiniciado, pasaron todas.
-  - A mano en el emulador con `beto.rls@…`: guardar el perfil con Puebla →
-    Cholula, salir y volver a entrar con todo cargado de la base; publicar un
-    servicio y subirle una foto desde la galería; cerrar la aplicación a la
-    fuerza y reabrirla, con el servicio y su miniatura ahí. Quitar y eliminar
-    no se repitieron a mano: después de reiniciarse, el emulador dejó de pintar
-    hojas y diálogos a tiempo. Los cubren las pruebas contra el proyecto.
-  - **Quedaron en la cuenta `beto.rls`** el perfil "Plomero" (Puebla, Cholula,
-    habilidad "Boilers") y el servicio "Fugas" con su foto. Se pueden borrar
-    desde P-12.
+- **`docs/producto/PROMPT-REDACCION.md`**, documento nuevo: las reglas del
+  texto (40 a 80 palabras, primera persona, sin inventar, sin precios ni
+  contacto), el formato exacto de `entrada` para P-11 y P-13 y las dos
+  instrucciones del modelo, cada una en un bloque listo para copiar al GPT de
+  `S3-T10` y a la Edge Function de `S4-T10`.
+- **La entrada es determinista** para que la caché de HU-31 funcione:
+  renglones `Etiqueta: valor` en orden fijo, sin renglones vacíos y con los
+  espacios colapsados. No viajan a OpenAI nombre, teléfono, ubicación ni
+  precio.
+- **Una salida fija, `NO_PUEDO_REDACTAR`**, para la entrada sin sentido,
+  ofensiva o que solo trae instrucciones. Su traducción en el proxy es `H-30`.
+- **13 casos de prueba** para `S3-T10`, con qué revisar en cada uno, y los
+  parámetros recomendados para `S4-T10` (200 tokens de salida, temperatura
+  0.5).
+- `IA.md` y `DISENO-PERFIL-SERVICIOS.md` §1.9 apuntan al documento nuevo.
+- **No toca código.** Las instrucciones no se probaron en ChatGPT: eso es
+  `S3-T10`.
+- Verificación del proyecto: compilación exitosa (`./gradlew assembleDebug`) y
+  298 pruebas unitarias, 0 fallas. Sin instalación en el dispositivo: no hay
+  nada nuevo que ver en la aplicación.
+
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -191,14 +179,30 @@ y el esquema. Están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T11` — Diseño del prompt de redacción de perfil y descripción de
-servicio** (prioridad 600, GRI, sin dependencias). Todavía no tiene ticket: se
-redacta al tomarla. Es el primer eslabón de la IA del Sprint 3: de ella
-dependen `S3-T10`, el GPT, y `S3-T12`, el contrato del proxy. Lee `IA.md`.
-`DISENO-PERFIL-SERVICIOS.md` §1.9 ya fija de qué campos sale la entrada.
+**`S3-T10` — Entrenar el GPT: instrucciones, base de conocimiento y pruebas en
+ChatGPT** (prioridad 550, RRC, depende de `S3-T11`). Todavía no tiene ticket:
+se redacta al tomarla. Toma las instrucciones y los 13 casos de
+`PROMPT-REDACCION.md`; si cambia una instrucción al afinarla, la cambia también
+en ese documento. `S3-T12` (500) también quedó libre.
 
 **Antes conviene que el líder vuelva a correr `04_datos_semilla.sql`**: con
 los catálogos reales, la app ya muestra las categorías sin acentos.
+
+## Tres huecos nuevos de S3-T11
+
+Salen de diseñar el prompt. Están explicados en la sección 6 de
+`docs/producto/PROMPT-REDACCION.md`. **Ninguno se corrigió.**
+
+- **`H-29` — `IA.md` pone el botón de F1 también en P-08, y no hay función
+  para redactar la solicitud.** Ni `FuncionIa` ni el contrato del proxy la
+  tienen, y ninguna historia la pide. **Lo decide el líder**: quitar P-08 de F1
+  o agregar la función en el Sprint 4.
+- **`H-30` — `NO_PUEDO_REDACTAR` no tiene traducción en el contrato.** Un `200`
+  con esa cadena la pegaría en el campo. **Le toca a `S3-T12`** (código, caché
+  y tope) y a `S3-T13` (el aviso en pantalla).
+- **`H-31` — `RepositorioIaFalso` inventa lo que el prompt prohíbe**
+  ("garantía por escrito") e intercala la `entrada` cruda. **Le toca a
+  `S3-T13`**, que conecta el botón.
 
 ## Tres huecos nuevos de S3-T08
 
