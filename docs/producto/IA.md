@@ -19,8 +19,7 @@ créditos de API: son dos plataformas con facturación separada.
 
 Lo que sí hacemos:
 
-1. Se diseña el prompt de redacción. Eso es **S3-T11**, y quedó en
-   `docs/producto/PROMPT-REDACCION.md`.
+1. Se diseña el prompt de redacción. Eso es **S3-T11**.
 2. Se arma y se afina el "GPT" dentro de ChatGPT, cómodamente, hasta que las
    instrucciones den buenos resultados. Eso es **S3-T10**.
 3. Esas instrucciones se copian tal cual como *system prompt* en la Edge
@@ -38,9 +37,7 @@ aparte, por tokens, en la plataforma de desarrolladores.
 El usuario escribe 3 o 4 datos sueltos y la IA devuelve un texto presentable.
 
 - **Dónde:** botón "Redactar con IA" en P-11, P-13 y P-08.
-- **Entrada:** oficio, años de experiencia y habilidades en P-11; título,
-  categoría y borrador en P-13. El formato exacto y las instrucciones del
-  modelo están en `PROMPT-REDACCION.md`.
+- **Entrada:** oficio, años de experiencia, lo que sabe hacer, en texto libre.
 - **Salida:** de 40 a 80 palabras, en primera persona, sin inventar
   certificaciones ni precios.
 - **Qué pasa si falla:** el campo se queda como estaba y se muestra un aviso.
