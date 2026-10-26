@@ -23,11 +23,11 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 |---|---|---|---|---|---|
 | 1 | 16 | 0 | 0 | 0 | 16 |
 | 2 | 16 | 0 | 0 | 0 | 16 |
-| 3 | 15 | 2 | 4 | 0 | 9 |
+| 3 | 15 | 1 | 4 | 0 | 10 |
 | 4 | 15 | 11 | 2 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
 | 6 | 13 | 13 | 0 | 0 | 0 |
-| **Total** | **87** | **38** | **6** | **2** | **41** |
+| **Total** | **87** | **37** | **6** | **2** | **42** |
 
 > **La línea de inteligencia artificial está en pausa desde el 2026-10-25**, por
 > indicación del equipo: `S3-T10`, `S3-T11`, `S3-T12`, `S3-T13`, `S4-T10` y
@@ -104,7 +104,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S3-T12` | 500 | Contrato del proxy de IA (la llave de la API nunca vive dentro de la app) | BCJL | bloqueada | S3-T11 |
 | `S3-T13` | 450 | Boton 'Redactar con IA' dentro del formulario de servicio (interfaz) | LMM | bloqueada | S3-T12 |
 | `S3-T14` | 400 | Estado vacío y vista previa del perfil público del trabajador | RRC | pendiente | S3-T13 |
-| `S3-T15` | 300 | Pruebas del módulo de perfil y servicios con datos falsos | GRI | pendiente | — |
+| `S3-T15` | 300 | Pruebas del módulo de perfil y servicios con datos falsos | GRI | hecha | — |
 
 ## Sprint 4
 
@@ -179,7 +179,7 @@ criterios de aceptación y cómo probarla.
 
 Los tickets se redactan **al iniciar cada sprint**, no los seis por adelantado:
 detallar hoy el Sprint 5 es trabajo que se va a tirar. Hoy están escritos los
-16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09` y el de `S3-T11`, que quedó pendiente. Para los
+16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09`, el de `S3-T11`, que quedó bloqueado, y el de `S3-T15`. Para los
 siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 
 > **Los del Sprint 2 se están redactando tarde, tarea por tarea.** `S2-T01` y

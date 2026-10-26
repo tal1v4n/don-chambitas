@@ -14,7 +14,7 @@
 | Sprint | 3 |
 | Fechas | PENDIENTE |
 | Tareas del sprint | 15 |
-| Terminadas | 9 |
+| Terminadas | 10 |
 | En curso | 0 |
 | Bloqueadas | 4 |
 
@@ -86,44 +86,26 @@ _Ninguna._
 
 ## Última tarea terminada
 
-**`S3-T09` — Persistencia real de perfiles y servicios en Supabase.**
-2026-10-20. Rama `feat/S3-T09-persistencia-trabajador-servicios`, desde `main`
-con `S3-T08` ya integrada (#38), pull request **#39**. Ticket
-redactado por el agente al tomar la tarea.
+**`S3-T15` — Pruebas del módulo de perfil y servicios con datos falsos.**
+2026-10-25. Rama `test/S3-T15-pruebas-perfil-servicios`, desde
+`docs/S3-T11-diseno-prompt-redaccion` para llevar la pausa de la IA, pull
+request **sin abrir todavía**. Ticket redactado por el agente al tomar la tarea.
 
-- **`RepositorioTrabajadorReal` y `RepositorioServiciosReal`** implementan el
-  contrato de `S3-T08`, y `ModuloRepositorios` los enlaza: ninguna pantalla
-  cambió. P-11, P-12 y P-13 ya guardan de verdad y lo guardado sobrevive al
-  reinicio. Storage sigue el orden de `H-06`.
-- **Los catálogos también pasaron a reales**, por decisión del líder al tomar
-  la tarea: los ids de municipio del falso no coincidían con los de la base (el
-  falso numeraba Cholula como 19, y en la base el 19 es Naucalpan), y P-11 habría
-  guardado el municipio equivocado sin error. `RepositorioCatalogosReal` lee
-  categorías, estados y municipios y los guarda en memoria; `buscarTrabajadores`
-  sigue en el falso hasta `S4-T09`.
-- **"Qué falta verificar" se probó contra el proyecto** y el contrato dice qué
-  pasó (ahora "Qué se verificó"): el embebido en un `update` funciona, los
-  `null` viajan, y un `CHECK` llega como `400` y una llave como `409`.
-- **Visible en la app:** las categorías llegan sin acentos porque la semilla
-  del proyecto es la vieja. **Falta que el líder la vuelva a correr** (`S3-T02`).
-- `H-27` quedó reportado, como decidió el líder: publicar sin perfil guardado
-  falla con el error genérico.
-- Verificación del proyecto:
+- **`FlujoTrabajadorTest`**, 15 pruebas con los tres repositorios falsos sobre
+  una sola fuente, sin `mockk`: seis recorridos entre P-11, P-12 y P-13 (lo
+  guardado se relee, lo publicado aparece en P-12, lo pausado sale del perfil
+  público, lo eliminado es "no existe" en P-13) y las filas que faltaban de
+  2.4, 3.3, 4.4 y 4.5.
+- **`app/src/main` no cambió** y ninguna prueba encontró un defecto.
+- **Fuera, por la pausa de la IA:** el botón "Redactar con IA" y la columna
+  `LIMITE_IA` de §6.
+- Verificación:
   - Compilación exitosa (`./gradlew assembleDebug`).
-  - 298 pruebas unitarias (2 nuevas en `TipoImagenTest`), 0 fallas.
-  - 117 instrumentadas, 0 fallas y 0 omitidas, con 9 nuevas en
-    `RepositorioTrabajadorServiciosRealTest` contra el proyecto. La primera
-    corrida completa se cortó en la prueba 100 porque el emulador se cayó;
-    reiniciado, pasaron todas.
-  - A mano en el emulador con `beto.rls@…`: guardar el perfil con Puebla →
-    Cholula, salir y volver a entrar con todo cargado de la base; publicar un
-    servicio y subirle una foto desde la galería; cerrar la aplicación a la
-    fuerza y reabrirla, con el servicio y su miniatura ahí. Quitar y eliminar
-    no se repitieron a mano: después de reiniciarse, el emulador dejó de pintar
-    hojas y diálogos a tiempo. Los cubren las pruebas contra el proyecto.
-  - **Quedaron en la cuenta `beto.rls`** el perfil "Plomero" (Puebla, Cholula,
-    habilidad "Boilers") y el servicio "Fugas" con su foto. Se pueden borrar
-    desde P-12.
+  - 313 pruebas unitarias, 0 fallas. `FlujoTrabajadorTest` pasó diez corridas
+    seguidas con `--rerun`.
+  - Con `ServicioViewModel` sin guardar el id nuevo al publicar, fallaron 2
+    (publicar y listar, y las tres fotos). La línea se regresó.
+  - No hay nada que probar en el dispositivo: la tarea no cambia la aplicación.
 
 Las anteriores, con su detalle completo, están al final de
 `docs/control/BITACORA.md`, en "Detalle de las tareas terminadas".
@@ -191,9 +173,8 @@ y el esquema. Están explicados en la sección 10 de
 
 ## Siguiente en la cola
 
-**`S3-T15` — Pruebas del módulo de perfil y servicios con datos falsos**
-(prioridad 300, GRI, sin dependencias). Todavía no tiene ticket: se redacta al
-tomarla.
+**Ninguna tarea del Sprint 3 se puede tomar.** Las cinco abiertas son de la IA
+o dependen de ella. Abrir el Sprint 4 lo decide el líder (`AGENTS.md` §3).
 
 **La IA quedó en pausa el 2026-10-25**, por indicación del equipo: `S3-T10`,
 `S3-T11`, `S3-T12` y `S3-T13` (y `S4-T10` y `S4-T11`) están `bloqueada`. El
