@@ -23,11 +23,11 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 |---|---|---|---|---|---|
 | 1 | 16 | 0 | 0 | 0 | 16 |
 | 2 | 16 | 0 | 0 | 0 | 16 |
-| 3 | 15 | 5 | 0 | 0 | 10 |
+| 3 | 15 | 6 | 0 | 0 | 9 |
 | 4 | 15 | 13 | 0 | 2 | 0 |
 | 5 | 12 | 12 | 0 | 0 | 0 |
 | 6 | 13 | 13 | 0 | 0 | 0 |
-| **Total** | **87** | **43** | **0** | **2** | **42** |
+| **Total** | **87** | **44** | **0** | **2** | **41** |
 
 > **No queda ninguna tarea bloqueada, ni ningún pendiente abierto.** PEND-01 se
 > resolvió el 2026-09-14 a favor de Supabase (`DEC-16`) y PEND-02 el 2026-09-22
@@ -96,7 +96,7 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | `S3-T07` | 750 | Validaciones y reglas de negocio de la publicación de servicios | GRI | hecha | S1-T13 |
 | `S3-T08` | 700 | Contrato de la API de perfil del trabajador y de servicios | BCJL | hecha | — |
 | `S3-T09` | 650 | Persistencia real de perfiles y servicios en Supabase | LMM | hecha | S3-T08 |
-| `S3-T11` | 600 | Diseño del prompt de redacción de perfil y descripción de servicio | GRI | hecha | — |
+| `S3-T11` | 600 | Diseño del prompt de redacción de perfil y descripción de servicio | GRI | pendiente | — |
 | `S3-T10` | 550 | Entrenar el GPT: instrucciones, base de conocimiento y pruebas en ChatGPT | RRC | pendiente | S3-T11 |
 | `S3-T12` | 500 | Contrato del proxy de IA (la llave de la API nunca vive dentro de la app) | BCJL | pendiente | S3-T11 |
 | `S3-T13` | 450 | Boton 'Redactar con IA' dentro del formulario de servicio (interfaz) | LMM | pendiente | S3-T12 |
@@ -176,7 +176,7 @@ criterios de aceptación y cómo probarla.
 
 Los tickets se redactan **al iniciar cada sprint**, no los seis por adelantado:
 detallar hoy el Sprint 5 es trabajo que se va a tirar. Hoy están escritos los
-16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09` y el de `S3-T11`. Para los
+16 del Sprint 1, los de `S2-T03` a `S2-T16` y los de `S3-T01` a `S3-T09`. Para los
 siguientes, ver el prompt 6 de `docs/proceso/PROMPTS.md`.
 
 > **Los del Sprint 2 se están redactando tarde, tarea por tarea.** `S2-T01` y
