@@ -211,16 +211,32 @@ OkHttp. Falta recuperar mensajes al reconectar. `H-58` sigue abierto.
 
 ## Tarea en curso
 
-| Campo | Valor |
-|---|---|
-| ID | S5-T14 |
-| Título | Robustez del chat en tiempo real: reconexión, canales y motor OkHttp |
-| Quién la tomó | agente, por indicación del líder (`DEC-49`; `DEC-50` le suma `H-56` a `H-58`) |
-| Rama | `fix/S5-T14-chat-tiempo-real-robusto` |
-| Desde | 2026-11-16 |
-| Estado | ticket redactado; falta implementar |
+Ninguna. La última, `S5-T14`, está abajo.
 
 ## Última tarea terminada
+
+**`S5-T14` — Robustez del chat en tiempo real y `H-56` a `H-58`** (`DEC-49`, `DEC-50`). 2026-11-16.
+Rama `fix/S5-T14-chat-tiempo-real-robusto`. Ticket: `docs/tareas/S5-T14.md`.
+
+- **Chat:** al reconectar se recuperan los mensajes perdidos; cada suscripción cierra su propio canal;
+  lo que llega antes de terminar la carga queda del lado correcto. 532 pruebas unitarias, 0 fallas.
+- **Base (`DEC-50`):** en `postulaciones` solo se actualiza `estatus` y un trigger admite solo retirar y
+  rechazar; `fn_aceptar_postulacion` exige `enviada`; solo un cliente abre conversación (función y
+  política). `91_prueba_funcional.sql` también se arregló: desde `S4-T16` reventaba en una solicitud
+  sin ubicación.
+- **Supabase, aplicado el 2026-11-16 por el líder:** el bloque de `DEC-50` y **la vista
+  `vw_mis_conversaciones`, que faltaba en este proyecto** aunque #69 la daba por aplicada (sin ella,
+  P-15 fallaba). `91` dio 33 de 33 `PASA`; por la API, un trabajador que intenta abrir un hilo recibe
+  «Solo un cliente puede abrir una conversacion».
+- **Emulador `Medium_Phone`, 2026-11-16**, con una cuenta de cliente y una de trabajador reales: bandeja y
+  chat en vivo, envío propio sin duplicar, reconexión tras 32 s en modo avión, abrir y cerrar el chat tres
+  veces, y con OkHttp: sesión, búsqueda, perfil público, mis solicitudes, IA y subir y quitar una foto.
+  El chat de prueba entre esas dos cuentas quedó en la base.
+- **Sin probar:** publicar una solicitud con OkHttp, dos dispositivos reales a la vez y las pruebas
+  instrumentadas.
+- **Ojo para `S6-T11`:** `main` tiene `versionCode 2` / `1.1`, y la versión publicada es la 1.4
+  (`versionCode 5`); el AAB final necesita un `versionCode` mayor que 5.
+
 
 **`S4-T16` — Implementación real de las solicitudes en Supabase.** 2026-11-09. Rama
 `feat/S4-T16-solicitudes-real-supabase`, pull request **#61**. Tomada por LMM

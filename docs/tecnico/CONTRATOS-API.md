@@ -1638,7 +1638,9 @@ Detalle de **`S5-T07`**; el contrato fija esto:
 - Las dos tablas **ya están en la publicación `supabase_realtime`** (`02_politicas_rls.sql`) y
   Realtime aplica RLS por suscriptor.
 - **Al reconectar**, el repositorio vuelve a pedir la página 1 de `obtenerMensajes` y entrega lo que
-  falte: un `Flow` no recupera lo que pasó mientras estuvo desconectado.
+  falte: un `Flow` no recupera lo que pasó mientras estuvo desconectado. Construido en `S5-T14`;
+  `cambiosEnConversaciones` también emite al reconectar, para que P-15 vuelva a pedir la bandeja.
+- Cada suscripción abre un canal con nombre propio y cierra ese mismo (`S5-T14`).
 - Sin sesión, el `Flow` termina sin emitir.
 
 ### Errores de `RepositorioChat`
@@ -1712,7 +1714,7 @@ tarea que se nombra. Los de `S5-T01` (`H-49` a `H-55`) están en
 `DISENO-POSTULACION-CONTACTO-RESENAS.md`; este contrato **resuelve `H-50`, `H-51` y `H-54`** con
 las formas de arriba y deja `H-52` con valores propuestos.
 
-**`H-56` · Cualquiera de las dos partes puede reescribir una postulación.**
+**`H-56` · Cualquiera de las dos partes puede reescribir una postulación.** **Resuelto** en la base por `DEC-50` (`S5-T14`, 2026-11-16): solo se actualiza `estatus` y `tg_postulaciones_transicion` admite solo retirar (trabajador) y rechazar (cliente).
 `postulaciones` tiene política de `update` para el trabajador y para el cliente, sin permiso por
 columna ni trigger de transición. Un trabajador puede ponerse `aceptada` sin que nadie lo haya
 aceptado, y cualquiera de los dos puede cambiar el `precio_propuesto` o el `mensaje` después de
@@ -1721,12 +1723,12 @@ enviada. Es el mismo caso que `DEC-21` aceptó para las solicitudes. **Propuesta
 rechazada` (cliente) y `aceptada` solo desde `fn_aceptar_postulacion`. Mientras no esté, es regla del
 contrato (arriba).
 
-**`H-57` · `fn_aceptar_postulacion` acepta una postulación que no está `enviada`.** Valida el dueño y que
+**`H-57` · `fn_aceptar_postulacion` acepta una postulación que no está `enviada`.** **Resuelto** por `DEC-50` (`S5-T14`, 2026-11-16). Valida el dueño y que
 la solicitud esté `abierta`, pero no el `estatus` de la postulación: una `retirada` o `rechazada` se
 puede aceptar llamando a la RPC. La pantalla no lo ofrece, pero la base no lo impide. **Propuesta:** un
 `if` más en la función.
 
-**`H-58` · `DEC-20` se sostiene a medias.** `fn_abrir_conversacion` fija `cliente_id = auth.uid()` y
+**`H-58` · `DEC-20` se sostiene a medias.** **Resuelto** por `DEC-50` (`S5-T14`, 2026-11-16) en la función y también en la política de `insert`, que dejaba abrir el hilo sin pasar por ella. `fn_abrir_conversacion` fija `cliente_id = auth.uid()` y
 confía en que la llave foránea rechace a un trabajador, pero `conversaciones.cliente_id` apunta a
 `usuarios(id)`, no a "clientes": un trabajador que la llame con **otro trabajador** crea un hilo
 válido. Hacia un cliente sí falla, porque `trabajador_id` apunta a `perfiles_trabajador`. **Propuesta:**

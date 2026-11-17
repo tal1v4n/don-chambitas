@@ -25,9 +25,9 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | 2 | 16 | 0 | 0 | 0 | 0 | 16 |
 | 3 | 15 | 0 | 0 | 0 | 0 | 15 |
 | 4 | 11 | 0 | 0 | 0 | 0 | 11 |
-| 5 | 19 | 10 | 1 | 0 | 2 | 6 |
+| 5 | 19 | 10 | 0 | 0 | 2 | 7 |
 | 6 | 13 | 10 | 0 | 0 | 0 | 3 |
-| **Total** | **90** | **20** | **1** | **0** | **2** | **67** |
+| **Total** | **90** | **20** | **0** | **0** | **2** | **68** |
 
 Resumen actualizado el 2026-11-16 según las filas de tareas. Sprint 4 cerrado y
 Sprint 5 abierto ese día (`DEC-48`); `S5-T14` entró por `DEC-49`. `S4-T10` y
@@ -145,7 +145,7 @@ Sprint 5 abierto ese día (`DEC-48`); `S5-T14` entró por `DEC-49`. `S4-T10` y
 | `S5-T05` | 850 | Chat interno: lista de conversaciones y detalle (interfaz) | GRI | hecha | S1-T10 |
 | `S5-T06` | 800 | Contrato de la API de mensajería, postulaciones y reseñas (`DEC-43`) | BCJL | hecha | — |
 | `S5-T07` | 750 | Implementación real de la mensajería en tiempo real (Supabase Realtime) | LMM | hecha | S5-T06 |
-| `S5-T14` | 750 | Robustez del chat en tiempo real: reconexión, canales, motor OkHttp y `H-56` a `H-58` (`DEC-49`, `DEC-50`) | — | en curso | S5-T07 |
+| `S5-T14` | 750 | Robustez del chat en tiempo real: reconexión, canales, motor OkHttp y `H-56` a `H-58` (`DEC-49`, `DEC-50`) | — | hecha | S5-T07 |
 | `S5-T08` | 700 | Pantalla de reseñas y calificaciones | RRC | pendiente | S5-T04 |
 | `S5-T09` | 650 | Cálculo y despliegue de la calificación promedio del trabajador | GRI | pendiente | S5-T08 |
 | `S5-T10` | 600 | Notificaciones locales de postulaciones y mensajes | BCJL | pendiente | — |
