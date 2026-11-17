@@ -1,70 +1,80 @@
 # Sistema de diseño
 
-Paleta **Taller**. La identidad nace del casco de seguridad amarillo: mostaza
-como color principal, terracota como acento, fondo cálido.
+Paleta **Casco**. La identidad nace del casco de seguridad amarillo: un amarillo
+claro y limpio como relleno, tinta casi negra para texto y contornos, y
+neutros cálidos casi blancos de fondo para que el amarillo no canse la vista.
+Sustituye a la paleta Taller (mostaza y terracota) desde el 2026-11-16.
 
 ## Colores
 
 ```kotlin
-val Mostaza        = Color(0xFFE0A11B)  // primario
-val MostazaOscuro  = Color(0xFFB37D08)  // presionado, bordes de énfasis
-val Terracota      = Color(0xFFC1440E)  // acento, acciones destacadas
-val Carbon         = Color(0xFF2B1F14)  // texto principal
-val Cafe           = Color(0xFF7A6A58)  // texto secundario
-val Crema          = Color(0xFFFFFDF8)  // fondo
-val Arena          = Color(0xFFF7F0E4)  // superficie, tarjetas
-val Borde          = Color(0xFFE6DAC6)  // separadores
+val Amarillo      = Color(0xFFFCD34D)  // primario: rellenos, barra superior, indicador
+val AmarilloSuave = Color(0xFFFEF3C7)  // contenedores y resaltes suaves
+val Naranja       = Color(0xFFC8410F)  // acento: acción destacada, estrellas, precio
+val Tinta         = Color(0xFF1F1C17)  // texto principal
+val Grafito       = Color(0xFF3A362E)  // contornos, foco, botones de texto
+val Gris          = Color(0xFF67625A)  // texto secundario
+val Marfil        = Color(0xFFFFFEFA)  // fondo
+val Hueso         = Color(0xFFF6F4EE)  // superficie, tarjetas, campos
+val HuesoAlto     = Color(0xFFEFECE4)  // superficie elevada (menús, diálogos)
+val Borde         = Color(0xFFE8E4DA)  // separadores
 
-val Exito       = Color(0xFF2E7D32)
-val Advertencia = Color(0xFFED6C02)
-val Error       = Color(0xFFC62828)
+val Exito       = Color(0xFF1E7F45)
+val Advertencia = Color(0xFFF29A1F)
+val Error       = Color(0xFFC8322B)
 ```
 
 ### Reglas de contraste, obligatorias
 
-**Sobre mostaza va texto `Carbon`, nunca blanco.** El amarillo con texto blanco
-no pasa contraste (2.26:1) y se ve ilegible. Carbon sobre Mostaza alcanza **7.09:1**
-(supera el estándar WCAG AAA de 7.0:1). Es la regla que más se rompe.
+**Sobre amarillo va texto `Tinta`, nunca blanco.** Blanco sobre Amarillo da
+1.44:1 y no se lee. Tinta sobre Amarillo alcanza **11.78:1** (AAA).
 
-**Sobre terracota va texto blanco.** Blanco sobre Terracota alcanza **5.12:1**
-(pasa WCAG AA de 4.5:1).
+**El amarillo es relleno, nunca texto.** Para texto, iconos sueltos o contornos
+interactivos se usa `Grafito` o `Tinta`. Un texto amarillo sobre fondo claro es
+invisible al sol.
 
-**Nunca terracota y mostaza pegados** en dos elementos grandes. La terracota es
-acento: aparece en un botón, un chip activo, una insignia, no en bloques.
+**Sobre naranja va texto blanco** (4.98:1, AA).
+
+**Nunca naranja y amarillo pegados** en dos elementos grandes. El naranja es
+acento: un botón, una insignia, un precio; no bloques.
 
 ### Tabla de contrastes (WCAG 2.1)
 
-Verificación realizada conforme al algoritmo de luminancia relativa WCAG 2.1:
-
-| Combinación (Frente / Fondo) | Códigos Hex | Contraste | Nivel WCAG | Evaluación y regla de uso |
+| Combinación (Frente / Fondo) | Códigos Hex | Contraste | Nivel WCAG | Uso |
 |---|---|---|---|---|
-| **Carbon sobre Mostaza** | `#2B1F14` / `#E0A11B` | **7.09:1** | AAA (≥ 7.0:1) | **PASA**. Botón primario, barra superior, chips activos. Obligatorio. |
-| **Blanco sobre Mostaza** | `#FFFFFF` / `#E0A11B` | **2.26:1** | Falla (< 3.0:1) | **FALLA**. Prohibido en cualquier texto o icono. |
-| **Blanco sobre Terracota** | `#FFFFFF` / `#C1440E` | **5.12:1** | AA (≥ 4.5:1) | **PASA**. Botón de acción destacada (postularse, publicar). |
-| **Carbon sobre Crema** | `#2B1F14` / `#FFFDF8` | **15.78:1** | AAA (≥ 7.0:1) | **PASA**. Texto principal de lectura en pantalla. |
-| **Carbon sobre Arena** | `#2B1F14` / `#F7F0E4` | **14.16:1** | AAA (≥ 7.0:1) | **PASA**. Texto principal sobre tarjetas y superficies. |
-| **Cafe sobre Crema** | `#7A6A58` / `#FFFDF8` | **5.13:1** | AA (≥ 4.5:1) | **PASA**. Texto secundario, ayudas y fechas sobre fondo. |
-| **Cafe sobre Arena** | `#7A6A58` / `#F7F0E4` | **4.60:1** | AA (≥ 4.5:1) | **PASA**. Texto secundario sobre tarjetas. |
-| **Mostaza Oscuro sobre Crema** | `#B37D08` / `#FFFDF8` | **3.53:1** | UI (≥ 3.0:1) | **PASA**. Bordes y contornos interactivos en fondo. |
-| **Mostaza Oscuro sobre Arena** | `#B37D08` / `#F7F0E4` | **3.17:1** | UI (≥ 3.0:1) | **PASA**. Borde del campo enfocado sobre tarjeta. |
-| **Blanco sobre Éxito** | `#FFFFFF` / `#2E7D32` | **5.13:1** | AA (≥ 4.5:1) | **PASA**. Insignia de estado 'abierta'. |
-| **Carbon sobre Advertencia** | `#2B1F14` / `#ED6C02` | **5.15:1** | AA (≥ 4.5:1) | **PASA**. Insignia de estado 'asignada' con texto Carbon. |
-| **Blanco sobre Advertencia** | `#FFFFFF` / `#ED6C02` | **3.11:1** | Grande (≥ 3.0:1) | Pasa solo texto grande; para lectura general usar Carbon. |
-| **Blanco sobre Error** | `#FFFFFF` / `#C62828` | **5.62:1** | AA (≥ 4.5:1) | **PASA**. Insignia 'cancelada' y mensajes de error. |
-| **Carbon sobre Borde** | `#2B1F14` / `#E6DAC6` | **11.62:1** | AAA (≥ 7.0:1) | **PASA**. Elementos gráficos y separadores. |
+| **Tinta sobre Amarillo** | `#1F1C17` / `#FCD34D` | **11.78:1** | AAA | Botón principal, barra superior, chips activos. Obligatorio. |
+| **Blanco sobre Amarillo** | `#FFFFFF` / `#FCD34D` | **1.44:1** | Falla | **Prohibido** en texto o icono. |
+| **Tinta sobre Amarillo Suave** | `#1F1C17` / `#FEF3C7` | **15.25:1** | AAA | Contenedores resaltados. |
+| **Gris sobre Amarillo Suave** | `#67625A` / `#FEF3C7` | **5.43:1** | AA | Texto secundario en contenedores resaltados. |
+| **Blanco sobre Naranja** | `#FFFFFF` / `#C8410F` | **4.98:1** | AA | Botón destacado (postularse, publicar). |
+| **Naranja sobre Marfil** | `#C8410F` / `#FFFEFA` | **4.93:1** | AA | Precio, avisos de acento como texto. |
+| **Tinta sobre Marfil** | `#1F1C17` / `#FFFEFA` | **16.83:1** | AAA | Texto de lectura. |
+| **Tinta sobre Hueso** | `#1F1C17` / `#F6F4EE` | **15.44:1** | AAA | Texto sobre tarjetas. |
+| **Gris sobre Marfil** | `#67625A` / `#FFFEFA` | **5.99:1** | AA | Texto secundario, fechas. |
+| **Gris sobre Hueso** | `#67625A` / `#F6F4EE` | **5.50:1** | AA | Texto secundario en tarjetas. |
+| **Grafito sobre Marfil** | `#3A362E` / `#FFFEFA` | **11.91:1** | AAA | Contornos, foco, botón de texto. |
+| **Grafito sobre Hueso** | `#3A362E` / `#F6F4EE` | **10.93:1** | AAA | Borde del campo enfocado. |
+| **Blanco sobre Éxito** | `#FFFFFF` / `#1E7F45` | **5.03:1** | AA | Insignia 'abierta'. |
+| **Tinta sobre Advertencia** | `#1F1C17` / `#F29A1F` | **7.61:1** | AAA | Insignia 'asignada'. |
+| **Blanco sobre Advertencia** | `#FFFFFF` / `#F29A1F` | **2.23:1** | Falla | Prohibido; usar Tinta. |
+| **Blanco sobre Error** | `#FFFFFF` / `#C8322B` | **5.32:1** | AA | Insignia 'cancelada' y errores. |
 
 ### A qué se aplica cada uno
 
-| Color | Dónde | Contraste de texto aplicable |
-|---|---|---|
-| Mostaza | Botón principal, barra superior, chip activo, indicador de la barra inferior | 7.09:1 (con Carbon) |
-| Mostaza oscuro | Estado presionado, borde del campo enfocado | 3.53:1 / 3.17:1 (borde UI) |
-| Terracota | Botón de acción destacada (postularse, publicar solicitud), estrellas | 5.12:1 (con Blanco) |
-| Carbon | Títulos y texto de lectura | 15.78:1 (en Crema) / 14.16:1 (en Arena) |
-| Cafe | Etiquetas, ayudas, fechas, texto deshabilitado | 5.13:1 (en Crema) / 4.60:1 (en Arena) |
-| Crema | Fondo de pantalla | Superficie base cálida |
-| Arena | Tarjetas, campos, hojas inferiores | Superficie secundaria |
-| Borde | Separadores y contorno de campos en reposo | Delimitador visual |
+| Color | Dónde |
+|---|---|
+| Amarillo | Botón principal, barra superior, chip activo, indicador de la barra inferior |
+| Amarillo suave | Contenedores resaltados, fondos de aviso suave |
+| Naranja | Botón destacado (postularse, publicar), estrellas, precio |
+| Tinta | Títulos y texto de lectura |
+| Grafito | Contorno del botón secundario, borde del campo enfocado, botón de texto |
+| Gris | Etiquetas, ayudas, fechas, texto deshabilitado |
+| Marfil | Fondo de pantalla |
+| Hueso | Tarjetas, campos, hojas inferiores |
+| Borde | Separadores y contorno de campos en reposo |
+
+Las barras del sistema llevan iconos oscuros (`windowLightStatusBar`): sobre el
+amarillo, los iconos blancos no se leen.
 
 **Sin modo oscuro en el MVP.** Es DEC-15.
 Muestra gráfica de la paleta: ver `docs/tecnico/recursos/muestra-paleta.png`.
@@ -76,6 +86,7 @@ Fuente del sistema, sin descargar nada.
 
 | Estilo | Tamaño | Peso | Uso |
 |---|---|---|---|
+| `portada` | 32 sp | Bold | Primera frase de una pantalla con portada (P-02, P-03, P-04) |
 | `titulo` | 24 sp | SemiBold | Encabezado de pantalla |
 | `subtitulo` | 20 sp | Medium | Sección |
 | `cuerpoFuerte` | 16 sp | Medium | Título de tarjeta |
@@ -96,10 +107,11 @@ Relleno interno de tarjeta: **16 dp**.
 
 | Elemento | Radio |
 |---|---|
-| Botones y campos | 12 dp |
-| Tarjetas | 16 dp |
-| Chips | completamente redondeado |
-| Hoja inferior | 20 dp arriba |
+| Botones | 16 dp |
+| Campos | 14 dp |
+| Tarjetas | 20 dp |
+| Chips y píldoras | completamente redondeado |
+| Hoja inferior | 28 dp arriba |
 | Foto de perfil | círculo |
 
 ## Componentes base
@@ -109,26 +121,33 @@ falta un componente, se agrega aquí primero.
 
 | Componente | Notas |
 |---|---|
-| `BotonPrincipal` | Mostaza, texto Carbon, ancho completo, 48 dp de alto |
-| `BotonSecundario` | Contorno mostaza oscuro, fondo transparente |
-| `BotonDestacado` | Terracota, texto blanco. Para postularse y publicar |
-| `BotonTexto` | Sin fondo, texto mostaza oscuro |
-| `CampoTexto` | Fondo Arena, borde Borde, borde mostaza oscuro al enfocar |
-| `CampoContrasena` | Igual, con ojo para mostrar y ocultar |
-| `TarjetaTrabajador` | Foto, nombre, título, estrellas, municipio |
-| `TarjetaServicio` | Foto, título, categoría, rango de precio. Sin precio, el renglón no se pinta. Con `pausado = true` va al 60 % de opacidad y la categoría dice "Plomería · Pausado" (`H-21`, decidido por el líder el 2026-10-18 para P-12) |
-| `TarjetaSolicitud` | Título, categoría, presupuesto, estado, fecha |
-| `ChipCategoria` | Mostaza cuando está activo, Arena cuando no |
-| `Estrellas` | Terracota, media estrella permitida en lectura |
-| `TarjetaConversacion` | Foto, nombre, título de la solicitud, último mensaje, hora y punto de «sin leer» (P-15). Registrada por `S5-T05` (`H-49`) |
-| `BurbujaMensaje` | Propios a la derecha en Mostaza, de la otra persona a la izquierda en Arena, con hora y estado de envío (P-16). Registrada por `S5-T05` (`H-49`) |
-| `CampoMensaje` | Campo de hasta 4 líneas con botón de enviar apagado con el texto en blanco (P-16). Registrada por `S5-T05` (`H-49`) |
-| `EtiquetaEstado` | Color según estado de la solicitud |
-| `Cargando` | Indicador centrado, mostaza |
-| `EstadoVacio` | Icono, texto y botón opcional |
-| `EstadoError` | Mensaje y botón de reintentar |
-| `BarraSuperior` | Mostaza, título Carbon, flecha de regreso |
-| `BarraInferior` | 4 destinos, indicador mostaza |
+| `BotonPrincipal` | Amarillo, texto Tinta, ancho completo, 54 dp de alto. Icono opcional a la derecha (`IconoAvanzar` en lo que avanza) |
+| `BotonSecundario` | Fondo Blanco con contorno Borde y texto Grafito; con `color = Error`, texto y contorno en Error |
+| `BotonDestacado` | Naranja, texto blanco. Para postularse y publicar |
+| `BotonFlotante` | Píldora Naranja con icono y texto Blanco y sombra: la acción "Publicar" de P-09 y P-12 |
+| `BotonTexto` | Sin fondo, texto Grafito |
+| `CampoTexto` | Fondo Blanco, borde Borde, borde Tinta al enfocar; Hueso deshabilitado |
+| `CampoContrasena` | Igual, con candado al inicio y ojo para mostrar y ocultar |
+| `TarjetaTrabajador` | Foto con punto de disponibilidad, nombre, título y `CalificacionCompacta`; abajo, municipio, "No disponible" y precio desde |
+| `TarjetaServicio` | Formato portafolio: foto 16:10 arriba con la categoría encima, y abajo título y rango de precio. Sin precio, el renglón no se pinta. Con `pausado = true` va al 60 % de opacidad y la categoría dice "Plomería · Pausado" (`H-21`, decidido por el líder el 2026-10-18 para P-12) |
+| `TarjetaSolicitud` | Categoría y `EtiquetaEstado` arriba, título, presupuesto en píldora AmarilloSuave y fecha; postulaciones sin revisar en píldora Naranja |
+| `ChipCategoria` | Amarillo cuando está activo, Blanco con contorno Borde cuando no |
+| `Estrellas` | Naranja, media estrella permitida en lectura |
+| `CalificacionCompacta` | Píldora AmarilloSuave con una estrella Naranja, el promedio y las reseñas. Para tarjetas |
+| `TarjetaConversacion` | Iniciales, nombre, título de la solicitud, último mensaje, hora y contador de «sin leer»; con mensajes sin leer, contorno y avatar en Amarillo (P-15). Registrada por `S5-T05` (`H-49`) |
+| `BurbujaMensaje` | Propios a la derecha en Amarillo, de la otra persona a la izquierda en Blanco con contorno, con la esquina de abajo del lado de quien habla casi recta; hora y estado de envío debajo (P-16). Registrada por `S5-T05` (`H-49`) |
+| `CampoMensaje` | Franja Blanca con campo de hasta 4 líneas y botón circular Tinta con la flecha Amarilla, apagado en Hueso con el texto en blanco (P-16). Registrada por `S5-T05` (`H-49`) |
+| `EtiquetaEstado` | Píldora con el color del estado al 14 % de fondo, un punto del color pleno y texto Tinta |
+| `Cargando` | Indicador centrado, amarillo |
+| `EstadoVacio` | Icono en círculo AmarilloSuave rodeado por `ArcosCasco`, texto y botón opcional |
+| `EstadoError` | Pantalla completa: icono en círculo con tinte Error, mensaje y botón de reintentar |
+| `AvisoError` | El error de un formulario, en línea y compacto: franja con tinte Error, título, mensaje y "Reintentar" opcional |
+| `BarraSuperior` | Sin relleno: toma el fondo de la pantalla (o `colorFondo` si la pantalla tiene cabecera de color). Título Tinta, más grande en pantallas raíz; flecha dentro de un círculo Hueso |
+| `BarraInferior` | `BarraNavegacionFlotante`: cápsula Tinta flotante con 4 destinos; el actual se abre en una píldora Amarilla con su etiqueta y los demás muestran solo el icono en Borde |
+| `GrupoOpciones`, `FilaOpcion`, `SeparadorOpciones` | Menú agrupado en tarjeta Blanca: icono en cuadro AmarilloSuave, texto, detalle y flecha. P-18 y la hoja de acciones de P-12 |
+| `SeccionFormulario` | Bloque de formulario largo: tarjeta Blanca con icono y título. P-11 y P-13 |
+| `ArcosCasco` | Firma gráfica: arcos concéntricos, como el ala del casco. Decoración de portadas y estados |
+| `MedallaMarca` | El casco dentro de un círculo Blanco con sombra. Portada de P-02 |
 
 ### Colores de los estados de la solicitud
 
@@ -136,7 +155,7 @@ falta un componente, se agrega aquí primero.
 |---|---|
 | abierta | Éxito |
 | asignada | Advertencia |
-| cerrada | Cafe |
+| cerrada | Gris |
 | cancelada | Error |
 
 ## Iconos
