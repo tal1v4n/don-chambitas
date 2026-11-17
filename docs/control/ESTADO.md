@@ -24,18 +24,22 @@ las tareas de IA ni el resto del sprint.
 
 | Campo | Valor |
 |---|---|
-| Sprint | 4 |
-| Fechas | Apertura: 2026-11-07; cierre previsto: 2026-11-10 |
-| Tareas del sprint | 11 |
-| Terminadas | 11 |
-| En curso | 0 |
+| Sprint | 5 |
+| Fechas | Apertura: 2026-11-16 (`DEC-48`); cierre: PENDIENTE |
+| Tareas del sprint | 17 |
+| Terminadas | 4 |
+| En curso | 3 |
 | Bloqueadas | 0 |
 
-> **Sprint 4:** sus 11 tareas están hechas; `S4-T09` y `S4-T16` ya se
-> integraron mediante #60 y #61. La apertura fue confirmada en `DEC-34`.
-> Falta registrar el cierre formal y la apertura del Sprint 5 por el líder.
-> S4-T10 pertenece al Sprint 5 (`DEC-44`) y tiene trabajo iniciado en #62;
-> se conserva en curso, sin considerar abierto todo el sprint.
+> **Sprint 5 abierto formalmente el 2026-11-16** (`DEC-48`). Quedan ratificadas
+> `S5-T01`, `S5-T06`, `S5-T05` y `S5-T07`, integradas con #66 a #69. Las 17 son las
+> 13 propias (`S5-T01` a `S5-T13`), las tres de IA que vinieron del Sprint 4
+> (`S4-T10`, `S4-T11`, `S4-T14`, por `DEC-44`) y `S5-T14` (`DEC-49`). En curso:
+> `S4-T10` y `S4-T11` (integradas con #64 y #65, falta que el líder las cierre) y
+> `S5-T14`.
+>
+> Sprint 4 cerrado con sus 11 tareas en `hecha` (`DEC-48`); las dos últimas,
+> `S4-T09` y `S4-T16`, se integraron con #60 y #61.
 >
 > Sprint 3 cerrado con sus 15 tareas en `hecha` (PR #46 a #50), abierto el 2026-10-18
 > por autorización del líder. Sus tickets se
@@ -184,6 +188,8 @@ configura exclusivamente en Supabase Secrets; no copiarla a `.env` ni al APK.
 
 ## Última tarea del Sprint 5 trabajada (2026-11-16)
 
+> El permiso verbal que citan estas cuatro quedó registrado en `DEC-48` (2026-11-16).
+
 **`S5-T01` — Diseño de postulación, contacto y reseñas**, `hecha`. Rama
 `docs/S5-T01-diseno-contacto-postulacion-resenas`. Solo diseño:
 `docs/producto/DISENO-POSTULACION-CONTACTO-RESENAS.md`. El líder indicó a la persona
@@ -208,12 +214,15 @@ OkHttp. Falta recuperar mensajes al reconectar. `H-58` sigue abierto.
 
 | Campo | Valor |
 |---|---|
-| ID | S4-T10 |
-| Título | S4-T10 (integración de IA con Gemini) y S4-T11 (caché compartida y cupo) |
-| Quién la tomó | Michael (implementación original); líder (revisión y entrega) |
-| Rama | `feat/S4-T10-ia-integracion` (T11 apilada en `feat/S4-T11-cache-compartida-y-cupo`) |
-| Desde | 2026-11-14; continuidad revisada el 2026-11-16 |
-| Estado | Implementadas y verificadas contra el servidor y en emulador; en curso hasta que el líder integre las PR |
+| ID | S5-T14 |
+| Título | Robustez del chat en tiempo real: reconexión, canales y motor OkHttp |
+| Quién la tomó | agente, por indicación del líder (`DEC-49`) |
+| Rama | `fix/S5-T14-chat-tiempo-real-robusto` |
+| Desde | 2026-11-16 |
+| Estado | ticket redactado; falta implementar |
+
+> `S4-T10` y `S4-T11` (IA) siguen `en curso` en el índice aunque #64 y #65 ya
+> están en `main`: cerrarlas lo decide el líder.
 
 ## Última tarea terminada
 
@@ -290,13 +299,12 @@ where email like '%@prueba.donchambitas.mx'
 
 ## Siguiente en la cola
 
-**No quedan tareas pendientes del Sprint 4.** `S4-T09` y `S4-T16` ya están
-hechas. No volver a seleccionarlas ni abrir el Sprint 5 automáticamente.
+**`S5-T14` primero** (`DEC-49`). Después rige `AGENTS.md` §3 sobre la tabla del
+Sprint 5, abierto por `DEC-48`: la primera pendiente por prioridad es `S5-T02`
+(970). Antes, pasar a `hecha` `S4-T10` y `S4-T11`, que ya están en `main`.
 
-**Continuidad acordada (`DEC-47`):** entregar la rama de S4-T10 para que otra
-persona complete S4-T10 y después S4-T11. Esta asignación prevalece sobre la
-selección automática; detenerse tras ambas. La apertura general del Sprint 5
-sigue correspondiendo al líder; su primera pendiente por prioridad es `S5-T01`.
+**Continuidad de la IA (`DEC-47`):** S4-T10 y S4-T11 se completaron e integraron
+con #64 y #65; solo falta que el líder las pase a `hecha`.
 
 **La IA se reanudó entera el 2026-11-09** (`DEC-33`, cierra `PEND-03`). `S3-T10`
 se queda `hecha` con 12 de 13 casos (`DEC-35`). Lo que `S4-T10` y `S4-T11` tienen
