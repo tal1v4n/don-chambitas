@@ -27,16 +27,15 @@ las tareas de IA ni el resto del sprint.
 | Sprint | 5 |
 | Fechas | Apertura: 2026-11-16 (`DEC-48`); cierre: PENDIENTE |
 | Tareas del sprint | 17 |
-| Terminadas | 4 |
-| En curso | 3 |
+| Terminadas | 6 |
+| En curso | 1 |
 | Bloqueadas | 0 |
 
 > **Sprint 5 abierto formalmente el 2026-11-16** (`DEC-48`). Quedan ratificadas
 > `S5-T01`, `S5-T06`, `S5-T05` y `S5-T07`, integradas con #66 a #69. Las 17 son las
 > 13 propias (`S5-T01` a `S5-T13`), las tres de IA que vinieron del Sprint 4
-> (`S4-T10`, `S4-T11`, `S4-T14`, por `DEC-44`) y `S5-T14` (`DEC-49`). En curso:
-> `S4-T10` y `S4-T11` (integradas con #64 y #65, falta que el líder las cierre) y
-> `S5-T14`.
+> (`S4-T10`, `S4-T11`, `S4-T14`, por `DEC-44`) y `S5-T14` (`DEC-49`). Hechas también
+> `S4-T10` y `S4-T11`, integradas con #64 y #65. En curso: `S5-T14`.
 >
 > Sprint 4 cerrado con sus 11 tareas en `hecha` (`DEC-48`); las dos últimas,
 > `S4-T09` y `S4-T16`, se integraron con #60 y #61.
@@ -66,7 +65,7 @@ de P-04 describen lo que dejó `S2-T10`, integrada con el #13.
 | Tocas el avatar de P-18 | Hoja con "Elegir de la galería" y "Tomar foto", y luego el recortador. Una imagen de más de 5 MB o que no sea JPG, PNG o WebP se rechaza con el motivo | — |
 | Como trabajador, tocas "Mi perfil profesional" en P-18 | P-11 **guarda en Supabase** (`S3-T09`): estados y municipios salen de la base, "Perfil guardado" y el aviso de incompleto recalculado, y al reabrir la aplicación lo guardado sigue. Valida como P-03: cada campo al salir de él y todos al guardar, con el foco en el primer error. Probado con `beto.rls@…` y Puebla → Cholula | — |
 | Como trabajador, tocas la pestaña **Servicios** | P-12 **lee de Supabase** tus servicios, activos primero, con la miniatura de la foto de la posición 1. La hoja de acciones edita, pausa o reactiva y elimina con confirmación, cada una con su aviso. Recarga al volver de P-13 | — |
-| Como trabajador, publicas un servicio en P-13 | **Guarda en Supabase.** Las 16 categorías salen de la base, **todavía sin acentos** ("Plomeria"), hasta que el líder vuelva a correr la semilla (`S3-T02`). "Publicar" deja la pantalla en "Editar servicio"; las fotos suben a la cubeta `servicios` con un indicador que gira. **Sin haber guardado antes el perfil profesional, "Publicar" falla con el error genérico** (`H-27`). "Redactar con IA" **llena la descripción con IA real (Gemini)**, el mismo texto para los mismos datos (caché compartida, `DEC-45`), con tope de 10 llamadas al día y el cupo visible al abrir (`S4-T10` y `S4-T11`, en curso); con texto ya escrito pregunta "¿Reemplazar lo que escribiste?" | `DEC-40` (`H-27`), `S4-T10` |
+| Como trabajador, publicas un servicio en P-13 | **Guarda en Supabase.** Las 16 categorías salen de la base, **todavía sin acentos** ("Plomeria"), hasta que el líder vuelva a correr la semilla (`S3-T02`). "Publicar" deja la pantalla en "Editar servicio"; las fotos suben a la cubeta `servicios` con un indicador que gira. **Sin haber guardado antes el perfil profesional, "Publicar" falla con el error genérico** (`H-27`). "Redactar con IA" **llena la descripción con IA real (Gemini)**, el mismo texto para los mismos datos (caché compartida, `DEC-45`), con tope de 10 llamadas al día y el cupo visible al abrir (`S4-T10` y `S4-T11`, hechas); con texto ya escrito pregunta "¿Reemplazar lo que escribiste?" | `DEC-40` (`H-27`), `S4-T10` |
 | Pulsas "Usar foto" en el recortador | La foto se guarda en Supabase Storage, el avatar la muestra y sigue al reabrir. La anterior se borra de la cubeta. Sin red, "Sin conexión" | — |
 | Cambias la contraseña en P-18 | Solo se pide la nueva (mínimo 8). Si repites la actual: "La contraseña nueva es igual a la actual" | — |
 | Pulsas "Cerrar sesión" en P-18 y confirmas | Cierra la sesión real: vas a P-02, atrás cierra la aplicación y al reabrir sigues en P-02 | — |
@@ -98,7 +97,7 @@ sesión abierta, con la confirmación por correo desactivada en la consola.
 
 ## Continuidad — PR #62 / S4-T10 (actualizada el 2026-11-16)
 
-**S4-T10 sigue en curso, no terminada; implementación detenida para su entrega.**
+**S4-T10 y S4-T11, `hecha` el 2026-11-16** (integradas con #64 y #65). Lo que sigue es el registro de su continuidad.
 Rama local: `docs/S4-T10-contrato-ia-proveedores`, basada en `origin/pr-62`.
 Incluye los commits de Michael de #62 y las correcciones locales posteriores.
 La entrega se prepara en un commit de esta rama el 2026-11-16; el líder hará
@@ -175,7 +174,7 @@ las de emulador de la sesión anterior.
    `thinkingConfig`: `gemini-flash-lite-latest` lo rechaza con 400. Casos 1 a 5 y
    9 a 12 con la API real: de 41 a 71 palabras; **dos quedan por debajo de 50**
    (caso 10 con 49, caso 11 con 41 por respetar el borrador).
-7. **Cierre:** `S4-T10` y `S4-T11` siguen `en curso` hasta que el líder integre sus PR.
+7. **Cierre:** el líder integró #64 y #65 y las pasó a `hecha` el 2026-11-16.
    Criterios verificados salvo: **50 palabras no está garantizado por el modelo** (49 y 41 en
    dos casos), sin conexión en emulador y la mezcla determinista de éxitos y fallos. Pendientes
    del líder: `IA.md` aún dice 40 a 80 palabras; decidir si basta el mínimo en el prompt; el
@@ -220,9 +219,6 @@ OkHttp. Falta recuperar mensajes al reconectar. `H-58` sigue abierto.
 | Rama | `fix/S5-T14-chat-tiempo-real-robusto` |
 | Desde | 2026-11-16 |
 | Estado | ticket redactado; falta implementar |
-
-> `S4-T10` y `S4-T11` (IA) siguen `en curso` en el índice aunque #64 y #65 ya
-> están en `main`: cerrarlas lo decide el líder.
 
 ## Última tarea terminada
 
@@ -301,10 +297,10 @@ where email like '%@prueba.donchambitas.mx'
 
 **`S5-T14` primero** (`DEC-49`). Después rige `AGENTS.md` §3 sobre la tabla del
 Sprint 5, abierto por `DEC-48`: la primera pendiente por prioridad es `S5-T02`
-(970). Antes, pasar a `hecha` `S4-T10` y `S4-T11`, que ya están en `main`.
+(970).
 
 **Continuidad de la IA (`DEC-47`):** S4-T10 y S4-T11 se completaron e integraron
-con #64 y #65; solo falta que el líder las pase a `hecha`.
+con #64 y #65, y el líder las pasó a `hecha` el 2026-11-16.
 
 **La IA se reanudó entera el 2026-11-09** (`DEC-33`, cierra `PEND-03`). `S3-T10`
 se queda `hecha` con 12 de 13 casos (`DEC-35`). Lo que `S4-T10` y `S4-T11` tienen

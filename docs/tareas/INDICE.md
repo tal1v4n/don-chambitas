@@ -25,13 +25,13 @@ adelantarse, sin saltarse. El detalle, en `AGENTS.md` §3.
 | 2 | 16 | 0 | 0 | 0 | 0 | 16 |
 | 3 | 15 | 0 | 0 | 0 | 0 | 15 |
 | 4 | 11 | 0 | 0 | 0 | 0 | 11 |
-| 5 | 18 | 15 | 1 | 0 | 2 | 0 |
+| 5 | 19 | 10 | 1 | 0 | 2 | 6 |
 | 6 | 13 | 10 | 0 | 0 | 0 | 3 |
-| **Total** | **89** | **25** | **1** | **0** | **2** | **61** |
+| **Total** | **90** | **20** | **1** | **0** | **2** | **67** |
 
-Resumen actualizado el 2026-11-16 según las filas de tareas. El Sprint 4 tiene
-sus 11 tareas hechas; falta registrar su cierre formal y abrir el Sprint 5.
-S4-T10 sigue en curso y #62 abierta, sin integrar.
+Resumen actualizado el 2026-11-16 según las filas de tareas. Sprint 4 cerrado y
+Sprint 5 abierto ese día (`DEC-48`); `S5-T14` entró por `DEC-49`. `S4-T10` y
+`S4-T11` quedaron hechas con #64 y #65.
 
 > **La línea de inteligencia artificial se reanudó entera** (`DEC-33`, cierra
 > `PEND-03`): `S4-T10` y `S4-T11` pasaron a `pendiente` el 2026-11-09. El Sprint 4
@@ -144,16 +144,16 @@ S4-T10 sigue en curso y #62 abierta, sin integrar.
 | `S5-T04` | 900 | Gestión del estado de la solicitud (abierta / asignada / cerrada) | RRC | pendiente | S5-T03 |
 | `S5-T05` | 850 | Chat interno: lista de conversaciones y detalle (interfaz) | GRI | hecha | S1-T10 |
 | `S5-T06` | 800 | Contrato de la API de mensajería, postulaciones y reseñas (`DEC-43`) | BCJL | hecha | — |
-| `S5-T14` | 760 | Robustez del chat en tiempo real: reconexión, canales y motor OkHttp (`DEC-49`) | — | en curso | S5-T07 |
 | `S5-T07` | 750 | Implementación real de la mensajería en tiempo real (Supabase Realtime) | LMM | hecha | S5-T06 |
+| `S5-T14` | 750 | Robustez del chat en tiempo real: reconexión, canales y motor OkHttp (`DEC-49`) | — | en curso | S5-T07 |
 | `S5-T08` | 700 | Pantalla de reseñas y calificaciones | RRC | pendiente | S5-T04 |
 | `S5-T09` | 650 | Cálculo y despliegue de la calificación promedio del trabajador | GRI | pendiente | S5-T08 |
 | `S5-T10` | 600 | Notificaciones locales de postulaciones y mensajes | BCJL | pendiente | — |
 | `S5-T11` | 550 | Integración de módulos y revisión de la navegación completa | LMM | pendiente | — |
 | `S5-T12` | 500 | Pruebas de integración del flujo cliente-trabajador | RRC | pendiente | — |
 | `S5-T13` | 450 | Implementación real de postulaciones y reseñas en Supabase (`DEC-43`) | — | pendiente | S5-T06 |
-| `S4-T10` | 400 | Consumir una API de IA desde la Edge Function (Gemini activo; proveedor intercambiable), con el `TipoError` de `H-37` (`DEC-43`) | GRI | en curso | S3-T10, S3-T12 |
-| `S4-T11` | 300 | Tope de llamadas de IA por usuario al día y caché de respuestas | BCJL | en curso | S3-T13 |
+| `S4-T10` | 400 | Consumir una API de IA desde la Edge Function (Gemini activo; proveedor intercambiable), con el `TipoError` de `H-37` (`DEC-43`) | GRI | hecha | S3-T10, S3-T12 |
+| `S4-T11` | 300 | Tope de llamadas de IA por usuario al día y caché de respuestas | BCJL | hecha | S3-T13 |
 | `S4-T14` | 250 | Manejo de errores y reintentos, con `H-17`, `H-27` y `H-28` (`DEC-43`) | GRI | pendiente | S4-T11 |
 | `S4-T12` | — | Categorización automática de la solicitud a partir de texto libre | LMM | opcional | S4-T11 |
 | `S4-T13` | — | Ranking de trabajadores sugeridos para una solicitud (sin ubicacion) | RRC | opcional | S4-T11 |
@@ -163,7 +163,7 @@ S4-T10 sigue en curso y #62 abierta, sin integrar.
 > `docs/S4-T10-contrato-ia-proveedores` para completar S4-T10 y preparar una PR
 > que sustituya #62. Por `DEC-47`, la persona continuará después con S4-T11,
 > sin nueva confirmación inicial ni selección automática de otra tarea.
-> S4-T10 permanece en curso y S4-T11 pendiente hasta que se tome. Detenerse
+> S4-T10 y S4-T11 quedaron `hecha` el 2026-11-16, integradas con #64 y #65. Detenerse
 > tras ambas; no considerar abierto todo el Sprint 5.
 
 > Políticas para S4-T10/S4-T11 decididas el 2026-11-16: `DEC-45`, caché
