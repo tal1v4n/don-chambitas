@@ -7,6 +7,30 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Construction
+import androidx.compose.material.icons.outlined.Engineering
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.WorkOutline
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import mx.donchambitas.app.ui.componentes.ArcosCasco
+import mx.donchambitas.app.ui.componentes.FilaOpcion
+import mx.donchambitas.app.ui.componentes.GrupoOpciones
+import mx.donchambitas.app.ui.componentes.SeparadorOpciones
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Blanco
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.window.Dialog
@@ -14,7 +38,6 @@ import androidx.compose.ui.window.DialogProperties
 import mx.donchambitas.app.ui.componentes.RecortadorFoto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,9 +60,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,7 +70,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,23 +97,19 @@ import mx.donchambitas.app.ui.componentes.BotonTexto
 import mx.donchambitas.app.ui.componentes.CampoContrasena
 import mx.donchambitas.app.ui.componentes.CampoTexto
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
-import mx.donchambitas.app.ui.componentes.EtiquetaEstado
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
 import mx.donchambitas.app.ui.componentes.obtenerTituloErrorRes
-import mx.donchambitas.app.ui.tema.Advertencia
-import mx.donchambitas.app.ui.tema.Arena
 import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.FormaFotoPerfil
 import mx.donchambitas.app.ui.tema.FormaTarjeta
-import mx.donchambitas.app.ui.tema.Mostaza
-import mx.donchambitas.app.ui.tema.MostazaOscuro
-import mx.donchambitas.app.ui.tema.cuerpoFuerte
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.cuerpo
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
 import mx.donchambitas.app.ui.tema.subtitulo
@@ -100,7 +118,8 @@ import java.time.Instant
 import kotlinx.coroutines.launch
 
 private val TamanoAvatar = 80.dp
-private val GrosorBordeAvatar = 2.dp
+private val GrosorBordeAvatar = 3.dp
+private val FormaCredencial = RoundedCornerShape(28.dp)
 
 /**
  * Mi cuenta (P-18), HU-05.
@@ -251,7 +270,7 @@ fun MiCuentaContenido(
     Scaffold(
         topBar = { BarraSuperior(titulo = stringResource(R.string.mi_cuenta_titulo)) },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize()
     ) { relleno ->
@@ -289,16 +308,6 @@ fun MiCuentaContenido(
                     )
                 }
 
-                Titulo(stringResource(R.string.mi_cuenta_configuracion))
-
-                if (estado.seccion != SeccionMiCuenta.DATOS) {
-                    BotonSecundario(
-                        texto = stringResource(R.string.mi_cuenta_editar_datos),
-                        onClick = { alAbrirSeccion(SeccionMiCuenta.DATOS) },
-                        habilitado = !estado.guardando
-                    )
-                }
-
                 if (estado.seccion == SeccionMiCuenta.CONTRASENA) {
                     SeccionContrasena(
                         estado = estado,
@@ -306,34 +315,58 @@ fun MiCuentaContenido(
                         alGuardar = alGuardarContrasena,
                         alCancelar = alCancelar
                     )
-                } else {
-                    BotonSecundario(
-                        texto = stringResource(R.string.mi_cuenta_cambiar_contrasena),
-                        onClick = { alAbrirSeccion(SeccionMiCuenta.CONTRASENA) },
-                        habilitado = !estado.guardando
-                    )
+                }
+
+                if (estado.seccion == SeccionMiCuenta.NINGUNA) {
+                    GrupoOpciones(titulo = stringResource(R.string.mi_cuenta_configuracion)) {
+                        FilaOpcion(
+                            texto = stringResource(R.string.mi_cuenta_editar_datos),
+                            detalle = stringResource(R.string.mi_cuenta_editar_datos_detalle),
+                            icono = Icons.Outlined.Badge,
+                            alPulsar = { alAbrirSeccion(SeccionMiCuenta.DATOS) },
+                            habilitado = !estado.guardando
+                        )
+                        SeparadorOpciones()
+                        FilaOpcion(
+                            texto = stringResource(R.string.mi_cuenta_cambiar_contrasena),
+                            detalle = stringResource(R.string.registro_ayuda_contrasena),
+                            icono = Icons.Outlined.Lock,
+                            alPulsar = { alAbrirSeccion(SeccionMiCuenta.CONTRASENA) },
+                            habilitado = !estado.guardando
+                        )
+                    }
                 }
 
                 // Decision 3 de S2-T11: P-11 y P-14, como dice PANTALLAS.md.
                 if (usuario.rol == RolUsuario.TRABAJADOR) {
-                    Titulo(stringResource(R.string.mi_cuenta_accesos_trabajador))
-                    BotonSecundario(
-                        texto = stringResource(R.string.mi_cuenta_mi_perfil),
-                        onClick = alIrAMiPerfil
-                    )
-                    BotonSecundario(
-                        texto = stringResource(R.string.mi_cuenta_mis_postulaciones),
-                        onClick = alIrAMisPostulaciones
-                    )
+                    GrupoOpciones(titulo = stringResource(R.string.mi_cuenta_accesos_trabajador)) {
+                        FilaOpcion(
+                            texto = stringResource(R.string.mi_cuenta_mi_perfil),
+                            detalle = stringResource(R.string.mi_cuenta_mi_perfil_detalle),
+                            icono = Icons.Outlined.Engineering,
+                            alPulsar = alIrAMiPerfil
+                        )
+                        SeparadorOpciones()
+                        FilaOpcion(
+                            texto = stringResource(R.string.mi_cuenta_mis_postulaciones),
+                            detalle = stringResource(R.string.mi_cuenta_mis_postulaciones_detalle),
+                            icono = Icons.Outlined.WorkOutline,
+                            alPulsar = alIrAMisPostulaciones
+                        )
+                    }
                 }
 
-                BotonSecundario(
-                    texto = stringResource(R.string.mi_cuenta_cerrar_sesion),
-                    onClick = { confirmandoCierre = true },
-                    cargando = estado.cerrandoSesion,
-                    color = Error,
-                    modifier = Modifier.padding(top = Espaciado.dp16)
-                )
+                GrupoOpciones {
+                    FilaOpcion(
+                        texto = stringResource(R.string.mi_cuenta_cerrar_sesion),
+                        detalle = stringResource(R.string.mi_cuenta_cerrar_sesion_detalle),
+                        icono = Icons.AutoMirrored.Outlined.Logout,
+                        alPulsar = { confirmandoCierre = true },
+                        cargando = estado.cerrandoSesion,
+                        color = Error,
+                        fondoIcono = Error.copy(alpha = 0.1f)
+                    )
+                }
             }
         }
     }
@@ -356,23 +389,49 @@ fun MiCuentaContenido(
     if (confirmandoCierre) {
         AlertDialog(
             onDismissRequest = { confirmandoCierre = false },
-            title = { Text(stringResource(R.string.mi_cuenta_confirmar_cierre)) },
+            icon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Logout,
+                    contentDescription = null,
+                    tint = Error
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.mi_cuenta_confirmar_cierre),
+                    style = DonChambitasTema.tipografia.subtitulo,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.mi_cuenta_cerrar_sesion_detalle),
+                    style = DonChambitasTema.tipografia.cuerpo,
+                    color = Gris,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
             confirmButton = {
-                BotonTexto(
+                BotonSecundario(
                     texto = stringResource(R.string.mi_cuenta_cerrar_sesion),
                     onClick = {
                         confirmandoCierre = false
                         alCerrarSesion()
-                    }
+                    },
+                    color = Error
                 )
             },
             dismissButton = {
                 BotonTexto(
                     texto = stringResource(R.string.mi_cuenta_cancelar),
-                    onClick = { confirmandoCierre = false }
+                    onClick = { confirmandoCierre = false },
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
-            containerColor = Crema
+            shape = FormaTarjeta,
+            containerColor = Blanco
         )
     }
 }
@@ -382,71 +441,108 @@ private fun Titulo(texto: String) {
     Text(
         text = texto,
         style = DonChambitasTema.tipografia.subtitulo,
-        color = Carbon
+        fontWeight = FontWeight.SemiBold,
+        color = Tinta
     )
 }
 
-/** Cabecera de WIREFRAMES.md, P-18, sin municipio: public.usuarios no lo tiene (H-15). */
+/**
+ * Cabecera de WIREFRAMES.md, P-18, como credencial: tarjeta Tinta con los
+ * arcos de la marca, avatar con anillo Amarillo y los datos en claro. Sin
+ * municipio: public.usuarios no lo tiene (H-15).
+ */
 @Composable
 private fun TarjetaCuenta(usuario: Usuario, subiendoFoto: Boolean, alTocarAvatar: () -> Unit) {
-    Surface(
-        color = Arena,
-        shape = FormaTarjeta,
-        border = BorderStroke(1.dp, Borde),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(FormaCredencial)
+            .background(Tinta)
     ) {
-        Row(
-            modifier = Modifier.padding(Espaciado.rellenoTarjeta),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Espaciado.dp16)
+        ArcosCasco(
+            color = Amarillo.copy(alpha = 0.16f),
+            grosor = 14.dp,
+            modifier = Modifier.matchParentSize()
+        )
+        Column(
+            modifier = Modifier.padding(Espaciado.dp24),
+            verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)
         ) {
-            Avatar(usuario, subiendoFoto, alTocarAvatar)
-            Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
-                Text(
-                    text = "${usuario.nombre} ${usuario.apellidos}",
-                    style = DonChambitasTema.tipografia.cuerpoFuerte,
-                    color = Carbon
-                )
-                if (usuario.rol == RolUsuario.TRABAJADOR) {
-                    EtiquetaEstado(
-                        texto = stringResource(R.string.mi_cuenta_rol_trabajador),
-                        colorFondo = Advertencia,
-                        colorTexto = Carbon
-                    )
-                } else {
-                    EtiquetaEstado(
-                        texto = stringResource(R.string.mi_cuenta_rol_cliente),
-                        colorFondo = Mostaza,
-                        colorTexto = Carbon
-                    )
-                }
-                Text(
-                    text = usuario.correo,
-                    style = DonChambitasTema.tipografia.secundario,
-                    color = Cafe
-                )
-                usuario.telefono?.takeIf { it.isNotBlank() }?.let { telefono ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Espaciado.dp16)
+            ) {
+                Avatar(usuario, subiendoFoto, alTocarAvatar)
+                Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)) {
                     Text(
-                        text = stringResource(R.string.mi_cuenta_telefono, telefono),
-                        style = DonChambitasTema.tipografia.pie,
-                        color = Cafe
+                        text = "${usuario.nombre} ${usuario.apellidos}",
+                        style = DonChambitasTema.tipografia.subtitulo,
+                        fontWeight = FontWeight.Bold,
+                        color = Blanco
                     )
+                    PildoraRol(rol = usuario.rol)
                 }
+            }
+            HorizontalDivider(color = Blanco.copy(alpha = 0.12f))
+            DatoCredencial(icono = Icons.Outlined.MailOutline, texto = usuario.correo)
+            usuario.telefono?.takeIf { it.isNotBlank() }?.let { telefono ->
+                DatoCredencial(
+                    icono = Icons.Outlined.Phone,
+                    texto = stringResource(R.string.mi_cuenta_telefono, telefono)
+                )
             }
         }
     }
 }
 
+@Composable
+private fun PildoraRol(rol: RolUsuario) {
+    val trabajador = rol == RolUsuario.TRABAJADOR
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Espaciado.dp4),
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(if (trabajador) Amarillo else Blanco)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+    ) {
+        Icon(
+            imageVector = if (trabajador) Icons.Outlined.Construction else Icons.Outlined.Person,
+            contentDescription = null,
+            tint = Tinta,
+            modifier = Modifier.size(14.dp)
+        )
+        Text(
+            text = stringResource(if (trabajador) R.string.mi_cuenta_rol_trabajador else R.string.mi_cuenta_rol_cliente),
+            style = DonChambitasTema.tipografia.pie,
+            fontWeight = FontWeight.SemiBold,
+            color = Tinta
+        )
+    }
+}
+
+@Composable
+private fun DatoCredencial(icono: ImageVector, texto: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)
+    ) {
+        Icon(imageVector = icono, contentDescription = null, tint = Amarillo, modifier = Modifier.size(18.dp))
+        Text(text = texto, style = DonChambitasTema.tipografia.secundario, color = Borde)
+    }
+}
+
 /**
  * Foto si la hay; si no, las iniciales (HU-07), nunca un espacio vacio.
- * Tocarlo abre las opciones para cambiarla (S2-T13); mientras sube, no.
+ * Tocarlo abre las opciones para cambiarla (S2-T13); mientras sube, no. La
+ * camarita Amarilla en la esquina avisa que se puede tocar.
  */
 @Composable
 private fun Avatar(usuario: Usuario, subiendoFoto: Boolean, alTocar: () -> Unit) {
     val forma = Modifier
         .size(TamanoAvatar)
         .clip(FormaFotoPerfil)
-        .border(GrosorBordeAvatar, MostazaOscuro, FormaFotoPerfil)
+        .border(GrosorBordeAvatar, Amarillo, FormaFotoPerfil)
         .clickable(
             enabled = !subiendoFoto,
             onClickLabel = stringResource(R.string.mi_cuenta_cambiar_foto),
@@ -455,7 +551,24 @@ private fun Avatar(usuario: Usuario, subiendoFoto: Boolean, alTocar: () -> Unit)
     Box(contentAlignment = Alignment.Center) {
         AvatarImagen(usuario, forma)
         if (subiendoFoto) {
-            CircularProgressIndicator(color = MostazaOscuro, modifier = Modifier.size(TamanoAvatar))
+            CircularProgressIndicator(color = Amarillo, modifier = Modifier.size(TamanoAvatar))
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(Amarillo)
+                    .border(2.dp, Tinta, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.PhotoCamera,
+                    contentDescription = null,
+                    tint = Tinta,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
     }
 }
@@ -472,12 +585,13 @@ private fun AvatarImagen(usuario: Usuario, forma: Modifier) {
     } else {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = forma.background(Mostaza)
+            modifier = forma.background(AmarilloSuave)
         ) {
             Text(
                 text = iniciales(usuario.nombre, usuario.apellidos),
                 style = DonChambitasTema.tipografia.titulo,
-                color = Carbon
+                fontWeight = FontWeight.Bold,
+                color = Tinta
             )
         }
     }
@@ -518,7 +632,15 @@ private fun SeccionDatos(
             ?.let { solicitantesFoco.getValue(it).requestFocus() }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Espaciado.dp16),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(FormaTarjeta)
+            .background(Blanco)
+            .border(1.dp, Borde, FormaTarjeta)
+            .padding(Espaciado.dp16)
+    ) {
         Titulo(stringResource(R.string.mi_cuenta_editar_datos))
         CampoTexto(
             valor = estado.nombre,
@@ -593,7 +715,15 @@ private fun SeccionContrasena(
     alCancelar: () -> Unit
 ) {
     val administradorFoco = LocalFocusManager.current
-    Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Espaciado.dp16),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(FormaTarjeta)
+            .background(Blanco)
+            .border(1.dp, Borde, FormaTarjeta)
+            .padding(Espaciado.dp16)
+    ) {
         Titulo(stringResource(R.string.mi_cuenta_cambiar_contrasena))
         Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
             CampoContrasena(
@@ -616,7 +746,7 @@ private fun SeccionContrasena(
             Text(
                 text = stringResource(R.string.registro_ayuda_contrasena),
                 style = DonChambitasTema.tipografia.pie,
-                color = Cafe
+                color = Gris
             )
         }
         BotonPrincipal(

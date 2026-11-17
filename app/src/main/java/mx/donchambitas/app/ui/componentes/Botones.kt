@@ -1,13 +1,28 @@
 package mx.donchambitas.app.ui.componentes
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,27 +30,68 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.donchambitas.app.R
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.Blanco
-import mx.donchambitas.app.ui.tema.Carbon
+import mx.donchambitas.app.ui.tema.Borde
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.FormaBoton
-import mx.donchambitas.app.ui.tema.Mostaza
-import mx.donchambitas.app.ui.tema.MostazaOscuro
-import mx.donchambitas.app.ui.tema.Terracota
+import mx.donchambitas.app.ui.tema.Grafito
+import mx.donchambitas.app.ui.tema.Naranja
+import mx.donchambitas.app.ui.tema.Tinta
 import mx.donchambitas.app.ui.tema.cuerpoFuerte
 
-private val AlturaBoton = 48.dp
+private val AlturaBoton = 54.dp
 private val GrosorBorde = 1.dp
 private val TamanoIndicador = 20.dp
 private val GrosorIndicador = 2.dp
+private val TamanoIconoBoton = 20.dp
+
+/** La flecha que acompana a las acciones que avanzan a otra pantalla. */
+val IconoAvanzar: ImageVector = Icons.AutoMirrored.Outlined.ArrowForward
 
 /**
- * Boton principal de la aplicacion: color Mostaza, texto Carbon, 48 dp de alto.
- * Sobre Mostaza va texto Carbon (7.09:1 WCAG AAA).
+ * Texto del boton con su icono opcional a la derecha, o el indicador de carga
+ * en su lugar. Compartido por todos los botones para que midan y se lean igual.
+ */
+@Composable
+private fun ContenidoBoton(
+    texto: String,
+    cargando: Boolean,
+    colorIndicador: Color,
+    icono: ImageVector?
+) {
+    if (cargando) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(TamanoIndicador),
+            color = colorIndicador,
+            strokeWidth = GrosorIndicador
+        )
+    } else {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = texto,
+                style = DonChambitasTema.tipografia.cuerpoFuerte,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (icono != null) {
+                Icon(imageVector = icono, contentDescription = null, modifier = Modifier.size(TamanoIconoBoton))
+            }
+        }
+    }
+}
+
+/**
+ * Boton principal de la aplicacion: relleno Amarillo, texto Tinta, 54 dp de alto.
+ * Sobre Amarillo va texto Tinta (11.78:1 WCAG AAA).
+ *
+ * @param icono Opcional, a la derecha del texto; [IconoAvanzar] en las acciones que avanzan.
  */
 @Composable
 fun BotonPrincipal(
@@ -43,6 +99,7 @@ fun BotonPrincipal(
     onClick: () -> Unit,
     habilitado: Boolean = true,
     cargando: Boolean = false,
+    icono: ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -50,35 +107,26 @@ fun BotonPrincipal(
         enabled = habilitado && !cargando,
         shape = FormaBoton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Mostaza,
-            contentColor = Carbon,
-            disabledContainerColor = Mostaza.copy(alpha = 0.5f),
-            disabledContentColor = Carbon.copy(alpha = 0.5f)
+            containerColor = Amarillo,
+            contentColor = Tinta,
+            disabledContainerColor = Amarillo.copy(alpha = 0.45f),
+            disabledContentColor = Tinta.copy(alpha = 0.5f)
         ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
         modifier = modifier
             .fillMaxWidth()
             .height(AlturaBoton)
     ) {
-        if (cargando) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(TamanoIndicador),
-                color = Carbon,
-                strokeWidth = GrosorIndicador
-            )
-        } else {
-            Text(
-                text = texto,
-                style = DonChambitasTema.tipografia.cuerpoFuerte
-            )
-        }
+        ContenidoBoton(texto, cargando, Tinta, icono)
     }
 }
 
 /**
- * Boton secundario con contorno Mostaza Oscuro y fondo transparente.
+ * Boton secundario: relleno Blanco con contorno Borde y texto del color dado.
  *
- * @param color Contorno y texto. Mostaza Oscuro salvo en acciones que cierran
- * algo, como "Cerrar sesion" de P-18, que van en Error (WIREFRAMES.md, P-18).
+ * @param color Texto y, si no es Grafito, tambien el contorno. Grafito salvo en
+ * acciones que cierran algo, como "Cerrar sesion" de P-18, que van en Error
+ * (WIREFRAMES.md, P-18).
  */
 @Composable
 fun BotonSecundario(
@@ -86,45 +134,36 @@ fun BotonSecundario(
     onClick: () -> Unit,
     habilitado: Boolean = true,
     cargando: Boolean = false,
-    color: Color = MostazaOscuro,
+    color: Color = Grafito,
+    icono: ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
+    val colorContorno = if (color == Grafito) Borde else color
     OutlinedButton(
         onClick = onClick,
         enabled = habilitado && !cargando,
         shape = FormaBoton,
         border = BorderStroke(
             width = GrosorBorde,
-            color = if (habilitado && !cargando) color else color.copy(alpha = 0.5f)
+            color = if (habilitado && !cargando) colorContorno else colorContorno.copy(alpha = 0.5f)
         ),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = Color.Transparent,
+            containerColor = Blanco,
             contentColor = color,
-            disabledContainerColor = Color.Transparent,
+            disabledContainerColor = Blanco,
             disabledContentColor = color.copy(alpha = 0.5f)
         ),
         modifier = modifier
             .fillMaxWidth()
             .height(AlturaBoton)
     ) {
-        if (cargando) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(TamanoIndicador),
-                color = color,
-                strokeWidth = GrosorIndicador
-            )
-        } else {
-            Text(
-                text = texto,
-                style = DonChambitasTema.tipografia.cuerpoFuerte
-            )
-        }
+        ContenidoBoton(texto, cargando, color, icono)
     }
 }
 
 /**
- * Boton destacado para acciones de conversion (postularse, publicar): color Terracota, texto Blanco.
- * Sobre Terracota va texto Blanco (5.12:1 WCAG AA).
+ * Boton destacado para acciones de conversion (postularse, publicar): color Naranja, texto Blanco.
+ * Sobre Naranja va texto Blanco (4.98:1 WCAG AA).
  */
 @Composable
 fun BotonDestacado(
@@ -132,6 +171,7 @@ fun BotonDestacado(
     onClick: () -> Unit,
     habilitado: Boolean = true,
     cargando: Boolean = false,
+    icono: ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -139,32 +179,22 @@ fun BotonDestacado(
         enabled = habilitado && !cargando,
         shape = FormaBoton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Terracota,
+            containerColor = Naranja,
             contentColor = Blanco,
-            disabledContainerColor = Terracota.copy(alpha = 0.5f),
-            disabledContentColor = Blanco.copy(alpha = 0.5f)
+            disabledContainerColor = Naranja.copy(alpha = 0.5f),
+            disabledContentColor = Blanco.copy(alpha = 0.7f)
         ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
         modifier = modifier
             .fillMaxWidth()
             .height(AlturaBoton)
     ) {
-        if (cargando) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(TamanoIndicador),
-                color = Blanco,
-                strokeWidth = GrosorIndicador
-            )
-        } else {
-            Text(
-                text = texto,
-                style = DonChambitasTema.tipografia.cuerpoFuerte
-            )
-        }
+        ContenidoBoton(texto, cargando, Blanco, icono)
     }
 }
 
 /**
- * Boton plano de texto sin fondo, color Mostaza Oscuro.
+ * Boton plano de texto sin fondo, color Grafito.
  */
 @Composable
 fun BotonTexto(
@@ -177,30 +207,59 @@ fun BotonTexto(
     TextButton(
         onClick = onClick,
         enabled = habilitado && !cargando,
+        shape = FormaBoton,
         colors = ButtonDefaults.textButtonColors(
             containerColor = Color.Transparent,
-            contentColor = MostazaOscuro,
+            contentColor = Grafito,
             disabledContainerColor = Color.Transparent,
-            disabledContentColor = MostazaOscuro.copy(alpha = 0.5f)
+            disabledContentColor = Grafito.copy(alpha = 0.5f)
         ),
         modifier = modifier
     ) {
-        if (cargando) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(TamanoIndicador),
-                color = MostazaOscuro,
-                strokeWidth = GrosorIndicador
-            )
-        } else {
-            Text(
-                text = texto,
-                style = DonChambitasTema.tipografia.cuerpoFuerte
-            )
-        }
+        ContenidoBoton(texto, cargando, Grafito, null)
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+/**
+ * Boton flotante de "publicar": pildora Naranja con icono y texto Blanco
+ * (4.98:1) y sombra, para la accion principal de una lista. Toda la pildora es
+ * un solo nodo con su texto como texto y como descripcion.
+ */
+@Composable
+fun BotonFlotante(
+    texto: String,
+    icono: ImageVector,
+    alPulsar: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier
+            .shadow(10.dp, FormaBoton, ambientColor = Naranja, spotColor = Naranja)
+            .clip(FormaBoton)
+            .background(Naranja)
+            .clickable(role = Role.Button, onClick = alPulsar)
+            // Un solo nodo que se anuncia y se encuentra por su texto o por su descripcion.
+            .clearAndSetSemantics {
+                contentDescription = texto
+                text = AnnotatedString(texto)
+                role = Role.Button
+            }
+            .height(AlturaBoton)
+            .padding(horizontal = 20.dp)
+    ) {
+        Icon(imageVector = icono, contentDescription = null, tint = Blanco, modifier = Modifier.size(TamanoIconoBoton))
+        Text(
+            text = texto,
+            style = DonChambitasTema.tipografia.cuerpoFuerte,
+            fontWeight = FontWeight.SemiBold,
+            color = Blanco
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaBotonPrincipal() {
     DonChambitasTema {
@@ -211,7 +270,7 @@ private fun PreviaBotonPrincipal() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaBotonPrincipalCargando() {
     DonChambitasTema {
@@ -223,7 +282,7 @@ private fun PreviaBotonPrincipalCargando() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaBotonSecundario() {
     DonChambitasTema {
@@ -234,7 +293,7 @@ private fun PreviaBotonSecundario() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaBotonDestacado() {
     DonChambitasTema {
@@ -245,7 +304,7 @@ private fun PreviaBotonDestacado() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaBotonTexto() {
     DonChambitasTema {

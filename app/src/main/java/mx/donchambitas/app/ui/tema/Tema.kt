@@ -8,35 +8,48 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 /**
- * Esquema de color Taller de Material 3 segun DISENO.md.
- * Sin modo oscuro en el MVP (DEC-15).
+ * Esquema de color Casco de Material 3 segun DISENO.md.
+ * Sin modo oscuro en el MVP (DEC-15). Los contenedores de superficie se fijan
+ * a mano: si se dejan por defecto, Material 3 pinta menus, dialogos y la barra
+ * inferior con su lila de base.
  */
-val EsquemaColoresTaller = lightColorScheme(
-    primary = Mostaza,
-    onPrimary = Carbon,
-    primaryContainer = Arena,
-    onPrimaryContainer = Carbon,
-    secondary = Terracota,
+val EsquemaColoresCasco = lightColorScheme(
+    primary = Amarillo,
+    onPrimary = Tinta,
+    primaryContainer = AmarilloSuave,
+    onPrimaryContainer = Tinta,
+    inversePrimary = Amarillo,
+    secondary = Naranja,
     onSecondary = Blanco,
-    secondaryContainer = Arena,
-    onSecondaryContainer = Terracota,
-    tertiary = MostazaOscuro,
+    secondaryContainer = AmarilloSuave,
+    onSecondaryContainer = Tinta,
+    tertiary = Grafito,
     onTertiary = Blanco,
-    tertiaryContainer = Arena,
-    onTertiaryContainer = MostazaOscuro,
-    background = Crema,
-    onBackground = Carbon,
-    surface = Arena,
-    onSurface = Carbon,
-    surfaceVariant = Arena,
-    onSurfaceVariant = Cafe,
+    tertiaryContainer = Hueso,
+    onTertiaryContainer = Grafito,
+    background = Marfil,
+    onBackground = Tinta,
+    surface = Hueso,
+    onSurface = Tinta,
+    surfaceVariant = Hueso,
+    onSurfaceVariant = Gris,
+    surfaceTint = Hueso,
+    surfaceBright = Marfil,
+    surfaceDim = HuesoAlto,
+    surfaceContainerLowest = Blanco,
+    surfaceContainerLow = Marfil,
+    surfaceContainer = Hueso,
+    surfaceContainerHigh = HuesoAlto,
+    surfaceContainerHighest = Borde,
+    inverseSurface = Tinta,
+    inverseOnSurface = Marfil,
     outline = Borde,
     outlineVariant = Borde,
     error = Error,
     onError = Blanco,
-    errorContainer = Arena,
+    errorContainer = Hueso,
     onErrorContainer = Error,
-    scrim = Carbon
+    scrim = Tinta
 )
 
 @Composable
@@ -44,7 +57,7 @@ fun DonChambitasTema(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = EsquemaColoresTaller,
+        colorScheme = EsquemaColoresCasco,
         typography = Tipografia,
         shapes = Formas,
         content = content

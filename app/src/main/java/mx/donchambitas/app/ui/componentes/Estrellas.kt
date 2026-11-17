@@ -10,6 +10,16 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.font.FontWeight
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Tinta
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,10 +31,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
+import mx.donchambitas.app.ui.tema.Gris
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.Terracota
+import mx.donchambitas.app.ui.tema.Naranja
+import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
 
 private const val MAXIMO_ESTRELLAS = 5
@@ -32,7 +43,7 @@ private const val UMBRAL_MEDIA_ESTRELLA = 0.25f
 private const val UMBRAL_ESTRELLA_COMPLETA = 0.75f
 
 /**
- * Componente de calificacion con estrellas en color Terracota segun DISENO.md.
+ * Componente de calificacion con estrellas en color Naranja segun DISENO.md.
  * Admite media estrella en modo lectura.
  */
 @Composable
@@ -58,8 +69,8 @@ fun Estrellas(
         for (indice in 1..puntuacionMaxima) {
             val diferencia = calificacion - (indice - 1)
             val (icono, tinte) = when {
-                diferencia >= UMBRAL_ESTRELLA_COMPLETA -> Icons.Outlined.Star to Terracota
-                diferencia >= UMBRAL_MEDIA_ESTRELLA -> Icons.AutoMirrored.Outlined.StarHalf to Terracota
+                diferencia >= UMBRAL_ESTRELLA_COMPLETA -> Icons.Outlined.Star to Naranja
+                diferencia >= UMBRAL_MEDIA_ESTRELLA -> Icons.AutoMirrored.Outlined.StarHalf to Naranja
                 else -> Icons.Outlined.StarBorder to Borde
             }
 
@@ -81,13 +92,56 @@ fun Estrellas(
             Text(
                 text = texto,
                 style = DonChambitasTema.tipografia.secundario,
-                color = Cafe
+                color = Gris
             )
         }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+/**
+ * Calificacion en una pildora AmarilloSuave: una estrella Naranja, el numero en
+ * negritas y las resenas en Gris. Para tarjetas donde cinco estrellas no caben
+ * o estorban. Lleva la misma descripcion que [Estrellas].
+ */
+@Composable
+fun CalificacionCompacta(
+    calificacion: Float,
+    totalResenas: Int? = null,
+    modifier: Modifier = Modifier
+) {
+    val descripcionAccesibilidad = stringResource(R.string.formato_estrellas_descripcion, calificacion)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Espaciado.dp4),
+        modifier = modifier
+            .clip(CircleShape)
+            .background(AmarilloSuave)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clearAndSetSemantics { contentDescription = descripcionAccesibilidad }
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = null,
+            tint = Naranja,
+            modifier = Modifier.size(14.dp)
+        )
+        Text(
+            text = stringResource(R.string.formato_calificacion_simple, calificacion),
+            style = DonChambitasTema.tipografia.pie,
+            fontWeight = FontWeight.Bold,
+            color = Tinta
+        )
+        if (totalResenas != null) {
+            Text(
+                text = stringResource(R.string.formato_resenas_parentesis, totalResenas),
+                style = DonChambitasTema.tipografia.pie,
+                color = Gris
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaEstrellasCinco() {
     DonChambitasTema {
@@ -95,7 +149,7 @@ private fun PreviaEstrellasCinco() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaEstrellasCuatroYMedio() {
     DonChambitasTema {
@@ -107,7 +161,7 @@ private fun PreviaEstrellasCuatroYMedio() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaEstrellasTresConTexto() {
     DonChambitasTema {

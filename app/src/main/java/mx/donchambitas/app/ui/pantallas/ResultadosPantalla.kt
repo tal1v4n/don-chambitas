@@ -1,5 +1,12 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.automirrored.outlined.Sort
+import androidx.compose.ui.text.font.FontWeight
+import mx.donchambitas.app.ui.tema.AmarilloSuave
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,14 +36,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,14 +63,14 @@ import mx.donchambitas.app.ui.componentes.CampoTexto
 import mx.donchambitas.app.ui.componentes.ChipCategoria
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
 import mx.donchambitas.app.ui.componentes.TarjetaTrabajador
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.Mostaza
-import mx.donchambitas.app.ui.tema.cuerpo
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.pie
+import mx.donchambitas.app.ui.tema.secundario
 
 /**
  * Resultados (P-06), HU-16, HU-17 y HU-18.
@@ -129,22 +136,33 @@ fun ResultadosContenido(
         topBar = {
             BarraSuperior(
                 titulo = stringResource(R.string.resultados_titulo),
-                alRegresar = alRegresar
+                alRegresar = alRegresar,
+                colorFondo = AmarilloSuave
             )
         },
-        containerColor = Crema,
+        containerColor = Marfil,
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         // imePadding: con el teclado abierto, el vacio y la lista se quedan arriba de el, no tapados.
         Column(modifier = Modifier.padding(relleno).imePadding().fillMaxSize()) {
             // Fuera del contenedor de estados: el campo se sigue viendo, con el foco, mientras carga.
-            Buscador(
-                texto = estado.texto,
-                alCambiarTexto = alCambiarTexto,
-                alBuscar = alBuscar,
-                alBorrarTexto = alBorrarTexto
-            )
-            FilaFiltros(estado = estado, alAbrirFiltros = alAbrirFiltros, alQuitarFiltro = alQuitarFiltro)
+            // Cabecera AmarilloSuave con el buscador y los filtros: la busqueda manda en esta pantalla.
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                    .background(AmarilloSuave)
+                    .padding(bottom = Espaciado.dp12),
+                verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)
+            ) {
+                Buscador(
+                    texto = estado.texto,
+                    alCambiarTexto = alCambiarTexto,
+                    alBuscar = alBuscar,
+                    alBorrarTexto = alBorrarTexto
+                )
+                FilaFiltros(estado = estado, alAbrirFiltros = alAbrirFiltros, alQuitarFiltro = alQuitarFiltro)
+            }
             FilaOrden(orden = estado.filtros.orden ?: OrdenBusqueda.PROMEDIO, alElegirOrden = alElegirOrden)
             ContenedorEstado(
                 cargando = estado.cargando,
@@ -355,7 +373,7 @@ private fun ListaResultados(
                 val descripcion = stringResource(R.string.cargando)
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
-                        color = Mostaza,
+                        color = Amarillo,
                         modifier = Modifier.semantics { contentDescription = descripcion }
                     )
                 }
@@ -369,7 +387,7 @@ private fun ListaResultados(
                     Text(
                         text = stringResource(R.string.resultados_mas_error),
                         style = DonChambitasTema.tipografia.pie,
-                        color = Cafe
+                        color = Gris
                     )
                     BotonTexto(texto = stringResource(R.string.reintentar), onClick = alReintentarMas)
                 }
@@ -395,12 +413,20 @@ private fun FilaOrden(orden: OrdenBusqueda, alElegirOrden: (OrdenBusqueda) -> Un
             .clickable(role = Role.DropdownList, onClickLabel = titulo) { abierta = true }
             .padding(horizontal = Espaciado.margenPantalla)
     ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.Sort,
+            contentDescription = null,
+            tint = Gris,
+            modifier = Modifier.size(18.dp)
+        )
         Text(
             text = stringResource(R.string.resultados_orden_etiqueta, stringResource(textoOrden(orden))),
-            style = DonChambitasTema.tipografia.cuerpo,
-            color = Carbon
+            style = DonChambitasTema.tipografia.secundario,
+            fontWeight = FontWeight.Medium,
+            color = Tinta,
+            modifier = Modifier.padding(start = Espaciado.dp8)
         )
-        Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = null, tint = Carbon)
+        Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = null, tint = Tinta)
     }
 
     if (abierta) {

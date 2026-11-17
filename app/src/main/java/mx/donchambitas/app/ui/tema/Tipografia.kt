@@ -4,13 +4,26 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 // Estilos tipograficos con fuente del sistema segun DISENO.md
+
+/** Encabezado grande de portada: la primera frase de una pantalla con hero. */
+val Portada = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = FontWeight.Bold,
+    fontSize = 32.sp,
+    lineHeight = 38.sp,
+    letterSpacing = (-0.02).em
+)
+
 val Titulo = TextStyle(
     fontFamily = FontFamily.Default,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 24.sp
+    fontSize = 24.sp,
+    lineHeight = 30.sp,
+    letterSpacing = (-0.01).em
 )
 
 val Subtitulo = TextStyle(
@@ -54,10 +67,14 @@ val Tipografia = Typography(
     bodySmall = Pie,
     labelLarge = CuerpoFuerte,
     labelMedium = Secundario,
-    labelSmall = Pie
+    labelSmall = Pie,
+    displaySmall = Portada
 )
 
-// Extensiones para acceso directo a los 6 estilos con nombres exactos de DISENO.md
+// Extensiones para acceso directo a los estilos con nombres exactos de DISENO.md
+val Typography.portada: TextStyle
+    get() = Portada
+
 val Typography.titulo: TextStyle
     get() = Titulo
 

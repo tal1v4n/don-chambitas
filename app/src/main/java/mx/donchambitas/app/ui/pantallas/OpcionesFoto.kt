@@ -16,8 +16,8 @@ import androidx.core.content.FileProvider
 import java.io.File
 import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BotonSecundario
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.FormaHojaInferior
@@ -38,7 +38,7 @@ internal fun OpcionesFoto(
     ModalBottomSheet(
         onDismissRequest = alCerrar,
         shape = FormaHojaInferior,
-        containerColor = Crema
+        containerColor = Marfil
     ) {
         Column(
             modifier = Modifier
@@ -50,7 +50,7 @@ internal fun OpcionesFoto(
             Text(
                 text = titulo,
                 style = DonChambitasTema.tipografia.subtitulo,
-                color = Carbon
+                color = Tinta
             )
             BotonSecundario(
                 texto = stringResource(R.string.foto_elegir_galeria),

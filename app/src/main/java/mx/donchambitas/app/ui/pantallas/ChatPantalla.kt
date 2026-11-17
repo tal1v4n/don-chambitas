@@ -1,5 +1,20 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.outlined.WorkOutline
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Hueso
+import mx.donchambitas.app.ui.tema.Tinta
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,9 +32,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -33,10 +48,8 @@ import mx.donchambitas.app.ui.componentes.BurbujaMensaje
 import mx.donchambitas.app.ui.componentes.Cargando
 import mx.donchambitas.app.ui.componentes.CampoMensaje
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
-import mx.donchambitas.app.ui.tema.Crema
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.MostazaOscuro
 import mx.donchambitas.app.ui.tema.secundario
 
 /** Cuantos mensajes antes del final del historial se pide la pagina anterior. */
@@ -118,19 +131,40 @@ fun ChatContenido(
             )
         },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        // Fondo Hueso: las burbujas Blancas de la otra persona se despegan de el.
+        containerColor = Hueso,
+        // El campo de mensaje pinta su propio inset inferior, para que su fondo Blanco llegue al borde.
+        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier.fillMaxSize().imePadding()
     ) { relleno ->
         Column(modifier = Modifier.padding(relleno).fillMaxSize()) {
             if (estado.solicitudTitulo != null) {
-                Text(
-                    text = estado.solicitudTitulo,
-                    style = DonChambitasTema.tipografia.secundario,
-                    color = MostazaOscuro,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = Espaciado.margenPantalla, vertical = Espaciado.dp4)
-                )
+                // De que solicitud viene el hilo, en una pildora fija arriba de la conversacion.
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Espaciado.dp8),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Espaciado.margenPantalla, vertical = Espaciado.dp4)
+                        .clip(CircleShape)
+                        .background(AmarilloSuave)
+                        .padding(horizontal = Espaciado.dp12, vertical = Espaciado.dp8)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.WorkOutline,
+                        contentDescription = null,
+                        tint = Tinta,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = estado.solicitudTitulo,
+                        style = DonChambitasTema.tipografia.secundario,
+                        fontWeight = FontWeight.Medium,
+                        color = Tinta,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             ContenedorEstado(
                 cargando = estado.cargando,

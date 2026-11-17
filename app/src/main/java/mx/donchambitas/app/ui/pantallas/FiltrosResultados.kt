@@ -17,9 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,8 +40,8 @@ import mx.donchambitas.app.ui.componentes.BotonSecundario
 import mx.donchambitas.app.ui.componentes.CampoTexto
 import mx.donchambitas.app.ui.componentes.ChipCategoria
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
@@ -98,7 +98,7 @@ internal fun HojaFiltros(
         onDismissRequest = alCerrar,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = FormaHojaInferior,
-        containerColor = Crema
+        containerColor = Marfil
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(Espaciado.dp16),
@@ -110,7 +110,7 @@ internal fun HojaFiltros(
             Text(
                 text = stringResource(R.string.filtros_titulo),
                 style = DonChambitasTema.tipografia.subtitulo,
-                color = Carbon
+                color = Tinta
             )
 
             if (errorCatalogos != null) {
@@ -151,7 +151,7 @@ internal fun HojaFiltros(
                 },
                 etiqueta = stringResource(R.string.filtros_precio_maximo),
                 error = errorPrecio?.let { stringResource(it) },
-                iconoInicio = { Text(text = "$", color = Carbon) },
+                iconoInicio = { Text(text = "$", color = Tinta) },
                 tecladoOpciones = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 
@@ -159,7 +159,7 @@ internal fun HojaFiltros(
                 Text(
                     text = stringResource(R.string.filtros_calificacion_minima),
                     style = DonChambitasTema.tipografia.subtitulo,
-                    color = Carbon
+                    color = Tinta
                 )
                 FlowRow(
                     modifier = Modifier.selectableGroup(),

@@ -1,5 +1,7 @@
 package mx.donchambitas.app.ui.pantallas
 
+import mx.donchambitas.app.ui.componentes.BotonFlotante
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,15 +11,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Assignment
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,10 +31,8 @@ import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
 import mx.donchambitas.app.ui.componentes.TarjetaSolicitud
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.Mostaza
 
 /** Lo que se deja libre abajo para que el boton flotante no tape la ultima tarjeta. */
 private val RellenoInferiorLista = 88.dp
@@ -100,20 +98,16 @@ fun MisSolicitudesContenido(
         floatingActionButton = {
             // En el vacio no: el estado vacio ya ofrece la misma accion (5.4).
             if (!estado.cargando && estado.errorCarga == null && !estado.vacio) {
-                FloatingActionButton(
-                    onClick = alPublicar,
-                    containerColor = Mostaza,
-                    contentColor = Carbon
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.boton_publicar_solicitud)
-                    )
-                }
+                BotonFlotante(
+                    texto = stringResource(R.string.boton_publicar_solicitud),
+                    icono = Icons.Default.Add,
+                    alPulsar = alPublicar
+                )
             }
         },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         ContenedorEstado(

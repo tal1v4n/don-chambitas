@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -30,12 +30,12 @@ import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
 import mx.donchambitas.app.ui.componentes.obtenerTituloErrorRes
 import mx.donchambitas.app.ui.navegacion.Ruta
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.Mostaza
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.cuerpo
 import mx.donchambitas.app.ui.tema.secundario
 import mx.donchambitas.app.ui.tema.subtitulo
@@ -44,7 +44,7 @@ import mx.donchambitas.app.util.TipoError
 
 /**
  * Pantalla de bienvenida (P-01 Splash).
- * Muestra la identidad Don Chambitas sobre fondo Crema mientras verifica
+ * Muestra la identidad Don Chambitas sobre fondo Marfil mientras verifica
  * el estado de la sesión y navega al destino correspondiente (P-02, P-05 o P-10).
  * Si no logra saberlo, cambia el indicador por el error con "Reintentar".
  *
@@ -86,7 +86,7 @@ fun SplashContenido(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Crema)
+            .background(Marfil)
     ) {
         // Bloque central de marca: Isotipo del casco, nombre y lema
         Column(
@@ -104,7 +104,7 @@ fun SplashContenido(
             Text(
                 text = stringResource(id = R.string.splash_nombre_app),
                 style = DonChambitasTema.tipografia.titulo,
-                color = Carbon,
+                color = Tinta,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
@@ -112,12 +112,12 @@ fun SplashContenido(
             Text(
                 text = stringResource(id = R.string.splash_eslogan),
                 style = DonChambitasTema.tipografia.cuerpo,
-                color = Cafe,
+                color = Gris,
                 textAlign = TextAlign.Center
             )
         }
 
-        // Bloque inferior: Indicador de carga circular Mostaza de 48 dp con etiqueta,
+        // Bloque inferior: Indicador de carga circular Amarillo de 48 dp con etiqueta,
         // o el error con "Reintentar" si no se pudo saber si hay sesión
         Column(
             modifier = Modifier
@@ -129,7 +129,7 @@ fun SplashContenido(
         ) {
             if (error == null) {
                 CircularProgressIndicator(
-                    color = Mostaza,
+                    color = Amarillo,
                     strokeWidth = 4.dp,
                     modifier = Modifier.size(48.dp)
                 )
@@ -137,21 +137,21 @@ fun SplashContenido(
                 Text(
                     text = stringResource(id = R.string.splash_verificando_sesion),
                     style = DonChambitasTema.tipografia.secundario,
-                    color = Cafe,
+                    color = Gris,
                     textAlign = TextAlign.Center
                 )
             } else {
                 Text(
                     text = stringResource(id = obtenerTituloErrorRes(error)),
                     style = DonChambitasTema.tipografia.subtitulo,
-                    color = Carbon,
+                    color = Tinta,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(Espaciado.dp8))
                 Text(
                     text = stringResource(id = obtenerMensajeErrorRes(error)),
                     style = DonChambitasTema.tipografia.cuerpo,
-                    color = Cafe,
+                    color = Gris,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(Espaciado.dp24))

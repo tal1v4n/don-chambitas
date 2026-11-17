@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
@@ -15,9 +16,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,14 +27,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.donchambitas.app.R
-import mx.donchambitas.app.ui.tema.Arena
+import mx.donchambitas.app.ui.tema.Blanco
+import mx.donchambitas.app.ui.tema.Hueso
 import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.FormaCampo
-import mx.donchambitas.app.ui.tema.MostazaOscuro
+import mx.donchambitas.app.ui.tema.Grafito
 import mx.donchambitas.app.ui.tema.cuerpo
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
@@ -42,7 +44,8 @@ private val EspacioTextoError = 4.dp
 
 /**
  * Campo de texto reutilizable segun DISENO.md.
- * Fondo Arena, contorno Borde en reposo, Mostaza Oscuro al enfocar y Error cuando hay fallo.
+ * Fondo Blanco, contorno Borde en reposo, Tinta al enfocar y Error cuando hay fallo.
+ * Deshabilitado, el fondo baja a Hueso para que se note que no se puede escribir.
  */
 @Composable
 fun CampoTexto(
@@ -85,7 +88,7 @@ fun CampoTexto(
                     Text(
                         text = it,
                         style = DonChambitasTema.tipografia.secundario,
-                        color = Cafe
+                        color = Gris
                     )
                 }
             },
@@ -100,23 +103,26 @@ fun CampoTexto(
             minLines = lineasMinimas,
             shape = FormaCampo,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Arena,
-                unfocusedContainerColor = Arena,
-                disabledContainerColor = Arena,
-                errorContainerColor = Arena,
-                focusedBorderColor = MostazaOscuro,
+                focusedContainerColor = Blanco,
+                unfocusedContainerColor = Blanco,
+                disabledContainerColor = Hueso,
+                errorContainerColor = Blanco,
+                focusedBorderColor = Tinta,
                 unfocusedBorderColor = Borde,
                 disabledBorderColor = Borde.copy(alpha = 0.5f),
                 errorBorderColor = Error,
-                focusedTextColor = Carbon,
-                unfocusedTextColor = Carbon,
-                disabledTextColor = Cafe,
-                errorTextColor = Carbon,
-                focusedLabelColor = Carbon,
-                unfocusedLabelColor = Cafe,
-                disabledLabelColor = Cafe.copy(alpha = 0.5f),
+                focusedTextColor = Tinta,
+                unfocusedTextColor = Tinta,
+                disabledTextColor = Gris,
+                errorTextColor = Tinta,
+                focusedLabelColor = Tinta,
+                focusedLeadingIconColor = Tinta,
+                unfocusedLeadingIconColor = Gris,
+                errorLeadingIconColor = Error,
+                unfocusedLabelColor = Gris,
+                disabledLabelColor = Gris.copy(alpha = 0.5f),
                 errorLabelColor = Error,
-                cursorColor = MostazaOscuro,
+                cursorColor = Grafito,
                 errorCursorColor = Error
             )
         )
@@ -133,7 +139,7 @@ fun CampoTexto(
 }
 
 /**
- * Campo de texto especializado para contraseñas, con boton de alternar visibilidad.
+ * Campo de texto especializado para contraseñas: candado al inicio y boton de alternar visibilidad.
  */
 @Composable
 fun CampoContrasena(
@@ -158,6 +164,7 @@ fun CampoContrasena(
         habilitado = habilitado,
         tecladoOpciones = tecladoOpciones,
         tecladoAcciones = tecladoAcciones,
+        iconoInicio = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = null) },
         visualTransformation = if (contrasenaVisible) VisualTransformation.None else PasswordVisualTransformation(),
         iconoFin = {
             val descripcion = if (contrasenaVisible) {
@@ -175,7 +182,7 @@ fun CampoContrasena(
                 Icon(
                     imageVector = icono,
                     contentDescription = descripcion,
-                    tint = Cafe
+                    tint = Gris
                 )
             }
         },
@@ -183,7 +190,7 @@ fun CampoContrasena(
     )
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaCampoTextoNormal() {
     DonChambitasTema {
@@ -195,7 +202,7 @@ private fun PreviaCampoTextoNormal() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaCampoTextoConError() {
     DonChambitasTema {
@@ -208,7 +215,7 @@ private fun PreviaCampoTextoConError() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaCampoContrasena() {
     DonChambitasTema {

@@ -1,5 +1,29 @@
 package mx.donchambitas.app.ui.componentes
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import mx.donchambitas.app.ui.tema.Borde
+import mx.donchambitas.app.ui.tema.Marfil
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -10,26 +34,23 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import mx.donchambitas.app.R
-import mx.donchambitas.app.ui.tema.Arena
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
+import mx.donchambitas.app.ui.tema.Hueso
+import mx.donchambitas.app.ui.tema.Tinta
 import mx.donchambitas.app.ui.tema.DonChambitasTema
-import mx.donchambitas.app.ui.tema.Mostaza
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.cuerpoFuerte
-import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.subtitulo
+import mx.donchambitas.app.ui.tema.titulo
 
 /**
  * Modelo de datos para un destino en la barra de navegacion inferior.
@@ -53,7 +74,12 @@ fun obtenerDestinosPorDefecto(): List<DestinoBarraInferior> = listOf(
 
 /**
  * Barra superior de la aplicacion segun DISENO.md.
- * Fondo Mostaza, titulo e iconos en Carbon (7.09:1 WCAG AAA), flecha de regreso opcional.
+ *
+ * Sin relleno propio por omision: toma el fondo de la pantalla, para que el
+ * amarillo quede en las acciones y no en un bloque que cansa la vista. Una
+ * pantalla con cabecera de color le pasa ese color en [colorFondo] para que
+ * barra y cabecera se lean como una sola pieza. El titulo va en Tinta y
+ * la flecha de regreso dentro de un circulo Hueso, facil de atinar con el pulgar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,41 +87,140 @@ fun BarraSuperior(
     titulo: String,
     alRegresar: (() -> Unit)? = null,
     acciones: @Composable RowScope.() -> Unit = {},
+    colorFondo: Color = Color.Transparent,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
         title = {
             Text(
                 text = titulo,
-                style = DonChambitasTema.tipografia.subtitulo,
-                color = Carbon
+                // Sin flecha es una pantalla raiz (pestaña): el titulo crece.
+                style = if (alRegresar == null) DonChambitasTema.tipografia.titulo else DonChambitasTema.tipografia.subtitulo,
+                fontWeight = if (alRegresar == null) FontWeight.Bold else FontWeight.SemiBold,
+                color = Tinta,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         },
         navigationIcon = {
             if (alRegresar != null) {
-                IconButton(onClick = alRegresar) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = stringResource(R.string.regresar),
-                        tint = Carbon
-                    )
+                IconButton(
+                    onClick = alRegresar,
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Hueso)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.regresar),
+                            tint = Tinta
+                        )
+                    }
                 }
             }
         },
         actions = acciones,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Mostaza,
-            titleContentColor = Carbon,
-            navigationIconContentColor = Carbon,
-            actionIconContentColor = Carbon
+            containerColor = colorFondo,
+            scrolledContainerColor = if (colorFondo == Color.Transparent) Marfil else colorFondo,
+            titleContentColor = Tinta,
+            navigationIconContentColor = Tinta,
+            actionIconContentColor = Tinta
         ),
         modifier = modifier
     )
 }
 
+/** Un destino ya resuelto de la barra flotante: que dice, que icono lleva y si es el actual. */
+data class ElementoBarraFlotante(
+    val etiqueta: String,
+    val icono: ImageVector,
+    val seleccionado: Boolean,
+    val alPulsar: () -> Unit
+)
+
 /**
- * Barra inferior con 4 destinos y el indicador en color Mostaza segun DISENO.md.
- * Sobre el indicador Mostaza, el icono es Carbon (7.09:1 WCAG AAA).
+ * Barra de navegacion inferior en forma de capsula flotante Tinta.
+ *
+ * El destino actual se abre en una pildora Amarillo con su etiqueta (Tinta sobre
+ * Amarillo, 11.78:1); los demas muestran solo el icono en Borde sobre Tinta
+ * (13.4:1) y conservan la etiqueta como descripcion para lectores de pantalla.
+ */
+@Composable
+fun BarraNavegacionFlotante(
+    elementos: List<ElementoBarraFlotante>,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Marfil)
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 12.dp, shape = CircleShape, ambientColor = Tinta, spotColor = Tinta)
+                .clip(CircleShape)
+                .background(Tinta)
+                .selectableGroup()
+                .padding(6.dp)
+        ) {
+            elementos.forEach { elemento ->
+                PildoraDestino(elemento)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PildoraDestino(elemento: ElementoBarraFlotante) {
+    val fondo by animateColorAsState(
+        targetValue = if (elemento.seleccionado) Amarillo else Color.Transparent,
+        label = "fondoDestino"
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(fondo)
+            .selectable(
+                selected = elemento.seleccionado,
+                onClick = elemento.alPulsar,
+                role = Role.Tab
+            )
+            .heightIn(min = 48.dp)
+            .padding(horizontal = if (elemento.seleccionado) 18.dp else 14.dp)
+            .animateContentSize()
+    ) {
+        Icon(
+            imageVector = elemento.icono,
+            contentDescription = if (elemento.seleccionado) null else elemento.etiqueta,
+            tint = if (elemento.seleccionado) Tinta else Borde
+        )
+        if (elemento.seleccionado) {
+            Text(
+                text = elemento.etiqueta,
+                style = DonChambitasTema.tipografia.cuerpoFuerte,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Barra inferior generica con 4 destinos, sobre [BarraNavegacionFlotante].
  */
 @Composable
 fun BarraInferior(
@@ -104,38 +229,17 @@ fun BarraInferior(
     destinos: List<DestinoBarraInferior> = obtenerDestinosPorDefecto(),
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(
-        containerColor = Arena,
-        contentColor = Carbon,
-        modifier = modifier
-    ) {
-        destinos.forEach { destino ->
-            val seleccionado = destino.id == destinoActual
-            NavigationBarItem(
-                selected = seleccionado,
-                onClick = { alSeleccionarDestino(destino.id) },
-                icon = {
-                    Icon(
-                        imageVector = destino.icono,
-                        contentDescription = destino.etiqueta
-                    )
-                },
-                label = {
-                    Text(
-                        text = destino.etiqueta,
-                        style = if (seleccionado) DonChambitasTema.tipografia.cuerpoFuerte else DonChambitasTema.tipografia.pie
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Carbon,
-                    selectedTextColor = Carbon,
-                    indicatorColor = Mostaza,
-                    unselectedIconColor = Cafe,
-                    unselectedTextColor = Cafe
-                )
+    BarraNavegacionFlotante(
+        elementos = destinos.map { destino ->
+            ElementoBarraFlotante(
+                etiqueta = destino.etiqueta,
+                icono = destino.icono,
+                seleccionado = destino.id == destinoActual,
+                alPulsar = { alSeleccionarDestino(destino.id) }
             )
-        }
-    }
+        },
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true)

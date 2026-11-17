@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import mx.donchambitas.app.R
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.cuerpo
@@ -141,7 +141,7 @@ private fun ContenedorEstadoCargandoPreview() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Crema)
+                .background(Marfil)
         ) {
             ContenedorEstado(
                 cargando = true,
@@ -162,7 +162,7 @@ private fun ContenedorEstadoErrorPreview() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Crema)
+                .background(Marfil)
         ) {
             ContenedorEstado(
                 cargando = false,
@@ -183,7 +183,7 @@ private fun ContenedorEstadoVacioPreview() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Crema)
+                .background(Marfil)
         ) {
             ContenedorEstado(
                 cargando = false,
@@ -204,7 +204,7 @@ private fun ContenedorEstadoContenidoPreview() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Crema)
+                .background(Marfil)
         ) {
             ContenedorEstado(
                 cargando = false,
@@ -220,12 +220,12 @@ private fun ContenedorEstadoContenidoPreview() {
                     Text(
                         text = "Lista cargada correctamente",
                         style = DonChambitasTema.tipografia.titulo,
-                        color = Carbon
+                        color = Tinta
                     )
                     Text(
                         text = "El contenido normal se muestra cuando no hay carga, error ni vacio.",
                         style = DonChambitasTema.tipografia.cuerpo,
-                        color = Carbon
+                        color = Tinta
                     )
                 }
             }

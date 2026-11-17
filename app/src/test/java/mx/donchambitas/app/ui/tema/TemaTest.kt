@@ -10,23 +10,23 @@ import org.junit.Test
 class TemaTest {
 
     @Test
-    fun debeTenerCarbonComoOnPrimary_cuandoSeConsultaEsquemaDeColor() {
-        assertEquals(Carbon, EsquemaColoresTaller.onPrimary)
-        assertNotEquals(Blanco, EsquemaColoresTaller.onPrimary)
+    fun debeTenerTintaComoOnPrimary_cuandoSeConsultaEsquemaDeColor() {
+        assertEquals(Tinta, EsquemaColoresCasco.onPrimary)
+        assertNotEquals(Blanco, EsquemaColoresCasco.onPrimary)
     }
 
     @Test
-    fun debeMapearColoresTallerCorrectamente_cuandoSeConsultaEsquemaDeColor() {
-        assertEquals(Mostaza, EsquemaColoresTaller.primary)
-        assertEquals(Terracota, EsquemaColoresTaller.secondary)
-        assertEquals(Blanco, EsquemaColoresTaller.onSecondary)
-        assertEquals(Crema, EsquemaColoresTaller.background)
-        assertEquals(Carbon, EsquemaColoresTaller.onBackground)
-        assertEquals(Arena, EsquemaColoresTaller.surface)
-        assertEquals(Carbon, EsquemaColoresTaller.onSurface)
-        assertEquals(Borde, EsquemaColoresTaller.outline)
-        assertEquals(Error, EsquemaColoresTaller.error)
-        assertEquals(Blanco, EsquemaColoresTaller.onError)
+    fun debeMapearColoresCascoCorrectamente_cuandoSeConsultaEsquemaDeColor() {
+        assertEquals(Amarillo, EsquemaColoresCasco.primary)
+        assertEquals(Naranja, EsquemaColoresCasco.secondary)
+        assertEquals(Blanco, EsquemaColoresCasco.onSecondary)
+        assertEquals(Marfil, EsquemaColoresCasco.background)
+        assertEquals(Tinta, EsquemaColoresCasco.onBackground)
+        assertEquals(Hueso, EsquemaColoresCasco.surface)
+        assertEquals(Tinta, EsquemaColoresCasco.onSurface)
+        assertEquals(Borde, EsquemaColoresCasco.outline)
+        assertEquals(Error, EsquemaColoresCasco.error)
+        assertEquals(Blanco, EsquemaColoresCasco.onError)
     }
 
     @Test

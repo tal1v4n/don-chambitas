@@ -4,8 +4,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Fondo Carbon (#2B1F14) con contraste 7.09:1 frente al casco Mostaza (#E0A11B) -->
+    <!-- Fondo Tinta (#1F1C17) con contraste 11.78:1 frente al casco Amarillo (#FCD34D) -->
     <path
-        android:fillColor="#2B1F14"
+        android:fillColor="#1F1C17"
         android:pathData="M0,0h108v108h-108z" />
 </vector>

@@ -83,7 +83,7 @@ class PerfilPublicoPantallaTest {
         composeTestRule.onNodeWithText("Fugas").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Instalacion de boiler").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Muy puntual").performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText(texto(mx.donchambitas.app.R.string.perfil_publico_experiencia_varios, 5)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(texto(mx.donchambitas.app.R.string.perfil_publico_experiencia_varios, 5)).performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText(texto(mx.donchambitas.app.R.string.perfil_publico_sin_servicios)).assertDoesNotExist()
         composeTestRule.onNodeWithText(texto(mx.donchambitas.app.R.string.perfil_publico_sin_resenas)).assertDoesNotExist()
     }

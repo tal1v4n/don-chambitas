@@ -10,39 +10,39 @@
         android:fillColor="#1A120A"
         android:pathData="M33,70 L75,70 C73,73 65,74.5 54,74.5 C43,74.5 35,73 33,70 Z" />
 
-    <!-- Cúpula del casco en color Mostaza (#E0A11B) -->
+    <!-- Cúpula del casco en color Amarillo (#FCD34D) -->
     <path
-        android:fillColor="#E0A11B"
+        android:fillColor="#FCD34D"
         android:pathData="M34,64 C34,42 42,34 54,34 C66,34 74,42 74,64 Z" />
 
     <!-- Brillo superior / luz en cúpula -->
     <path
-        android:fillColor="#FFC857"
+        android:fillColor="#FEE58A"
         android:pathData="M37,60 C37,45 44,37 54,37 C57,37 54,42 48,50 C43,56 40,60 37,60 Z" />
 
-    <!-- Cresta central de refuerzo en Mostaza Oscuro (#B37D08) -->
+    <!-- Cresta central de refuerzo en amarillo sombra (#E8B923) -->
     <path
-        android:fillColor="#B37D08"
+        android:fillColor="#E8B923"
         android:pathData="M51.5,34 C51.5,44 50.5,56 49.5,64 L58.5,64 C57.5,56 56.5,44 56.5,34 Z" />
 
-    <!-- Insignia frontal en Terracota (#C1440E) -->
+    <!-- Insignia frontal en Naranja (#C8410F) -->
     <path
-        android:fillColor="#C1440E"
+        android:fillColor="#C8410F"
         android:pathData="M51,51 L57,51 C57.5,51 58,51.5 58,52 L58,56 C58,56.5 57.5,57 57,57 L51,57 C50.5,57 50,56.5 50,56 L50,52 C50,51.5 50.5,51 51,51 Z" />
 
-    <!-- Base / contorno de la visera en Mostaza Oscuro (#B37D08) -->
+    <!-- Base / contorno de la visera en amarillo sombra (#E8B923) -->
     <path
-        android:fillColor="#B37D08"
+        android:fillColor="#E8B923"
         android:pathData="M27,64.5 C27,62.5 32,61 38,61 L70,61 C76,61 81,62.5 81,64.5 C81,68 76,71 70,71 L38,71 C32,71 27,68 27,64.5 Z" />
 
-    <!-- Visera frontal y ala perimetral en Mostaza (#E0A11B) -->
+    <!-- Visera frontal y ala perimetral en Amarillo (#FCD34D) -->
     <path
-        android:fillColor="#E0A11B"
+        android:fillColor="#FCD34D"
         android:pathData="M28,63.5 C28,62 33,60.5 39,60.5 L69,60.5 C75,60.5 80,62 80,63.5 C80,66.5 75,69.5 69,69.5 L39,69.5 C33,69.5 28,66.5 28,63.5 Z" />
 
     <!-- Borde inferior estilizado del casco -->
     <path
-        android:fillColor="#B37D08"
+        android:fillColor="#E8B923"
         android:pathData="M34,68.5 L74,68.5 C72,70 65,71.5 54,71.5 C43,71.5 36,70 34,68.5 Z" />
 
 </vector>

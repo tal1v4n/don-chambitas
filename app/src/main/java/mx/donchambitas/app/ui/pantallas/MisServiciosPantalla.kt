@@ -1,5 +1,40 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Engineering
+import androidx.compose.material.icons.outlined.PauseCircle
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.WorkOutline
+import mx.donchambitas.app.ui.componentes.BotonFlotante
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import mx.donchambitas.app.ui.componentes.FilaOpcion
+import mx.donchambitas.app.ui.componentes.GrupoOpciones
+import mx.donchambitas.app.ui.componentes.IconoAvanzar
+import mx.donchambitas.app.ui.componentes.SeparadorOpciones
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Blanco
+import mx.donchambitas.app.ui.tema.FormaTarjeta
+import mx.donchambitas.app.ui.tema.cuerpoFuerte
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,16 +54,15 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -38,14 +72,13 @@ import kotlinx.coroutines.launch
 import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.Servicio
 import mx.donchambitas.app.ui.componentes.BarraSuperior
-import mx.donchambitas.app.ui.componentes.BotonDestacado
 import mx.donchambitas.app.ui.componentes.BotonSecundario
 import mx.donchambitas.app.ui.componentes.BotonTexto
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
 import mx.donchambitas.app.ui.componentes.TarjetaServicio
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
@@ -142,25 +175,42 @@ fun MisServiciosContenido(
         floatingActionButton = {
             // En el vacio no: el estado vacio ya ofrece la misma accion (3.5).
             if (!estado.cargando && estado.error == null && !vacia) {
-                BotonDestacado(
+                BotonFlotante(
                     texto = stringResource(R.string.mis_servicios_publicar),
-                    onClick = alPublicar
+                    icono = Icons.Outlined.Add,
+                    alPulsar = alPublicar
                 )
             }
         },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         Column(modifier = Modifier.padding(relleno)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Espaciado.dp8, vertical = Espaciado.dp4),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .height(IntrinsicSize.Max)
+                    .padding(horizontal = Espaciado.margenPantalla, vertical = Espaciado.dp8),
+                horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)
             ) {
-                BotonTexto(texto = stringResource(R.string.mi_cuenta_mi_perfil), onClick = alIrAMiPerfil)
-                BotonTexto(texto = stringResource(R.string.mi_cuenta_mis_postulaciones), onClick = alIrAMisPostulaciones)
+                AccesoRapido(
+                    texto = stringResource(R.string.mi_cuenta_mi_perfil),
+                    icono = Icons.Outlined.Engineering,
+                    fondo = Tinta,
+                    contenido = Blanco,
+                    alPulsar = alIrAMiPerfil,
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                )
+                AccesoRapido(
+                    texto = stringResource(R.string.mi_cuenta_mis_postulaciones),
+                    icono = Icons.Outlined.WorkOutline,
+                    fondo = AmarilloSuave,
+                    contenido = Tinta,
+                    alPulsar = alIrAMisPostulaciones,
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                )
             }
 
             ContenedorEstado(
@@ -214,12 +264,66 @@ fun MisServiciosContenido(
             title = { Text(stringResource(R.string.mis_servicios_eliminar_titulo)) },
             text = { Text(stringResource(R.string.mis_servicios_eliminar_texto, servicio.titulo)) },
             confirmButton = {
-                BotonTexto(texto = stringResource(R.string.mis_servicios_eliminar), onClick = alConfirmarEliminar)
+                BotonSecundario(
+                    texto = stringResource(R.string.mis_servicios_eliminar),
+                    onClick = alConfirmarEliminar,
+                    color = Error
+                )
             },
             dismissButton = {
-                BotonTexto(texto = stringResource(R.string.trabajador_cancelar), onClick = alCancelarEliminar)
+                BotonTexto(
+                    texto = stringResource(R.string.trabajador_cancelar),
+                    onClick = alCancelarEliminar,
+                    modifier = Modifier.fillMaxWidth()
+                )
             },
-            containerColor = Crema
+            icon = { Icon(Icons.Outlined.DeleteOutline, contentDescription = null, tint = Error) },
+            shape = FormaTarjeta,
+            containerColor = Blanco
+        )
+    }
+}
+
+/**
+ * Mosaico de acceso a otra pantalla del trabajador: icono en un circulo arriba
+ * y el nombre abajo, con la flecha de avanzar. Dos lado a lado, en colores
+ * distintos para que no se lean como una lista.
+ */
+@Composable
+private fun AccesoRapido(
+    texto: String,
+    icono: ImageVector,
+    fondo: Color,
+    contenido: Color,
+    alPulsar: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Espaciado.dp12),
+        modifier = modifier
+            .clip(FormaTarjeta)
+            .background(fondo)
+            .clickable(role = Role.Button, onClick = alPulsar)
+            .padding(Espaciado.dp16)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Amarillo)
+            ) {
+                Icon(imageVector = icono, contentDescription = null, tint = Tinta, modifier = Modifier.size(20.dp))
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(imageVector = IconoAvanzar, contentDescription = null, tint = contenido, modifier = Modifier.size(18.dp))
+        }
+        Text(
+            text = texto,
+            style = DonChambitasTema.tipografia.cuerpoFuerte,
+            fontWeight = FontWeight.SemiBold,
+            color = contenido
         )
     }
 }
@@ -237,7 +341,13 @@ private fun Resumen(total: Int, pausados: Int) {
             pluralStringResource(R.plurals.mis_servicios_pausados, pausados, pausados)
         )
     }
-    Text(text = texto, style = DonChambitasTema.tipografia.pie, color = Cafe)
+    Text(
+        text = texto,
+        style = DonChambitasTema.tipografia.pie,
+        fontWeight = FontWeight.SemiBold,
+        color = Gris,
+        modifier = Modifier.padding(top = Espaciado.dp8, start = Espaciado.dp4)
+    )
 }
 
 /** El precio como lo pide la tabla 3.4; vacio si el servicio no tiene. */
@@ -266,7 +376,7 @@ private fun HojaAcciones(
     ModalBottomSheet(
         onDismissRequest = alCerrar,
         shape = FormaHojaInferior,
-        containerColor = Crema
+        containerColor = Marfil
     ) {
         Column(
             modifier = Modifier
@@ -275,19 +385,35 @@ private fun HojaAcciones(
                 .padding(bottom = Espaciado.dp24),
             verticalArrangement = Arrangement.spacedBy(Espaciado.dp12)
         ) {
-            Text(text = servicio.titulo, style = DonChambitasTema.tipografia.subtitulo, color = Carbon)
-            BotonSecundario(texto = stringResource(R.string.mis_servicios_editar), onClick = alEditar)
-            BotonSecundario(
-                texto = stringResource(
-                    if (servicio.activo) R.string.mis_servicios_pausar else R.string.mis_servicios_reactivar
-                ),
-                onClick = alCambiarActivo
+            Text(
+                text = servicio.titulo,
+                style = DonChambitasTema.tipografia.subtitulo,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta
             )
-            BotonSecundario(
-                texto = stringResource(R.string.mis_servicios_eliminar),
-                onClick = alEliminar,
-                color = Error
-            )
+            GrupoOpciones {
+                FilaOpcion(
+                    texto = stringResource(R.string.mis_servicios_editar),
+                    icono = Icons.Outlined.Edit,
+                    alPulsar = alEditar
+                )
+                SeparadorOpciones()
+                FilaOpcion(
+                    texto = stringResource(
+                        if (servicio.activo) R.string.mis_servicios_pausar else R.string.mis_servicios_reactivar
+                    ),
+                    icono = if (servicio.activo) Icons.Outlined.PauseCircle else Icons.Outlined.PlayCircle,
+                    alPulsar = alCambiarActivo
+                )
+                SeparadorOpciones()
+                FilaOpcion(
+                    texto = stringResource(R.string.mis_servicios_eliminar),
+                    icono = Icons.Outlined.DeleteOutline,
+                    alPulsar = alEliminar,
+                    color = Error,
+                    fondoIcono = Error.copy(alpha = 0.1f)
+                )
+            }
         }
     }
 }

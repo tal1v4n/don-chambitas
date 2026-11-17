@@ -1,7 +1,26 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import mx.donchambitas.app.ui.componentes.ArcosCasco
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Blanco
+import mx.donchambitas.app.ui.tema.pie
+import mx.donchambitas.app.ui.tema.portada
+import mx.donchambitas.app.ui.tema.secundario
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +38,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -42,18 +61,14 @@ import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.BotonTexto
 import mx.donchambitas.app.ui.componentes.CampoTexto
-import mx.donchambitas.app.ui.componentes.EstadoError
-import mx.donchambitas.app.ui.tema.Arena
-import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.componentes.AvisoError
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.Exito
-import mx.donchambitas.app.ui.tema.FormaTarjeta
 import mx.donchambitas.app.ui.tema.cuerpo
-import mx.donchambitas.app.ui.tema.subtitulo
 import mx.donchambitas.app.util.TipoError
 
 /** Lado del icono de la confirmacion, por 4.2 de DISENO-AUTENTICACION.md. */
@@ -62,8 +77,8 @@ private val LadoIconoEnviado = 56.dp
 /** Alto minimo tactil de los enlaces de navegacion, por 1.8 de DISENO-AUTENTICACION.md. */
 private val AltoMinimoEnlace = 48.dp
 
-/** Grosor del borde del aviso de vigencia. */
-private val GrosorBordeAviso = 1.dp
+/** Lado de la ilustracion con arcos que abre las dos vistas de P-04. */
+private val LadoIlustracion = 220.dp
 
 /**
  * Pantalla de recuperar contrasena (P-04).
@@ -113,12 +128,10 @@ fun RecuperarContrasenaContenido(
 ) {
     Scaffold(
         topBar = {
-            BarraSuperior(
-                titulo = stringResource(R.string.recuperar_titulo),
-                alRegresar = alRegresar
-            )
+            // El titulo va en el cuerpo, bajo la ilustracion; la barra solo regresa.
+            BarraSuperior(titulo = "", alRegresar = alRegresar)
         },
-        containerColor = Crema,
+        containerColor = Marfil,
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         Column(
@@ -128,9 +141,10 @@ fun RecuperarContrasenaContenido(
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(
-                    horizontal = Espaciado.margenPantalla,
-                    vertical = Espaciado.dp24
-                )
+                    horizontal = Espaciado.dp24,
+                    vertical = Espaciado.dp8
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (estado.enviado) {
                 VistaConfirmacion()
@@ -180,11 +194,25 @@ private fun VistaFormulario(
         if (estado.errorCorreo != null) solicitanteFoco.requestFocus()
     }
 
+    Ilustracion(
+        icono = Icons.Outlined.Key,
+        fondo = Amarillo,
+        tinte = Tinta,
+        descripcion = null
+    )
+    Text(
+        text = stringResource(R.string.recuperar_titulo),
+        style = DonChambitasTema.tipografia.portada,
+        color = Tinta,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(bottom = Espaciado.dp12)
+    )
     Text(
         text = stringResource(R.string.recuperar_explicacion),
         style = DonChambitasTema.tipografia.cuerpo,
-        color = Cafe,
-        modifier = Modifier.padding(bottom = Espaciado.dp24)
+        color = Gris,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(bottom = Espaciado.dp32)
     )
 
     // Es el unico campo, asi que es tambien el ultimo: Done envia, como la
@@ -195,6 +223,7 @@ private fun VistaFormulario(
         etiqueta = stringResource(R.string.auth_correo),
         error = estado.errorCorreo?.let { stringResource(it) },
         habilitado = !estado.cargando,
+        iconoInicio = { Icon(Icons.Outlined.MailOutline, contentDescription = null) },
         tecladoOpciones = KeyboardOptions(
             keyboardType = KeyboardType.Email,
             imeAction = ImeAction.Done
@@ -220,6 +249,7 @@ private fun VistaFormulario(
         texto = stringResource(R.string.recuperar_accion),
         onClick = enviar,
         cargando = estado.cargando,
+        icono = Icons.AutoMirrored.Outlined.Send,
         modifier = Modifier
             .fillMaxWidth()
             // Con error, la separacion ya la pone el bloque de error (16 dp).
@@ -238,38 +268,98 @@ private fun VistaConfirmacion() {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Outlined.MarkEmailRead,
-            contentDescription = stringResource(R.string.recuperar_enviado_descripcion),
-            tint = Exito,
-            modifier = Modifier
-                .padding(top = Espaciado.dp32, bottom = Espaciado.dp16)
-                .size(LadoIconoEnviado)
+        Ilustracion(
+            icono = Icons.Outlined.MarkEmailRead,
+            fondo = Exito,
+            tinte = Blanco,
+            descripcion = stringResource(R.string.recuperar_enviado_descripcion)
+        )
+        // De que trata la pantalla, como antetitulo: el titulo grande es la confirmacion.
+        Text(
+            text = stringResource(R.string.recuperar_titulo),
+            style = DonChambitasTema.tipografia.pie,
+            fontWeight = FontWeight.SemiBold,
+            color = Gris,
+            modifier = Modifier.padding(bottom = Espaciado.dp4)
         )
         Text(
             text = stringResource(R.string.recuperar_enviado_titulo),
-            style = DonChambitasTema.tipografia.subtitulo,
-            color = Carbon,
+            style = DonChambitasTema.tipografia.portada,
+            color = Tinta,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = Espaciado.dp8)
+            modifier = Modifier.padding(bottom = Espaciado.dp12)
         )
         Text(
             text = stringResource(R.string.recuperar_enviado_mensaje),
             style = DonChambitasTema.tipografia.cuerpo,
-            color = Cafe,
+            color = Gris,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = Espaciado.dp24)
         )
-        Text(
-            text = stringResource(R.string.recuperar_vigencia),
-            style = DonChambitasTema.tipografia.cuerpo,
-            color = Carbon,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Espaciado.dp8),
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Arena, FormaTarjeta)
-                .border(GrosorBordeAviso, Borde, FormaTarjeta)
-                .padding(Espaciado.rellenoTarjeta)
+                .clip(CircleShape)
+                .background(AmarilloSuave)
+                .padding(horizontal = Espaciado.dp16, vertical = Espaciado.dp12)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Schedule,
+                contentDescription = null,
+                tint = Tinta,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = stringResource(R.string.recuperar_vigencia),
+                style = DonChambitasTema.tipografia.secundario,
+                fontWeight = FontWeight.Medium,
+                color = Tinta
+            )
+        }
+    }
+}
+
+/**
+ * Icono grande en un circulo de color, rodeado por los arcos de la marca.
+ * Abre P-04 en sus dos vistas: la llave del formulario y el sobre de la
+ * confirmacion.
+ */
+@Composable
+private fun Ilustracion(
+    icono: ImageVector,
+    fondo: Color,
+    tinte: Color,
+    descripcion: String?
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .padding(top = Espaciado.dp8, bottom = Espaciado.dp24)
+            .size(LadoIlustracion)
+    ) {
+        ArcosCasco(
+            color = Amarillo.copy(alpha = 0.45f),
+            anillos = 3,
+            grosor = 6.dp,
+            centro = Offset(0.5f, 0.5f),
+            radioInicial = LadoIconoEnviado - 6.dp,
+            modifier = Modifier.matchParentSize()
         )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(LadoIconoEnviado * 2)
+                .clip(CircleShape)
+                .background(fondo)
+        ) {
+            Icon(
+                imageVector = icono,
+                contentDescription = descripcion,
+                tint = tinte,
+                modifier = Modifier.size(LadoIconoEnviado)
+            )
+        }
     }
 }
 
@@ -291,7 +381,7 @@ private fun ErrorDeRecuperacion(
         tipoError in setOf(TipoError.RED, TipoError.SERVIDOR, TipoError.DESCONOCIDO)
     }
 
-    EstadoError(
+    AvisoError(
         tipoError = tipoError,
         alReintentar = reintento,
         modifier = modifier

@@ -18,6 +18,15 @@ import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.font.FontWeight
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
+import mx.donchambitas.app.ui.tema.FormaCampo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,20 +38,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.donchambitas.app.R
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.Mostaza
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.cuerpo
+import mx.donchambitas.app.ui.tema.secundario
 import mx.donchambitas.app.ui.tema.subtitulo
 import mx.donchambitas.app.util.TipoError
 
 private val TamanoIndicadorCarga = 48.dp
 private val GrosorIndicadorCarga = 4.dp
-private val TamanoIconoEstado = 56.dp
+private val TamanoIconoEstado = 40.dp
 
 /**
  * Devuelve el recurso de cadena con el mensaje de accion correspondiente al TipoError.
@@ -76,7 +86,7 @@ fun obtenerTituloErrorRes(tipo: TipoError): Int = when (tipo) {
 }
 
 /**
- * Componente de carga con indicador circular centrado en color Mostaza segun DISENO.md.
+ * Componente de carga con indicador circular centrado en color Amarillo segun DISENO.md.
  */
 @Composable
 fun Cargando(
@@ -95,7 +105,7 @@ fun Cargando(
             verticalArrangement = Arrangement.Center
         ) {
             CircularProgressIndicator(
-                color = Mostaza,
+                color = Amarillo,
                 strokeWidth = GrosorIndicadorCarga,
                 modifier = Modifier.size(TamanoIndicadorCarga)
             )
@@ -104,7 +114,7 @@ fun Cargando(
                 Text(
                     text = mensaje,
                     style = DonChambitasTema.tipografia.cuerpo,
-                    color = Cafe,
+                    color = Gris,
                     textAlign = TextAlign.Center
                 )
             }
@@ -136,24 +146,44 @@ fun EstadoVacio(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                imageVector = icono,
-                contentDescription = null,
-                tint = Cafe,
-                modifier = Modifier.size(TamanoIconoEstado)
-            )
-            Spacer(modifier = Modifier.height(Espaciado.dp16))
+            // El icono dentro de un circulo AmarilloSuave rodeado por los arcos de la marca.
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(160.dp)) {
+                ArcosCasco(
+                    color = Amarillo.copy(alpha = 0.35f),
+                    anillos = 3,
+                    grosor = 5.dp,
+                    centro = Offset(0.5f, 0.5f),
+                    radioInicial = 46.dp,
+                    modifier = Modifier.matchParentSize()
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(88.dp)
+                        .clip(CircleShape)
+                        .background(AmarilloSuave)
+                ) {
+                    Icon(
+                        imageVector = icono,
+                        contentDescription = null,
+                        tint = Tinta,
+                        modifier = Modifier.size(TamanoIconoEstado)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(Espaciado.dp8))
             Text(
                 text = titulo,
                 style = DonChambitasTema.tipografia.subtitulo,
-                color = Carbon,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(Espaciado.dp8))
             Text(
                 text = mensaje,
                 style = DonChambitasTema.tipografia.cuerpo,
-                color = Cafe,
+                color = Gris,
                 textAlign = TextAlign.Center
             )
             if (textoBoton != null && alHacerClickBoton != null) {
@@ -227,24 +257,33 @@ private fun EstadoErrorBase(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                imageVector = Icons.Outlined.ErrorOutline,
-                contentDescription = null,
-                tint = Error,
-                modifier = Modifier.size(TamanoIconoEstado)
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(Error.copy(alpha = 0.1f))
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ErrorOutline,
+                    contentDescription = null,
+                    tint = Error,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(Espaciado.dp16))
             Text(
                 text = titulo,
                 style = DonChambitasTema.tipografia.subtitulo,
-                color = Carbon,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(Espaciado.dp8))
             Text(
                 text = mensaje,
                 style = DonChambitasTema.tipografia.cuerpo,
-                color = Cafe,
+                color = Gris,
                 textAlign = TextAlign.Center
             )
             if (alReintentar != null) {
@@ -267,7 +306,7 @@ private fun EstadoErrorBase(
 @Composable
 private fun CargandoPreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             Cargando()
         }
     }
@@ -277,7 +316,7 @@ private fun CargandoPreview() {
 @Composable
 private fun CargandoConMensajePreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             Cargando(mensaje = stringResource(R.string.cargando))
         }
     }
@@ -287,7 +326,7 @@ private fun CargandoConMensajePreview() {
 @Composable
 private fun EstadoVacioSimplePreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             EstadoVacio()
         }
     }
@@ -297,7 +336,7 @@ private fun EstadoVacioSimplePreview() {
 @Composable
 private fun EstadoVacioConBotonPreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             EstadoVacio(
                 titulo = "Sin solicitudes",
                 mensaje = "Aun no has publicado ninguna chamba. Publica una para recibir ofertas.",
@@ -313,7 +352,7 @@ private fun EstadoVacioConBotonPreview() {
 @Composable
 private fun EstadoErrorRedPreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             EstadoError(
                 tipoError = TipoError.RED,
                 alReintentar = {}
@@ -326,7 +365,7 @@ private fun EstadoErrorRedPreview() {
 @Composable
 private fun EstadoErrorLimiteIaPreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             EstadoError(
                 tipoError = TipoError.LIMITE_IA,
                 alReintentar = {}
@@ -339,11 +378,61 @@ private fun EstadoErrorLimiteIaPreview() {
 @Composable
 private fun EstadoErrorServidorPreview() {
     DonChambitasTema {
-        Box(modifier = Modifier.background(Crema)) {
+        Box(modifier = Modifier.background(Marfil)) {
             EstadoError(
                 tipoError = TipoError.SERVIDOR,
                 alReintentar = {}
             )
+        }
+    }
+}
+
+/**
+ * Error de un formulario, en linea y compacto: franja con el tinte de Error,
+ * su icono, el titulo, el mensaje que dice que hacer y, si sirve, "Reintentar".
+ * No tapa el formulario ni lo empuja fuera de la pantalla, como [EstadoError].
+ */
+@Composable
+fun AvisoError(
+    tipoError: TipoError,
+    alReintentar: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    mensajePersonalizado: String? = null
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12),
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(FormaCampo)
+            .background(Error.copy(alpha = 0.08f))
+            .border(1.dp, Error.copy(alpha = 0.3f), FormaCampo)
+            .padding(Espaciado.dp12)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.ErrorOutline,
+            contentDescription = null,
+            tint = Error,
+            modifier = Modifier.size(22.dp)
+        )
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = stringResource(obtenerTituloErrorRes(tipoError)),
+                style = DonChambitasTema.tipografia.secundario,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta
+            )
+            Text(
+                text = mensajePersonalizado ?: stringResource(obtenerMensajeErrorRes(tipoError)),
+                style = DonChambitasTema.tipografia.secundario,
+                color = Gris
+            )
+            if (alReintentar != null) {
+                BotonTexto(
+                    texto = stringResource(R.string.reintentar),
+                    onClick = alReintentar,
+                    modifier = Modifier.offset(x = (-12).dp)
+                )
+            }
         }
     }
 }

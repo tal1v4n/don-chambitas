@@ -11,6 +11,7 @@
     <string name="sin_calificaciones">Sin calificaciones</string>
     <string name="formato_calificacion">%1$.1f (%2$d)</string>
     <string name="formato_calificacion_simple">%1$.1f</string>
+    <string name="formato_resenas_parentesis">(%1$d)</string>
     <string name="formato_estrellas_descripcion">Calificación %1$.1f de 5 estrellas</string>
 
     <!-- Destinos de barra inferior -->
@@ -76,6 +77,8 @@
     <string name="iniciar_sesion_accion">Iniciar sesión</string>
     <string name="iniciar_sesion_olvide">¿Olvidaste tu contraseña?</string>
     <string name="iniciar_sesion_ir_registro">¿No tienes cuenta? Regístrate</string>
+    <string name="iniciar_sesion_saludo">Hola de nuevo</string>
+    <string name="iniciar_sesion_bajada">Entra y sigue con tus chambas donde las dejaste.</string>
     <string name="error_credenciales_invalidas">Correo o contraseña incorrectos</string>
 
     <!-- Pantalla Registro (P-03) -->
@@ -84,6 +87,10 @@
     <string name="registro_rol_cliente">Quiero contratar</string>
     <string name="registro_rol_trabajador">Ofrezco mi trabajo</string>
     <string name="registro_rol_definitivo">El rol no se puede cambiar después</string>
+    <string name="registro_rol_cliente_detalle">Encuentra a quien te eche la mano</string>
+    <string name="registro_rol_trabajador_detalle">Consigue chambas cerca de ti</string>
+    <string name="registro_bajada">Dos pasos y ya estás dentro.</string>
+    <string name="registro_seccion_datos">Tus datos</string>
     <string name="registro_nombre">Nombre(s)</string>
     <string name="registro_apellidos">Apellidos</string>
     <string name="registro_telefono">Teléfono celular</string>
@@ -108,12 +115,16 @@
     <string name="mi_cuenta_rol_trabajador">Trabajador</string>
     <string name="mi_cuenta_telefono">Tel: %1$s</string>
     <string name="mi_cuenta_configuracion">Configuración de la cuenta</string>
+    <string name="mi_cuenta_editar_datos_detalle">Nombre, apellidos y teléfono</string>
+    <string name="mi_cuenta_mi_perfil_detalle">Lo que ven tus clientes de ti</string>
+    <string name="mi_cuenta_mis_postulaciones_detalle">Las chambas a las que te apuntaste</string>
+    <string name="mi_cuenta_cerrar_sesion_detalle">Puedes volver a entrar cuando quieras</string>
     <string name="mi_cuenta_editar_datos">Editar datos personales</string>
     <string name="mi_cuenta_cambiar_contrasena">Cambiar contraseña</string>
     <string name="mi_cuenta_contrasena_nueva">Contraseña nueva</string>
     <string name="mi_cuenta_guardar">Guardar</string>
     <string name="mi_cuenta_cancelar">Cancelar</string>
-    <string name="mi_cuenta_accesos_trabajador">Accesos directos de trabajador</string>
+    <string name="mi_cuenta_accesos_trabajador">Tu trabajo</string>
     <string name="mi_cuenta_mi_perfil">Mi perfil profesional</string>
     <string name="mi_cuenta_mis_postulaciones">Mis postulaciones</string>
     <string name="mi_cuenta_cerrar_sesion">Cerrar sesión</string>
@@ -198,6 +209,11 @@
     <string name="perfil_publico_sin_servicios_cliente">Este trabajador todavía no publica servicios.</string>
     <string name="perfil_publico_sin_resenas_cliente">Todavía no tiene reseñas.</string>
     <string name="perfil_publico_contactar">Contactar</string>
+    <string name="perfil_publico_dato_calificacion">Calificación</string>
+    <string name="perfil_publico_dato_experiencia">Experiencia</string>
+    <string name="perfil_publico_dato_zona">Zona</string>
+    <string name="perfil_publico_anios_corto">%1$d años</string>
+    <string name="perfil_publico_anio_corto">1 año</string>
     <string name="resultados_titulo">Resultados</string>
     <string name="resultados_buscador_marcador">Busca por nombre u oficio</string>
     <string name="resultados_buscador_borrar">Borrar texto</string>
@@ -229,6 +245,7 @@
     <string name="solicitud_titulo">Publicar solicitud</string>
     <string name="solicitud_campo_titulo">¿Qué necesitas?</string>
     <string name="solicitud_campo_descripcion">Cuéntanos con detalle</string>
+    <string name="solicitud_bloque_que">Qué necesitas</string>
     <string name="solicitud_bloque_presupuesto">Presupuesto</string>
     <string name="solicitud_campo_presupuesto">Presupuesto</string>
     <string name="solicitud_presupuesto_ayuda">Opcional. Si lo dejas vacío, se acuerda con el trabajador.</string>
@@ -261,6 +278,7 @@
     <string name="mi_perfil_falta_telefono">un teléfono de contacto</string>
     <string name="mi_perfil_incompleto_por_que">Los clientes buscan por oficio y por municipio: un perfil completo aparece en más búsquedas.</string>
     <string name="mi_perfil_vista_previa">Ver mi perfil como cliente</string>
+    <string name="mi_perfil_vista_previa_detalle">Así te ven tus clientes cuando te buscan</string>
     <string name="mi_perfil_bloque_oficio">Tu oficio</string>
     <string name="mi_perfil_campo_titulo">Título de tu oficio</string>
     <string name="mi_perfil_campo_titulo_ejemplo">Ej. Plomero con 10 años de experiencia</string>
@@ -292,6 +310,7 @@
     <string name="servicio_campo_titulo">¿Qué servicio ofreces?</string>
     <string name="servicio_campo_titulo_ejemplo">Ej. Instalación de boiler</string>
     <string name="servicio_bloque_categoria">Categoría</string>
+    <string name="servicio_bloque_detalle">Qué ofreces</string>
     <string name="servicio_ia_faltan_datos">Escribe el título y elige la categoría</string>
     <string name="servicio_descripcion">Describe tu servicio</string>
     <string name="servicio_bloque_precio">Precio</string>
@@ -333,7 +352,7 @@
         <item quantity="other">%1$d pausados</item>
     </plurals>
     <string name="mis_servicios_resumen_con_pausados">%1$s · %2$s</string>
-    <string name="mis_servicios_publicar">+ Publicar servicio</string>
+    <string name="mis_servicios_publicar">Publicar servicio</string>
     <string name="mis_servicios_editar">Editar</string>
     <string name="mis_servicios_pausar">Pausar</string>
     <string name="mis_servicios_reactivar">Reactivar</string>

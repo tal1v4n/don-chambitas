@@ -5,24 +5,15 @@ import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import mx.donchambitas.app.R
-import mx.donchambitas.app.ui.tema.Arena
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
+import mx.donchambitas.app.ui.componentes.BarraNavegacionFlotante
+import mx.donchambitas.app.ui.componentes.ElementoBarraFlotante
 import mx.donchambitas.app.ui.tema.DonChambitasTema
-import mx.donchambitas.app.ui.tema.Mostaza
-import mx.donchambitas.app.ui.tema.cuerpoFuerte
-import mx.donchambitas.app.ui.tema.pie
 
 /**
  * Destino representativo en la barra inferior del cliente.
@@ -62,7 +53,7 @@ val DESTINOS_BARRA_CLIENTE: List<ElementoBarraCliente> = listOf(
 
 /**
  * Barra de navegación inferior para el rol de Cliente.
- * Contiene exactamente 4 destinos y respeta la paleta Taller de DISENO.md.
+ * Contiene exactamente 4 destinos y usa la capsula flotante de DISENO.md.
  */
 @Composable
 fun BarraInferiorCliente(
@@ -70,44 +61,18 @@ fun BarraInferiorCliente(
     alSeleccionarRuta: (Ruta) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(
-        containerColor = Arena,
-        contentColor = Carbon,
-        modifier = modifier
-    ) {
-        DESTINOS_BARRA_CLIENTE.forEach { elemento ->
+    BarraNavegacionFlotante(
+        elementos = DESTINOS_BARRA_CLIENTE.map { elemento ->
             val seleccionado = rutaActual == elemento.ruta.ruta
-            val etiqueta = stringResource(elemento.etiquetaRes)
-
-            NavigationBarItem(
-                selected = seleccionado,
-                onClick = { alSeleccionarRuta(elemento.ruta) },
-                icon = {
-                    Icon(
-                        imageVector = elemento.icono,
-                        contentDescription = etiqueta
-                    )
-                },
-                label = {
-                    Text(
-                        text = etiqueta,
-                        style = if (seleccionado) {
-                            DonChambitasTema.tipografia.cuerpoFuerte
-                        } else {
-                            DonChambitasTema.tipografia.pie
-                        }
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Carbon,
-                    selectedTextColor = Carbon,
-                    indicatorColor = Mostaza,
-                    unselectedIconColor = Cafe,
-                    unselectedTextColor = Cafe
-                )
+            ElementoBarraFlotante(
+                etiqueta = stringResource(elemento.etiquetaRes),
+                icono = elemento.icono,
+                seleccionado = seleccionado,
+                alPulsar = { alSeleccionarRuta(elemento.ruta) }
             )
-        }
-    }
+        },
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true)

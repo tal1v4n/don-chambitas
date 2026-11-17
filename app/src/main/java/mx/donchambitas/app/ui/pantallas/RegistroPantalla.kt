@@ -1,6 +1,37 @@
 package mx.donchambitas.app.ui.pantallas
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.Construction
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import mx.donchambitas.app.ui.componentes.IconoAvanzar
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Blanco
+import mx.donchambitas.app.ui.tema.Borde
+import mx.donchambitas.app.ui.tema.FormaTarjeta
+import mx.donchambitas.app.ui.tema.cuerpoFuerte
+import mx.donchambitas.app.ui.tema.portada
+import mx.donchambitas.app.ui.tema.secundario
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +46,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -29,9 +60,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,16 +72,14 @@ import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.BotonTexto
 import mx.donchambitas.app.ui.componentes.CampoContrasena
 import mx.donchambitas.app.ui.componentes.CampoTexto
-import mx.donchambitas.app.ui.componentes.ChipCategoria
-import mx.donchambitas.app.ui.componentes.EstadoError
+import mx.donchambitas.app.ui.componentes.AvisoError
 import mx.donchambitas.app.ui.navegacion.Ruta
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
-import mx.donchambitas.app.ui.tema.cuerpo
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.subtitulo
 import mx.donchambitas.app.util.TipoError
@@ -167,12 +193,10 @@ fun RegistroContenido(
 
     Scaffold(
         topBar = {
-            BarraSuperior(
-                titulo = stringResource(R.string.registro_titulo),
-                alRegresar = alRegresar
-            )
+            // El titulo vive en la portada; la barra solo lleva la flecha.
+            BarraSuperior(titulo = "", alRegresar = alRegresar)
         },
-        containerColor = Crema,
+        containerColor = Marfil,
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         Column(
@@ -182,11 +206,28 @@ fun RegistroContenido(
                 .verticalScroll(desplazamiento)
                 .imePadding()
                 .padding(
-                    horizontal = Espaciado.margenPantalla,
-                    vertical = Espaciado.dp24
+                    start = Espaciado.margenPantalla,
+                    end = Espaciado.margenPantalla,
+                    top = 0.dp,
+                    bottom = Espaciado.dp24
                 ),
-            verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)
+            verticalArrangement = Arrangement.spacedBy(Espaciado.dp12)
         ) {
+            Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
+                Text(
+                    text = stringResource(R.string.registro_titulo),
+                    style = DonChambitasTema.tipografia.portada,
+                    color = Tinta
+                )
+                Text(
+                    text = stringResource(R.string.registro_bajada),
+                    style = DonChambitasTema.tipografia.secundario,
+                    color = Gris
+                )
+            }
+
+            EncabezadoPaso(numero = 1, texto = stringResource(R.string.registro_pregunta_rol))
+
             SelectorRol(
                 rol = estado.rol,
                 errorRol = estado.errorRol,
@@ -194,35 +235,47 @@ fun RegistroContenido(
                 alElegirRol = alElegirRol
             )
 
-            CampoTexto(
-                valor = estado.nombre,
-                alCambiarValor = alCambiarNombre,
-                etiqueta = stringResource(R.string.registro_nombre),
-                error = estado.errorNombre?.let { stringResource(it) },
-                habilitado = !estado.cargando,
-                modifier = Modifier.campo(CampoRegistro.NOMBRE),
-                tecladoOpciones = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                tecladoAcciones = siguienteCampo
+            EncabezadoPaso(
+                numero = 2,
+                texto = stringResource(R.string.registro_seccion_datos),
+                modifier = Modifier.padding(top = Espaciado.dp4)
             )
 
-            CampoTexto(
-                valor = estado.apellidos,
-                alCambiarValor = alCambiarApellidos,
-                etiqueta = stringResource(R.string.registro_apellidos),
-                error = estado.errorApellidos?.let { stringResource(it) },
-                habilitado = !estado.cargando,
-                modifier = Modifier.campo(CampoRegistro.APELLIDOS),
-                tecladoOpciones = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                tecladoAcciones = siguienteCampo
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)) {
+                CampoTexto(
+                    valor = estado.nombre,
+                    alCambiarValor = alCambiarNombre,
+                    etiqueta = stringResource(R.string.registro_nombre),
+                    error = estado.errorNombre?.let { stringResource(it) },
+                    habilitado = !estado.cargando,
+                    modifier = Modifier
+                        .weight(1f)
+                        .campo(CampoRegistro.NOMBRE),
+                    tecladoOpciones = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    tecladoAcciones = siguienteCampo
+                )
+
+                CampoTexto(
+                    valor = estado.apellidos,
+                    alCambiarValor = alCambiarApellidos,
+                    etiqueta = stringResource(R.string.registro_apellidos),
+                    error = estado.errorApellidos?.let { stringResource(it) },
+                    habilitado = !estado.cargando,
+                    modifier = Modifier
+                        .weight(1f)
+                        .campo(CampoRegistro.APELLIDOS),
+                    tecladoOpciones = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    tecladoAcciones = siguienteCampo
+                )
+            }
 
             CampoTexto(
                 valor = estado.correo,
@@ -230,6 +283,7 @@ fun RegistroContenido(
                 etiqueta = stringResource(R.string.auth_correo),
                 error = estado.errorCorreo?.let { stringResource(it) },
                 habilitado = !estado.cargando,
+                iconoInicio = { Icon(Icons.Outlined.MailOutline, contentDescription = null) },
                 modifier = Modifier.campo(CampoRegistro.CORREO),
                 tecladoOpciones = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -255,7 +309,8 @@ fun RegistroContenido(
                 Text(
                     text = stringResource(R.string.registro_ayuda_contrasena),
                     style = DonChambitasTema.tipografia.pie,
-                    color = Cafe
+                    color = Gris,
+                    modifier = Modifier.padding(start = Espaciado.dp4)
                 )
             }
 
@@ -265,6 +320,7 @@ fun RegistroContenido(
                 etiqueta = stringResource(R.string.registro_telefono),
                 error = estado.errorTelefono?.let { stringResource(it) },
                 habilitado = !estado.cargando,
+                iconoInicio = { Icon(Icons.Outlined.Phone, contentDescription = null) },
                 modifier = Modifier.campo(CampoRegistro.TELEFONO),
                 tecladoOpciones = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
@@ -287,7 +343,7 @@ fun RegistroContenido(
                 texto = stringResource(R.string.registro_accion),
                 onClick = registrar,
                 cargando = estado.cargando,
-                modifier = Modifier.fillMaxWidth()
+                icono = IconoAvanzar
             )
 
             BotonTexto(
@@ -300,10 +356,41 @@ fun RegistroContenido(
     }
 }
 
+/** Numero del paso en un circulo Amarillo y su titulo al lado. */
+@Composable
+private fun EncabezadoPaso(numero: Int, texto: String, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12),
+        modifier = modifier
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(Amarillo)
+        ) {
+            Text(
+                text = numero.toString(),
+                style = DonChambitasTema.tipografia.secundario,
+                fontWeight = FontWeight.Bold,
+                color = Tinta
+            )
+        }
+        Text(
+            text = texto,
+            style = DonChambitasTema.tipografia.subtitulo,
+            fontWeight = FontWeight.SemiBold,
+            color = Tinta
+        )
+    }
+}
+
 /**
- * Selector de rol unico. No trae ninguno preseleccionado a proposito: por
- * DEC-22 el rol es permanente, asi que la aplicacion no lo elige por el
- * usuario.
+ * Selector de rol unico, en dos tarjetas altas lado a lado. No trae ninguno
+ * preseleccionado a proposito: por DEC-22 el rol es permanente, asi que la
+ * aplicacion no lo elige por el usuario.
  */
 @Composable
 private fun SelectorRol(
@@ -317,31 +404,36 @@ private fun SelectorRol(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)
     ) {
-        Text(
-            text = stringResource(R.string.registro_pregunta_rol),
-            style = DonChambitasTema.tipografia.subtitulo,
-            color = Carbon
-        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(IntrinsicSize.Max)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)
         ) {
             OpcionRol(
                 texto = stringResource(R.string.registro_rol_cliente),
+                detalle = stringResource(R.string.registro_rol_cliente_detalle),
+                icono = Icons.Outlined.Search,
                 seleccionado = rol == RolUsuario.CLIENTE,
+                hayError = errorRol != null,
                 habilitado = habilitado,
                 alSeleccionar = { alElegirRol(RolUsuario.CLIENTE) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
             OpcionRol(
                 texto = stringResource(R.string.registro_rol_trabajador),
+                detalle = stringResource(R.string.registro_rol_trabajador_detalle),
+                icono = Icons.Outlined.Construction,
                 seleccionado = rol == RolUsuario.TRABAJADOR,
+                hayError = errorRol != null,
                 habilitado = habilitado,
                 alSeleccionar = { alElegirRol(RolUsuario.TRABAJADOR) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
         }
 
@@ -353,39 +445,94 @@ private fun SelectorRol(
             )
         }
 
-        Text(
-            text = stringResource(R.string.registro_rol_definitivo),
-            style = DonChambitasTema.tipografia.pie,
-            color = Cafe
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Espaciado.dp4)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = Gris,
+                modifier = Modifier.size(14.dp)
+            )
+            Text(
+                text = stringResource(R.string.registro_rol_definitivo),
+                style = DonChambitasTema.tipografia.pie,
+                color = Gris
+            )
+        }
     }
 }
 
 /**
- * Un chip de rol. La semantica va sobre el chip, no sobre una envoltura: un
- * nodo que fusiona a sus descendientes no absorbe a otro que tambien fusiona,
- * y el chip es uno de esos. Asi el lector de pantalla anuncia la opcion como
- * seleccionada y no solo como boton.
+ * Una tarjeta de rol. Elegida, se vuelve Tinta con el icono en un circulo
+ * Amarillo y una palomita; sin elegir, es Blanca con contorno. Toda la tarjeta
+ * es un solo nodo seleccionable con rol de RadioButton, asi el lector de
+ * pantalla la anuncia como opcion seleccionada.
  */
 @Composable
 private fun OpcionRol(
     texto: String,
+    detalle: String,
+    icono: ImageVector,
     seleccionado: Boolean,
+    hayError: Boolean,
     habilitado: Boolean,
     alSeleccionar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ChipCategoria(
-        texto = texto,
-        seleccionado = seleccionado,
-        alSeleccionar = { if (habilitado) alSeleccionar() },
+    val fondo by animateColorAsState(if (seleccionado) Tinta else Blanco, label = "fondoRol")
+    val contorno = when {
+        seleccionado -> Tinta
+        hayError -> Error
+        else -> Borde
+    }
+    Box(
         modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                this.role = Role.RadioButton
-                this.selected = seleccionado
+            .clip(FormaTarjeta)
+            .background(fondo)
+            .border(1.dp, contorno, FormaTarjeta)
+            .selectable(
+                selected = seleccionado,
+                enabled = habilitado,
+                role = Role.RadioButton,
+                onClick = alSeleccionar
+            )
+            .padding(Espaciado.dp12)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(if (seleccionado) Amarillo else AmarilloSuave)
+            ) {
+                Icon(imageVector = icono, contentDescription = null, tint = Tinta)
             }
-    )
+            Text(
+                text = texto,
+                style = DonChambitasTema.tipografia.cuerpoFuerte,
+                fontWeight = FontWeight.SemiBold,
+                color = if (seleccionado) Blanco else Tinta
+            )
+            Text(
+                text = detalle,
+                style = DonChambitasTema.tipografia.pie,
+                color = if (seleccionado) Borde else Gris
+            )
+        }
+        if (seleccionado) {
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = null,
+                tint = Amarillo,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(22.dp)
+            )
+        }
+    }
 }
 
 /**
@@ -406,7 +553,7 @@ private fun ErrorDePantalla(
         tipoError in setOf(TipoError.RED, TipoError.SERVIDOR, TipoError.DESCONOCIDO)
     }
 
-    EstadoError(
+    AvisoError(
         tipoError = tipoError,
         alReintentar = reintento,
         modifier = modifier

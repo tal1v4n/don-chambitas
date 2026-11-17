@@ -2,12 +2,12 @@ package mx.donchambitas.app.ui.componentes
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Plumbing
@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -26,17 +27,15 @@ import androidx.compose.ui.unit.dp
 import mx.donchambitas.app.R
 import mx.donchambitas.app.dominio.modelo.EstadoSolicitud
 import mx.donchambitas.app.ui.tema.Advertencia
-import mx.donchambitas.app.ui.tema.Arena
 import mx.donchambitas.app.ui.tema.Blanco
 import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
-import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.Exito
 import mx.donchambitas.app.ui.tema.FormaChip
-import mx.donchambitas.app.ui.tema.Mostaza
+import mx.donchambitas.app.ui.tema.Amarillo
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
 
@@ -51,7 +50,7 @@ private val RellenoVerticalEtiqueta = 4.dp
 
 /**
  * Chip de categoria segun DISENO.md.
- * Fondo Mostaza con texto Carbon cuando esta activo; fondo Arena con texto Carbon/Cafe cuando no.
+ * Fondo Amarillo con texto Tinta cuando esta activo; fondo Blanco con contorno Borde cuando no.
  */
 @Composable
 fun ChipCategoria(
@@ -61,8 +60,8 @@ fun ChipCategoria(
     icono: ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
-    val colorFondo = if (seleccionado) Mostaza else Arena
-    val colorContenido = Carbon
+    val colorFondo = if (seleccionado) Amarillo else Blanco
+    val colorContenido = Tinta
     val borde = if (seleccionado) null else BorderStroke(1.dp, Borde)
 
     Surface(
@@ -74,7 +73,7 @@ fun ChipCategoria(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.spacedBy(EspacioIconoChip, Alignment.CenterHorizontally),
             modifier = Modifier.padding(
                 horizontal = RellenoHorizontalChip,
                 vertical = RellenoVerticalChip
@@ -84,28 +83,24 @@ fun ChipCategoria(
                 Icon(
                     imageVector = icono,
                     contentDescription = null,
-                    tint = if (seleccionado) Carbon else Cafe,
-                    modifier = Modifier
-                        .size(TamanoIconoChip)
-                        .padding(end = EspacioIconoChip)
+                    tint = if (seleccionado) Tinta else Gris,
+                    modifier = Modifier.size(TamanoIconoChip)
                 )
             }
             Text(
                 text = texto,
                 style = DonChambitasTema.tipografia.secundario,
                 color = colorContenido,
-                fontWeight = if (seleccionado) FontWeight.Medium else FontWeight.Normal
+                fontWeight = if (seleccionado) FontWeight.SemiBold else FontWeight.Normal
             )
         }
     }
 }
 
 /**
- * Insignia de estado de solicitud segun DISENO.md.
- * abierta: Exito (texto Blanco)
- * asignada: Advertencia (texto Carbon, WCAG 5.15:1)
- * cerrada: Cafe (texto Blanco)
- * cancelada: Error (texto Blanco, WCAG 5.62:1)
+ * Insignia de estado de solicitud segun DISENO.md: pildora con el color del
+ * estado al 14 % de fondo, un punto del color pleno y el texto en Tinta.
+ * abierta: Exito · asignada: Advertencia · cerrada: Gris · cancelada: Error.
  */
 @Composable
 fun EtiquetaEstado(
@@ -113,25 +108,42 @@ fun EtiquetaEstado(
     texto: String? = null,
     modifier: Modifier = Modifier
 ) {
-    val (colorFondo, colorTexto, textoRecurso) = when (estado) {
-        EstadoSolicitud.ABIERTA -> Triple(Exito, Blanco, R.string.estado_abierta)
-        EstadoSolicitud.ASIGNADA -> Triple(Advertencia, Carbon, R.string.estado_asignada)
-        EstadoSolicitud.CERRADA -> Triple(Cafe, Blanco, R.string.estado_cerrada)
-        EstadoSolicitud.CANCELADA -> Triple(Error, Blanco, R.string.estado_cancelada)
+    val (colorFondo, textoRecurso) = when (estado) {
+        EstadoSolicitud.ABIERTA -> Exito to R.string.estado_abierta
+        EstadoSolicitud.ASIGNADA -> Advertencia to R.string.estado_asignada
+        EstadoSolicitud.CERRADA -> Gris to R.string.estado_cerrada
+        EstadoSolicitud.CANCELADA -> Error to R.string.estado_cancelada
     }
 
-    EtiquetaEstado(
-        texto = texto ?: stringResource(textoRecurso),
-        colorFondo = colorFondo,
-        colorTexto = colorTexto,
+    // Pildora suave: el color del estado tiñe el fondo y marca el punto; el
+    // texto va en Tinta, que se lee sobre cualquiera de los cuatro tintes.
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
-    )
+            .clip(FormaChip)
+            .background(colorFondo.copy(alpha = 0.14f))
+            .padding(horizontal = 10.dp, vertical = RellenoVerticalEtiqueta)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(colorFondo)
+        )
+        Text(
+            text = texto ?: stringResource(textoRecurso),
+            style = DonChambitasTema.tipografia.pie,
+            color = Tinta,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
 }
 
 /**
  * Insignia con colores dados, para lo que no es un estado de solicitud: el rol
- * de P-18 va en Advertencia para el trabajador y en Mostaza para el cliente
- * (WIREFRAMES.md, P-18), los dos con texto Carbon.
+ * de P-18 va en Advertencia para el trabajador y en Amarillo para el cliente
+ * (WIREFRAMES.md, P-18), los dos con texto Tinta.
  */
 @Composable
 fun EtiquetaEstado(
@@ -175,7 +187,7 @@ fun EtiquetaEstado(
     )
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaChipActivo() {
     DonChambitasTema {
@@ -187,7 +199,7 @@ private fun PreviaChipActivo() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaChipInactivo() {
     DonChambitasTema {
@@ -198,7 +210,7 @@ private fun PreviaChipInactivo() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFDF8)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFEFA)
 @Composable
 private fun PreviaEtiquetasEstado() {
     DonChambitasTema {

@@ -1,6 +1,21 @@
 package mx.donchambitas.app.ui.pantallas
 
-import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import mx.donchambitas.app.ui.componentes.BotonDestacado
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.Borde
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -37,13 +52,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BarraSuperior
-import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.CampoTexto
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
 import mx.donchambitas.app.ui.componentes.obtenerMensajeErrorRes
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
@@ -159,7 +173,7 @@ fun SolicitudNuevaContenido(
             )
         },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         ContenedorEstado(
@@ -176,93 +190,94 @@ fun SolicitudNuevaContenido(
                     .padding(horizontal = Espaciado.margenPantalla, vertical = Espaciado.dp16),
                 verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)
             ) {
-                CampoTexto(
-                    valor = estado.titulo,
-                    alCambiarValor = alCambiarTitulo,
-                    etiqueta = stringResource(R.string.solicitud_campo_titulo),
-                    error = estado.errorTitulo?.let { stringResource(it) },
-                    habilitado = editable,
-                    tecladoOpciones = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next
-                    ),
-                    tecladoAcciones = siguienteCampo,
-                    modifier = Modifier.campo(CampoSolicitud.TITULO)
-                )
+                PasoLinea(numero = 1, titulo = stringResource(R.string.solicitud_bloque_que)) {
+                    CampoTexto(
+                        valor = estado.titulo,
+                        alCambiarValor = alCambiarTitulo,
+                        etiqueta = stringResource(R.string.solicitud_campo_titulo),
+                        error = estado.errorTitulo?.let { stringResource(it) },
+                        habilitado = editable,
+                        tecladoOpciones = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next
+                        ),
+                        tecladoAcciones = siguienteCampo,
+                        modifier = Modifier.campo(CampoSolicitud.TITULO)
+                    )
 
-                SelectorCategoria(
-                    categorias = estado.categorias,
-                    elegida = estado.categoriaId,
-                    error = estado.errorCategoria,
-                    habilitado = editable,
-                    alElegir = alElegirCategoria,
-                    modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoSolicitud.CATEGORIA))
-                )
+                    SelectorCategoria(
+                        categorias = estado.categorias,
+                        elegida = estado.categoriaId,
+                        error = estado.errorCategoria,
+                        habilitado = editable,
+                        alElegir = alElegirCategoria,
+                        modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoSolicitud.CATEGORIA))
+                    )
 
-                CampoTexto(
-                    valor = estado.descripcion,
-                    alCambiarValor = alCambiarDescripcion,
-                    etiqueta = stringResource(R.string.solicitud_campo_descripcion),
-                    error = estado.errorDescripcion?.let { stringResource(it) },
-                    habilitado = editable,
-                    lineasMinimas = 4,
-                    lineasMaximas = 8,
-                    tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    modifier = Modifier.campo(CampoSolicitud.DESCRIPCION)
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
-                    TituloBloqueSolicitud(R.string.solicitud_bloque_presupuesto)
-                    Text(
-                        text = stringResource(R.string.solicitud_presupuesto_ayuda),
-                        style = DonChambitasTema.tipografia.secundario,
-                        color = Cafe
+                    CampoTexto(
+                        valor = estado.descripcion,
+                        alCambiarValor = alCambiarDescripcion,
+                        etiqueta = stringResource(R.string.solicitud_campo_descripcion),
+                        error = estado.errorDescripcion?.let { stringResource(it) },
+                        habilitado = editable,
+                        lineasMinimas = 4,
+                        lineasMaximas = 8,
+                        tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        modifier = Modifier.campo(CampoSolicitud.DESCRIPCION)
                     )
                 }
 
-                CampoTexto(
-                    valor = estado.presupuesto,
-                    alCambiarValor = alCambiarPresupuesto,
-                    etiqueta = stringResource(R.string.solicitud_campo_presupuesto),
-                    error = estado.errorPresupuesto?.let { stringResource(it) },
-                    habilitado = editable,
-                    iconoInicio = {
-                        Text(
-                            text = stringResource(R.string.servicio_moneda),
-                            style = DonChambitasTema.tipografia.secundario,
-                            color = Cafe
-                        )
-                    },
-                    tecladoOpciones = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-                    tecladoAcciones = siguienteCampo,
-                    modifier = Modifier.campo(CampoSolicitud.PRESUPUESTO)
-                )
-
-                TituloBloqueSolicitud(R.string.solicitud_bloque_donde)
-
-                Selector(
-                    etiqueta = stringResource(R.string.solicitud_estado),
-                    valor = estado.estados.firstOrNull { it.id == estado.estadoId }?.nombre.orEmpty(),
-                    habilitado = editable,
-                    alAbrir = { hojaAbierta = HojaSolicitud.ESTADO },
-                    error = estado.errorEstado?.let { stringResource(it) },
-                    modifier = Modifier.campo(CampoSolicitud.ESTADO)
-                )
-
-                Selector(
-                    etiqueta = stringResource(R.string.solicitud_municipio),
-                    valor = estado.municipios.firstOrNull { it.id == estado.municipioId }?.nombre.orEmpty(),
-                    habilitado = editable && estado.estadoId != null,
-                    alAbrir = { hojaAbierta = HojaSolicitud.MUNICIPIO },
-                    error = estado.errorMunicipio?.let { stringResource(it) },
-                    modifier = Modifier.campo(CampoSolicitud.MUNICIPIO)
-                )
-                if (estado.estadoId == null) {
+                PasoLinea(numero = 2, titulo = stringResource(R.string.solicitud_bloque_presupuesto)) {
                     Text(
-                        text = stringResource(R.string.solicitud_municipio_primero),
-                        style = DonChambitasTema.tipografia.pie,
-                        color = Cafe
+                        text = stringResource(R.string.solicitud_presupuesto_ayuda),
+                        style = DonChambitasTema.tipografia.secundario,
+                        color = Gris
                     )
+
+                    CampoTexto(
+                        valor = estado.presupuesto,
+                        alCambiarValor = alCambiarPresupuesto,
+                        etiqueta = stringResource(R.string.solicitud_campo_presupuesto),
+                        error = estado.errorPresupuesto?.let { stringResource(it) },
+                        habilitado = editable,
+                        iconoInicio = {
+                            Text(
+                                text = stringResource(R.string.servicio_moneda),
+                                style = DonChambitasTema.tipografia.secundario,
+                                color = Gris
+                            )
+                        },
+                        tecladoOpciones = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
+                        tecladoAcciones = siguienteCampo,
+                        modifier = Modifier.campo(CampoSolicitud.PRESUPUESTO)
+                    )
+                }
+
+                PasoLinea(numero = 3, titulo = stringResource(R.string.solicitud_bloque_donde), ultimo = true) {
+                    Selector(
+                        etiqueta = stringResource(R.string.solicitud_estado),
+                        valor = estado.estados.firstOrNull { it.id == estado.estadoId }?.nombre.orEmpty(),
+                        habilitado = editable,
+                        alAbrir = { hojaAbierta = HojaSolicitud.ESTADO },
+                        error = estado.errorEstado?.let { stringResource(it) },
+                        modifier = Modifier.campo(CampoSolicitud.ESTADO)
+                    )
+
+                    Selector(
+                        etiqueta = stringResource(R.string.solicitud_municipio),
+                        valor = estado.municipios.firstOrNull { it.id == estado.municipioId }?.nombre.orEmpty(),
+                        habilitado = editable && estado.estadoId != null,
+                        alAbrir = { hojaAbierta = HojaSolicitud.MUNICIPIO },
+                        error = estado.errorMunicipio?.let { stringResource(it) },
+                        modifier = Modifier.campo(CampoSolicitud.MUNICIPIO)
+                    )
+                    if (estado.estadoId == null) {
+                        Text(
+                            text = stringResource(R.string.solicitud_municipio_primero),
+                            style = DonChambitasTema.tipografia.pie,
+                            color = Gris
+                        )
+                    }
                 }
 
                 estado.errorPantalla?.let { tipo ->
@@ -273,10 +288,11 @@ fun SolicitudNuevaContenido(
                     )
                 }
 
-                BotonPrincipal(
+                BotonDestacado(
                     texto = stringResource(R.string.solicitud_publicar),
                     onClick = publicar,
                     cargando = estado.publicando,
+                    icono = Icons.AutoMirrored.Outlined.Send,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -308,12 +324,62 @@ fun SolicitudNuevaContenido(
     }
 }
 
+/**
+ * Un paso del formulario como linea de tiempo: el numero en un circulo
+ * Amarillo, el titulo a su lado y los campos debajo, con una linea Borde que
+ * baja hasta el paso siguiente. Publicar una solicitud se lee como un recorrido
+ * de tres paradas, no como un formulario largo.
+ */
 @Composable
-private fun TituloBloqueSolicitud(@StringRes texto: Int) {
-    Text(
-        text = stringResource(texto),
-        style = DonChambitasTema.tipografia.subtitulo,
-        color = Carbon,
-        modifier = Modifier.padding(top = Espaciado.dp8)
-    )
+private fun PasoLinea(
+    numero: Int,
+    titulo: String,
+    ultimo: Boolean = false,
+    contenido: @Composable ColumnScope.() -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                if (!ultimo) {
+                    val x = LadoNumeroPaso.toPx() / 2
+                    drawLine(
+                        color = Borde,
+                        start = Offset(x, LadoNumeroPaso.toPx() + 4.dp.toPx()),
+                        end = Offset(x, size.height + 12.dp.toPx()),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                }
+            }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(LadoNumeroPaso)
+                .clip(CircleShape)
+                .background(Amarillo)
+        ) {
+            Text(
+                text = numero.toString(),
+                style = DonChambitasTema.tipografia.secundario,
+                fontWeight = FontWeight.Bold,
+                color = Tinta
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Espaciado.dp12),
+            modifier = Modifier.padding(start = LadoNumeroPaso + Espaciado.dp12)
+        ) {
+            Text(
+                text = titulo,
+                style = DonChambitasTema.tipografia.subtitulo,
+                fontWeight = FontWeight.SemiBold,
+                color = Tinta,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+            contenido()
+        }
+    }
 }
+
+private val LadoNumeroPaso = 32.dp

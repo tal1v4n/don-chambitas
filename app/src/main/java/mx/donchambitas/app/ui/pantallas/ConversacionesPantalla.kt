@@ -1,5 +1,6 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,9 +13,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -27,7 +28,7 @@ import mx.donchambitas.app.R
 import mx.donchambitas.app.ui.componentes.BarraSuperior
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
 import mx.donchambitas.app.ui.componentes.TarjetaConversacion
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.Espaciado
 
 /**
@@ -81,7 +82,8 @@ fun ConversacionesContenido(
     Scaffold(
         topBar = { BarraSuperior(titulo = stringResource(R.string.chats_titulo)) },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         ContenedorEstado(
@@ -95,8 +97,13 @@ fun ConversacionesContenido(
             modifier = Modifier.padding(relleno)
         ) {
             LazyColumn(
-                contentPadding = PaddingValues(Espaciado.margenPantalla),
-                verticalArrangement = Arrangement.spacedBy(Espaciado.dp12),
+                contentPadding = PaddingValues(
+                    start = Espaciado.margenPantalla,
+                    end = Espaciado.margenPantalla,
+                    top = Espaciado.dp8,
+                    bottom = Espaciado.margenPantalla
+                ),
+                verticalArrangement = Arrangement.spacedBy(Espaciado.dp8),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(estado.conversaciones, key = { it.id }) { conversacion ->

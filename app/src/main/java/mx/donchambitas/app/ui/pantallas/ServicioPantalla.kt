@@ -1,5 +1,16 @@
 package mx.donchambitas.app.ui.pantallas
 
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Handyman
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.ui.text.font.FontWeight
+import mx.donchambitas.app.ui.componentes.BotonSecundario
+import mx.donchambitas.app.ui.componentes.SeccionFormulario
+import mx.donchambitas.app.ui.tema.AmarilloSuave
+import mx.donchambitas.app.ui.tema.Blanco
+import mx.donchambitas.app.ui.tema.FormaTarjeta
+import mx.donchambitas.app.ui.tema.Hueso
 import android.content.ActivityNotFoundException
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,6 +48,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,7 +56,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,17 +97,16 @@ import mx.donchambitas.app.ui.componentes.CampoTexto
 import mx.donchambitas.app.ui.componentes.Cargando
 import mx.donchambitas.app.ui.componentes.ChipCategoria
 import mx.donchambitas.app.ui.componentes.ContenedorEstado
-import mx.donchambitas.app.ui.componentes.EstadoError
+import mx.donchambitas.app.ui.componentes.AvisoError
 import mx.donchambitas.app.ui.componentes.iconoCategoria
-import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
 import mx.donchambitas.app.ui.tema.Error
 import mx.donchambitas.app.ui.tema.Espaciado
 import mx.donchambitas.app.ui.tema.FormaCampo
-import mx.donchambitas.app.ui.tema.MostazaOscuro
+import mx.donchambitas.app.ui.tema.Grafito
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
 import mx.donchambitas.app.ui.tema.subtitulo
@@ -267,7 +277,7 @@ fun ServicioContenido(
             )
         },
         snackbarHost = { SnackbarHost(avisos) },
-        containerColor = Crema,
+        containerColor = Marfil,
         modifier = modifier.fillMaxSize()
     ) { relleno ->
         ContenedorEstado(
@@ -289,97 +299,109 @@ fun ServicioContenido(
                     .padding(horizontal = Espaciado.margenPantalla, vertical = Espaciado.dp16),
                 verticalArrangement = Arrangement.spacedBy(Espaciado.dp16)
             ) {
-                CampoTexto(
-                    valor = estado.titulo,
-                    alCambiarValor = alCambiarTitulo,
-                    etiqueta = stringResource(R.string.servicio_campo_titulo),
-                    marcadorPosicion = stringResource(R.string.servicio_campo_titulo_ejemplo),
-                    error = estado.errorTitulo?.let { stringResource(it) },
-                    habilitado = editable,
-                    tecladoOpciones = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next
-                    ),
-                    tecladoAcciones = siguienteCampo,
-                    modifier = Modifier.campo(CampoServicio.TITULO)
-                )
+                SeccionFormulario(
+                    titulo = stringResource(R.string.servicio_bloque_detalle),
+                    icono = Icons.Outlined.Handyman
+                ) {
+                    CampoTexto(
+                        valor = estado.titulo,
+                        alCambiarValor = alCambiarTitulo,
+                        etiqueta = stringResource(R.string.servicio_campo_titulo),
+                        marcadorPosicion = stringResource(R.string.servicio_campo_titulo_ejemplo),
+                        error = estado.errorTitulo?.let { stringResource(it) },
+                        habilitado = editable,
+                        tecladoOpciones = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next
+                        ),
+                        tecladoAcciones = siguienteCampo,
+                        modifier = Modifier.campo(CampoServicio.TITULO)
+                    )
 
-                SelectorCategoria(
-                    categorias = estado.categorias,
-                    elegida = estado.categoriaId,
-                    error = estado.errorCategoria,
-                    habilitado = editable,
-                    alElegir = alElegirCategoria,
-                    modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoServicio.CATEGORIA))
-                )
+                    SelectorCategoria(
+                        categorias = estado.categorias,
+                        elegida = estado.categoriaId,
+                        error = estado.errorCategoria,
+                        habilitado = editable,
+                        alElegir = alElegirCategoria,
+                        modifier = Modifier.focusRequester(solicitantesFoco.getValue(CampoServicio.CATEGORIA))
+                    )
 
-                BotonIa(
-                    estado = estado.ia,
-                    textoFaltanDatos = stringResource(R.string.servicio_ia_faltan_datos),
-                    habilitado = editable,
-                    alPedir = alPedirIa
-                )
+                    BotonIa(
+                        estado = estado.ia,
+                        textoFaltanDatos = stringResource(R.string.servicio_ia_faltan_datos),
+                        habilitado = editable,
+                        alPedir = alPedirIa
+                    )
 
-                CampoTexto(
-                    valor = estado.descripcion,
-                    alCambiarValor = alCambiarDescripcion,
-                    etiqueta = stringResource(R.string.servicio_descripcion),
-                    error = estado.errorDescripcion?.let { stringResource(it) },
-                    habilitado = editable,
-                    lineasMinimas = 4,
-                    lineasMaximas = 8,
-                    tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    modifier = Modifier.campo(CampoServicio.DESCRIPCION)
-                )
+                    CampoTexto(
+                        valor = estado.descripcion,
+                        alCambiarValor = alCambiarDescripcion,
+                        etiqueta = stringResource(R.string.servicio_descripcion),
+                        error = estado.errorDescripcion?.let { stringResource(it) },
+                        habilitado = editable,
+                        lineasMinimas = 4,
+                        lineasMaximas = 8,
+                        tecladoOpciones = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        modifier = Modifier.campo(CampoServicio.DESCRIPCION)
+                    )
+                }
 
-                Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp4)) {
-                    TituloBloqueServicio(R.string.servicio_bloque_precio)
+                SeccionFormulario(
+                    titulo = stringResource(R.string.servicio_bloque_precio),
+                    icono = Icons.Outlined.Payments
+                ) {
                     Text(
                         text = stringResource(R.string.servicio_precio_ayuda),
                         style = DonChambitasTema.tipografia.secundario,
-                        color = Cafe
+                        color = Gris
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)) {
+                        CampoPrecio(
+                            valor = estado.precioDesde,
+                            alCambiar = alCambiarPrecioDesde,
+                            etiqueta = R.string.servicio_precio_desde,
+                            error = estado.errorPrecioDesde,
+                            habilitado = editable,
+                            siguiente = siguienteCampo,
+                            modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_DESDE)
+                        )
+                        CampoPrecio(
+                            valor = estado.precioHasta,
+                            alCambiar = alCambiarPrecioHasta,
+                            etiqueta = R.string.servicio_precio_hasta,
+                            error = estado.errorPrecioHasta,
+                            habilitado = editable,
+                            siguiente = siguienteCampo,
+                            modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_HASTA)
+                        )
+                    }
+
+                    CampoTexto(
+                        valor = estado.unidadPrecio,
+                        alCambiarValor = alCambiarUnidad,
+                        etiqueta = stringResource(R.string.servicio_unidad),
+                        marcadorPosicion = stringResource(R.string.servicio_unidad_ejemplo),
+                        error = estado.errorUnidad?.let { stringResource(it) },
+                        habilitado = editable && estado.hayPrecio,
+                        tecladoOpciones = KeyboardOptions(imeAction = ImeAction.Done),
+                        tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() }),
+                        modifier = Modifier.campo(CampoServicio.UNIDAD)
                     )
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(Espaciado.dp12)) {
-                    CampoPrecio(
-                        valor = estado.precioDesde,
-                        alCambiar = alCambiarPrecioDesde,
-                        etiqueta = R.string.servicio_precio_desde,
-                        error = estado.errorPrecioDesde,
-                        habilitado = editable,
-                        siguiente = siguienteCampo,
-                        modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_DESDE)
-                    )
-                    CampoPrecio(
-                        valor = estado.precioHasta,
-                        alCambiar = alCambiarPrecioHasta,
-                        etiqueta = R.string.servicio_precio_hasta,
-                        error = estado.errorPrecioHasta,
-                        habilitado = editable,
-                        siguiente = siguienteCampo,
-                        modifier = Modifier.weight(1f).campo(CampoServicio.PRECIO_HASTA)
+                SeccionFormulario(
+                    titulo = stringResource(R.string.servicio_bloque_fotos),
+                    icono = Icons.Outlined.PhotoLibrary
+                ) {
+                    BloqueFotos(
+                        estado = estado,
+                        alAgregar = { eligiendoFoto = true },
+                        alCancelarSubida = alCancelarSubida,
+                        alPedirQuitar = alPedirQuitarFoto
                     )
                 }
-
-                CampoTexto(
-                    valor = estado.unidadPrecio,
-                    alCambiarValor = alCambiarUnidad,
-                    etiqueta = stringResource(R.string.servicio_unidad),
-                    marcadorPosicion = stringResource(R.string.servicio_unidad_ejemplo),
-                    error = estado.errorUnidad?.let { stringResource(it) },
-                    habilitado = editable && estado.hayPrecio,
-                    tecladoOpciones = KeyboardOptions(imeAction = ImeAction.Done),
-                    tecladoAcciones = KeyboardActions(onDone = { administradorFoco.clearFocus() }),
-                    modifier = Modifier.campo(CampoServicio.UNIDAD)
-                )
-
-                BloqueFotos(
-                    estado = estado,
-                    alAgregar = { eligiendoFoto = true },
-                    alCancelarSubida = alCancelarSubida,
-                    alPedirQuitar = alPedirQuitarFoto
-                )
 
                 ErrorDePantallaServicio(tipoError = estado.errorPantalla, alReintentar = alReintentar)
 
@@ -406,7 +428,7 @@ fun ServicioContenido(
                         Text(
                             text = stringResource(R.string.servicio_espera_fotos),
                             style = DonChambitasTema.tipografia.pie,
-                            color = Cafe
+                            color = Gris
                         )
                     }
                 }
@@ -432,30 +454,39 @@ fun ServicioContenido(
     if (estado.fotoPorQuitar != null) {
         AlertDialog(
             onDismissRequest = alCancelarQuitarFoto,
-            title = { Text(stringResource(R.string.servicio_quitar_foto_titulo)) },
+            icon = { Icon(Icons.Outlined.DeleteOutline, contentDescription = null, tint = Error) },
+            title = {
+                Text(
+                    text = stringResource(R.string.servicio_quitar_foto_titulo),
+                    style = DonChambitasTema.tipografia.subtitulo,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
             confirmButton = {
-                BotonTexto(texto = stringResource(R.string.servicio_quitar_foto), onClick = alConfirmarQuitarFoto)
+                BotonSecundario(
+                    texto = stringResource(R.string.servicio_quitar_foto),
+                    onClick = alConfirmarQuitarFoto,
+                    color = Error
+                )
             },
             dismissButton = {
-                BotonTexto(texto = stringResource(R.string.trabajador_cancelar), onClick = alCancelarQuitarFoto)
+                BotonTexto(
+                    texto = stringResource(R.string.trabajador_cancelar),
+                    onClick = alCancelarQuitarFoto,
+                    modifier = Modifier.fillMaxWidth()
+                )
             },
-            containerColor = Crema
+            shape = FormaTarjeta,
+            containerColor = Blanco
         )
     }
 
     // 1.9: con la descripcion ya escrita, la IA propone y la persona decide (HU-30).
     if (estado.propuestaIa != null) {
-        AlertDialog(
-            onDismissRequest = alDescartarPropuestaIa,
-            title = { Text(stringResource(R.string.ia_reemplazar_titulo)) },
-            text = { Text(estado.propuestaIa) },
-            confirmButton = {
-                BotonTexto(texto = stringResource(R.string.ia_reemplazar), onClick = alAceptarPropuestaIa)
-            },
-            dismissButton = {
-                BotonTexto(texto = stringResource(R.string.ia_conservar), onClick = alDescartarPropuestaIa)
-            },
-            containerColor = Crema
+        DialogoPropuestaIa(
+            propuesta = estado.propuestaIa,
+            alAceptar = alAceptarPropuestaIa,
+            alDescartar = alDescartarPropuestaIa
         )
     }
 }
@@ -464,9 +495,10 @@ fun ServicioContenido(
 private fun TituloBloqueServicio(@StringRes texto: Int, modifier: Modifier = Modifier) {
     Text(
         text = stringResource(texto),
-        style = DonChambitasTema.tipografia.subtitulo,
-        color = Carbon,
-        modifier = modifier.padding(top = Espaciado.dp8)
+        style = DonChambitasTema.tipografia.secundario,
+        fontWeight = FontWeight.SemiBold,
+        color = Tinta,
+        modifier = modifier
     )
 }
 
@@ -527,7 +559,7 @@ private fun CampoPrecio(
         etiqueta = stringResource(etiqueta),
         error = error?.let { stringResource(it) },
         habilitado = habilitado,
-        iconoInicio = { Text(text = stringResource(R.string.servicio_moneda), style = DonChambitasTema.tipografia.secundario, color = Cafe) },
+        iconoInicio = { Text(text = stringResource(R.string.servicio_moneda), style = DonChambitasTema.tipografia.secundario, color = Gris) },
         tecladoOpciones = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
         tecladoAcciones = siguiente,
         modifier = modifier
@@ -546,22 +578,19 @@ private fun BloqueFotos(
     alPedirQuitar: (FotoEnPantalla) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Espaciado.dp8)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TituloBloqueServicio(R.string.servicio_bloque_fotos, Modifier.weight(1f))
-            if (!estado.creando) {
-                Text(
-                    text = stringResource(R.string.servicio_fotos_contador, estado.fotos.size),
-                    style = DonChambitasTema.tipografia.pie,
-                    color = Cafe
-                )
-            }
+        if (!estado.creando) {
+            Text(
+                text = stringResource(R.string.servicio_fotos_contador, estado.fotos.size),
+                style = DonChambitasTema.tipografia.pie,
+                color = Gris
+            )
         }
 
         if (estado.creando) {
             Text(
                 text = stringResource(R.string.servicio_fotos_despues),
                 style = DonChambitasTema.tipografia.secundario,
-                color = Cafe
+                color = Gris
             )
             return@Column
         }
@@ -597,7 +626,7 @@ private fun Miniatura(foto: FotoEnPantalla, alQuitar: () -> Unit) {
         modifier = Modifier
             .size(LadoMiniatura)
             .clip(FormaCampo)
-            .background(Borde)
+            .background(AmarilloSuave)
             .semantics { contentDescription = descripcionFoto }
     ) {
         if (foto is FotoEnPantalla.Guardada) {
@@ -611,7 +640,7 @@ private fun Miniatura(foto: FotoEnPantalla, alQuitar: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Carbon.copy(alpha = OPACIDAD_VELO_SUBIDA))
+                    .background(Tinta.copy(alpha = OPACIDAD_VELO_SUBIDA))
             ) {
                 Cargando()
             }
@@ -622,9 +651,9 @@ private fun Miniatura(foto: FotoEnPantalla, alQuitar: () -> Unit) {
                 .align(Alignment.TopEnd)
                 .padding(Espaciado.dp4)
                 .size(LadoBotonQuitar)
-                .background(Crema, CircleShape)
+                .background(Tinta.copy(alpha = 0.7f), CircleShape)
         ) {
-            Icon(imageVector = Icons.Outlined.Close, contentDescription = descripcionQuitar, tint = Carbon)
+            Icon(imageVector = Icons.Outlined.Close, contentDescription = descripcionQuitar, tint = Blanco)
         }
     }
 }
@@ -632,11 +661,12 @@ private fun Miniatura(foto: FotoEnPantalla, alQuitar: () -> Unit) {
 /** Cuadro con borde punteado que abre la hoja de galeria o camara. */
 @Composable
 private fun CuadroAgregar(habilitado: Boolean, alTocar: () -> Unit) {
-    val color = if (habilitado) MostazaOscuro else Cafe
+    val color = if (habilitado) Grafito else Gris
     Column(
         modifier = Modifier
             .size(LadoMiniatura)
             .clip(FormaCampo)
+            .background(if (habilitado) AmarilloSuave.copy(alpha = 0.5f) else Hueso)
             .drawBehind {
                 drawRoundRect(
                     color = color,
@@ -667,7 +697,7 @@ private fun ErrorDePantallaServicio(tipoError: TipoError?, alReintentar: (() -> 
     val reintento = alReintentar.takeIf {
         tipoError in setOf(TipoError.RED, TipoError.SERVIDOR, TipoError.DESCONOCIDO)
     }
-    EstadoError(tipoError = tipoError, alReintentar = reintento)
+    AvisoError(tipoError = tipoError, alReintentar = reintento)
 }
 
 private val CategoriasDeMuestra = listOf(

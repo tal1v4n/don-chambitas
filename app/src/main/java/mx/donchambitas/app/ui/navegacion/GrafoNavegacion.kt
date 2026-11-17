@@ -24,26 +24,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -71,25 +68,20 @@ import mx.donchambitas.app.ui.pantallas.ResultadosPantalla
 import mx.donchambitas.app.ui.pantallas.ServicioPantalla
 import mx.donchambitas.app.ui.pantallas.SolicitudNuevaPantalla
 import mx.donchambitas.app.ui.pantallas.SplashPantalla
-import mx.donchambitas.app.ui.componentes.BotonDestacado
 import mx.donchambitas.app.ui.componentes.BotonPrincipal
 import mx.donchambitas.app.ui.componentes.BotonSecundario
-import mx.donchambitas.app.ui.componentes.BotonTexto
-import mx.donchambitas.app.ui.tema.Arena
+import mx.donchambitas.app.ui.tema.Hueso
 import mx.donchambitas.app.ui.tema.Borde
-import mx.donchambitas.app.ui.tema.Cafe
-import mx.donchambitas.app.ui.tema.Carbon
-import mx.donchambitas.app.ui.tema.Crema
+import mx.donchambitas.app.ui.tema.Gris
+import mx.donchambitas.app.ui.tema.Tinta
+import mx.donchambitas.app.ui.tema.Marfil
 import mx.donchambitas.app.ui.tema.DonChambitasTema
-import mx.donchambitas.app.ui.tema.Error
-import mx.donchambitas.app.ui.tema.Exito
-import mx.donchambitas.app.ui.tema.Mostaza
-import mx.donchambitas.app.ui.tema.Terracota
+import mx.donchambitas.app.ui.tema.Amarillo
+import mx.donchambitas.app.ui.tema.Naranja
 import mx.donchambitas.app.ui.tema.cuerpo
 import mx.donchambitas.app.ui.tema.cuerpoFuerte
 import mx.donchambitas.app.ui.tema.pie
 import mx.donchambitas.app.ui.tema.secundario
-import mx.donchambitas.app.ui.tema.subtitulo
 import mx.donchambitas.app.ui.tema.titulo
 
 /**
@@ -227,8 +219,8 @@ fun GrafoNavegacion(
                     onClick = {
                         navController.navigate(Ruta.PublicarSolicitud.ruta)
                     },
-                    containerColor = Mostaza,
-                    contentColor = Carbon
+                    containerColor = Amarillo,
+                    contentColor = Tinta
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -237,12 +229,12 @@ fun GrafoNavegacion(
                 }
             }
         },
-        containerColor = Crema
+        containerColor = Marfil
     ) { rellenoInterno ->
         // Sin barra del andamio, el relleno superior tiene que irse con ella: si
         // se conserva, la pantalla arranca debajo de la barra de estado y su
         // propia BarraSuperior se queda sin inset donde dibujar, con lo que el
-        // reloj y los iconos quedan sobre el fondo Crema y no se leen.
+        // reloj y los iconos quedan sobre el fondo Marfil y no se leen.
         val direccion = LocalLayoutDirection.current
         val rellenoContenido = if (rutaActual in RUTAS_SIN_BARRA_DEL_ANDAMIO) {
             PaddingValues(
@@ -654,7 +646,7 @@ fun MarcadorPantalla(
     ) {
         // Tarjeta de información de la pantalla
         Surface(
-            color = Arena,
+            color = Hueso,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -669,27 +661,27 @@ fun MarcadorPantalla(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(Mostaza)
+                            .background(Amarillo)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = ruta.idPantalla,
                             style = DonChambitasTema.tipografia.cuerpoFuerte,
-                            color = Carbon
+                            color = Tinta
                         )
                     }
 
                     Text(
                         text = ruta.titulo,
                         style = DonChambitasTema.tipografia.titulo,
-                        color = Carbon
+                        color = Tinta
                     )
                 }
 
                 Text(
                     text = descripcion,
                     style = DonChambitasTema.tipografia.cuerpo,
-                    color = Cafe
+                    color = Gris
                 )
 
                 if (argumentos.isNotEmpty()) {
@@ -697,13 +689,13 @@ fun MarcadorPantalla(
                     Text(
                         text = "Argumentos recibidos:",
                         style = DonChambitasTema.tipografia.cuerpoFuerte,
-                        color = Carbon
+                        color = Tinta
                     )
                     argumentos.forEach { (clave, valor) ->
                         Text(
                             text = "• $clave: ${valor ?: "(nulo)"}",
                             style = DonChambitasTema.tipografia.secundario,
-                            color = Carbon
+                            color = Tinta
                         )
                     }
                 }
@@ -713,7 +705,7 @@ fun MarcadorPantalla(
         // Acciones sugeridas de navegación para esta pantalla
         if (acciones.isNotEmpty()) {
             Surface(
-                color = Arena,
+                color = Hueso,
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -724,7 +716,7 @@ fun MarcadorPantalla(
                     Text(
                         text = "Acciones en esta pantalla:",
                         style = DonChambitasTema.tipografia.cuerpoFuerte,
-                        color = Carbon
+                        color = Tinta
                     )
                     acciones.forEach { accion ->
                         BotonPrincipal(
@@ -739,7 +731,7 @@ fun MarcadorPantalla(
 
         // Pruebas de guardas de rol prohibido
         Surface(
-            color = Arena,
+            color = Hueso,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -754,13 +746,13 @@ fun MarcadorPantalla(
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = null,
-                        tint = Terracota,
+                        tint = Naranja,
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = "Pruebas de guardas:",
                         style = DonChambitasTema.tipografia.cuerpoFuerte,
-                        color = Carbon
+                        color = Tinta
                     )
                 }
 
@@ -770,7 +762,7 @@ fun MarcadorPantalla(
                         Text(
                             text = "Sin sesión activa: intentar ir a pantallas privadas debe redirigir a P-02.",
                             style = DonChambitasTema.tipografia.pie,
-                            color = Cafe
+                            color = Gris
                         )
                         BotonSecundario(
                             texto = "Intentar ir a Inicio Cliente (P-05)",
@@ -784,7 +776,7 @@ fun MarcadorPantalla(
                         Text(
                             text = "Como Cliente: intentar ir a rutas de trabajador debe redirigir a P-05.",
                             style = DonChambitasTema.tipografia.pie,
-                            color = Cafe
+                            color = Gris
                         )
                         BotonSecundario(
                             texto = "Intentar ir a Inicio Trabajador (P-10)",
@@ -798,7 +790,7 @@ fun MarcadorPantalla(
                         Text(
                             text = "Como Trabajador: intentar ir a rutas de cliente debe redirigir a P-10.",
                             style = DonChambitasTema.tipografia.pie,
-                            color = Cafe
+                            color = Gris
                         )
                         BotonSecundario(
                             texto = "Intentar ir a Inicio Cliente (P-05)",
@@ -814,7 +806,7 @@ fun MarcadorPantalla(
 
         // Mapa completo de las 19 pantallas para recorrer la aplicación
         Surface(
-            color = Arena,
+            color = Hueso,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -825,7 +817,7 @@ fun MarcadorPantalla(
                 Text(
                     text = "Recorrer las 19 pantallas (Mapa completo):",
                     style = DonChambitasTema.tipografia.cuerpoFuerte,
-                    color = Carbon
+                    color = Tinta
                 )
 
                 FlowRow(
@@ -838,8 +830,8 @@ fun MarcadorPantalla(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (esActual) Terracota else Crema)
-                                .border(1.dp, if (esActual) Terracota else Borde, RoundedCornerShape(8.dp))
+                                .background(if (esActual) Naranja else Marfil)
+                                .border(1.dp, if (esActual) Naranja else Borde, RoundedCornerShape(8.dp))
                                 .clickable {
                                     val rutaDestino = when (destino) {
                                         Ruta.Resultados -> Ruta.Resultados.crearRuta()
@@ -857,7 +849,7 @@ fun MarcadorPantalla(
                             Text(
                                 text = "${destino.idPantalla} ${destino.titulo}",
                                 style = DonChambitasTema.tipografia.pie,
-                                color = if (esActual) Crema else Carbon
+                                color = if (esActual) Marfil else Tinta
                             )
                         }
                     }
