@@ -395,6 +395,57 @@ create trigger tg_postulaciones_actualizado
     before update on public.postulaciones
     for each row execute function public.fn_actualizar_marca_tiempo();
 
+-- Transiciones de una postulacion (DEC-50, H-56). Con sesion solo caben dos:
+-- el trabajador retira la suya (enviada -> retirada) y el cliente rechaza una
+-- a su solicitud (enviada -> rechazada). 'aceptada', y el rechazo de las demas
+-- al aceptar, solo desde fn_aceptar_postulacion. Lo enviado no se edita.
+--
+-- NO es security definer, a proposito: lo que distingue a la sesion de la
+-- funcion es current_user. Una peticion de la aplicacion corre como
+-- authenticated; fn_aceptar_postulacion, que es security definer, corre como
+-- su dueno, y este trigger hereda ese usuario. Si este trigger fuera security
+-- definer, current_user seria siempre su dueno y no restringiria nada.
+-- El permiso por columna (solo estatus, 02_politicas_rls.sql) ya impide editar
+-- lo demas; la comparacion de columnas de abajo es la segunda capa.
+create or replace function public.fn_validar_transicion_postulacion()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+    if current_user not in ('authenticated', 'anon') then
+        return new;
+    end if;
+
+    if new.solicitud_id     is distinct from old.solicitud_id
+       or new.trabajador_id    is distinct from old.trabajador_id
+       or new.mensaje          is distinct from old.mensaje
+       or new.precio_propuesto is distinct from old.precio_propuesto then
+        raise exception 'Una postulacion enviada no se edita';
+    end if;
+
+    if new.estatus = old.estatus then
+        return new;
+    end if;
+
+    if old.estatus = 'enviada' and new.estatus = 'retirada'
+       and old.trabajador_id = auth.uid() then
+        return new;
+    end if;
+
+    if old.estatus = 'enviada' and new.estatus = 'rechazada'
+       and public.fn_es_mi_solicitud(old.solicitud_id) then
+        return new;
+    end if;
+
+    raise exception 'Cambio de postulacion no permitido: % a %', old.estatus, new.estatus;
+end;
+$$;
+
+create trigger tg_postulaciones_transicion
+    before update on public.postulaciones
+    for each row execute function public.fn_validar_transicion_postulacion();
+
 -- Nadie se postula a su propia solicitud, ni a una que no este abierta.
 -- security definer: el trabajador no ve por RLS una solicitud cerrada o
 -- cancelada ajena. Sin esto el select devuelve NULL, el if no dispara y la
@@ -973,9 +1024,10 @@ declare
     v_trabajador  uuid;
     v_cliente     uuid;
     v_estatus     estado_solicitud;
+    v_postulacion estado_postulacion;
 begin
-    select po.solicitud_id, po.trabajador_id, s.cliente_id, s.estatus
-      into v_solicitud, v_trabajador, v_cliente, v_estatus
+    select po.solicitud_id, po.trabajador_id, s.cliente_id, s.estatus, po.estatus
+      into v_solicitud, v_trabajador, v_cliente, v_estatus, v_postulacion
       from public.postulaciones po
       join public.solicitudes s on s.id = po.solicitud_id
      where po.id = p_postulacion_id;
@@ -988,6 +1040,10 @@ begin
     end if;
     if v_estatus <> 'abierta' then
         raise exception 'La solicitud ya no esta abierta';
+    end if;
+    -- DEC-50 (H-57): una retirada o rechazada no se acepta.
+    if v_postulacion <> 'enviada' then
+        raise exception 'Solo se acepta una postulacion enviada';
     end if;
 
     update public.postulaciones
@@ -1040,12 +1096,11 @@ $$;
 -- Abre la conversacion con un trabajador, o devuelve la que ya existia.
 -- Resuelve el "POST /conversaciones" del contrato, que era un upsert.
 --
--- LA ABRE SIEMPRE EL CLIENTE, y esta decidido asi (DEC-20). Fija
--- cliente_id = auth.uid(), y conversaciones.trabajador_id apunta a
--- perfiles_trabajador, asi que un trabajador que la llame crearia una fila
--- con un cliente_id que no tiene perfil de trabajador y la llave foranea la
--- rechaza. El trabajador responde, no inicia: el contacto nace en P-07 o al
--- aceptarle la postulacion.
+-- LA ABRE SIEMPRE EL CLIENTE, y esta decidido asi (DEC-20). La llave foranea
+-- no bastaba: cliente_id apunta a usuarios, no a clientes, y un trabajador
+-- podia abrir un hilo con OTRO trabajador (H-58). Por eso se exige el rol con
+-- fn_soy_cliente() (DEC-50), aqui y en la politica de insert. El trabajador
+-- responde, no inicia: el contacto nace en P-07 o al aceptarle la postulacion.
 create or replace function public.fn_abrir_conversacion(
     p_trabajador_id uuid,
     p_solicitud_id  uuid default null
@@ -1058,6 +1113,9 @@ as $$
 declare
     v_id uuid;
 begin
+    if not public.fn_soy_cliente() then
+        raise exception 'Solo un cliente puede abrir una conversacion';
+    end if;
     if p_trabajador_id = auth.uid() then
         raise exception 'No se puede abrir una conversacion consigo mismo';
     end if;

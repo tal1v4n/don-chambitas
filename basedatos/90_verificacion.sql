@@ -233,6 +233,23 @@ from (values
        (select (exists (select 1 from information_schema.views
                          where table_schema = 'public' and table_name = 'vw_mis_conversaciones')
             and has_table_privilege('authenticated', 'public.vw_mis_conversaciones', 'select'))::text), 'true')
+,
+  -- S5-T14 (DEC-50): H-56, H-57 y H-58 cerrados en la base.
+  (49, 'H-56 de una postulacion la sesion solo actualiza el estatus',
+       (select (has_column_privilege('authenticated', 'public.postulaciones', 'estatus', 'update')
+            and not has_column_privilege('authenticated', 'public.postulaciones', 'precio_propuesto', 'update')
+            and not has_column_privilege('authenticated', 'public.postulaciones', 'solicitud_id', 'update'))::text), 'true'),
+  (50, 'H-56 trigger de transicion de postulaciones, sin security definer',
+       (select (exists (select 1 from pg_trigger where tgname = 'tg_postulaciones_transicion' and not tgisinternal)
+            and not (select prosecdef from pg_proc where proname = 'fn_validar_transicion_postulacion'))::text), 'true'),
+  (51, 'H-57 fn_aceptar_postulacion exige la postulacion enviada',
+       (select (pg_get_functiondef('public.fn_aceptar_postulacion(uuid)'::regprocedure)
+                ilike '%Solo se acepta una postulacion enviada%')::text), 'true'),
+  (52, 'H-58 solo un cliente abre conversacion (funcion y politica)',
+       (select (pg_get_functiondef('public.fn_abrir_conversacion(uuid, uuid)'::regprocedure) ilike '%fn_soy_cliente%'
+            and exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'conversaciones'
+                         and policyname = 'cliente abre conversacion' and with_check ilike '%fn_soy_cliente%')
+            and not has_function_privilege('anon', 'public.fn_soy_cliente()', 'execute'))::text), 'true')
 
 ) as t(orden, prueba, obtenido, esperado)
 order by orden;

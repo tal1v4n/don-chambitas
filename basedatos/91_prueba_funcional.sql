@@ -2,7 +2,7 @@
 --  DON CHAMBITAS
 --  91_prueba_funcional.sql  ·  Recorrido completo contra la base real
 -- ============================================================================
---  Pegalo COMPLETO en el SQL Editor de Supabase y corre. Devuelve 25
+--  Pegalo COMPLETO en el SQL Editor de Supabase y corre. Devuelve 33
 --  renglones. Todo tiene que decir PASA.
 --
 --  QUE HACE
@@ -29,7 +29,7 @@
 --
 --  QUE CORRE CON RLS ACTIVO
 --    El grueso del script corre como postgres, que se SALTA RLS. Las pruebas
---    10, 12, 13 y 21 a 24 no: esas hacen SET ROLE authenticated y ponen
+--    10, 12, 13, 21 a 24 y 26 a 33 no: esas hacen SET ROLE authenticated y ponen
 --    request.jwt.claims, porque lo que vigilan solo se rompe cuando RLS esta
 --    activo. Son las que detectan que a una funcion de trigger le falte el
 --    SECURITY DEFINER, que es una falla silenciosa: sin RLS de por medio, esa
@@ -52,10 +52,10 @@ declare
     v_tra  uuid := '22222222-2222-2222-2222-222222222222';  -- trabajador
     v_tra2 uuid := '33333333-3333-3333-3333-333333333333';  -- otro trabajador
     v_ter  uuid := '44444444-4444-4444-4444-444444444444';  -- cliente ajeno
-    v_sol uuid; v_sol2 uuid; v_pos uuid; v_pos2 uuid; v_srv uuid; v_con uuid; v_con2 uuid;
+    v_sol uuid; v_sol2 uuid; v_sol3 uuid; v_pos uuid; v_pos2 uuid; v_pos3 uuid; v_pos4 uuid; v_srv uuid; v_con uuid; v_con2 uuid;
     v_cat smallint; v_edo smallint; v_mun integer;
     v_n int; v_n2 int; v_txt text; v_uuid uuid; v_ts timestamptz; v_num numeric;
-    v_rest int; v_rol_ok boolean; v_uid uuid; v_tabla text;
+    v_txt2 text; v_rest int; v_rol_ok boolean; v_uid uuid; v_tabla text;
 begin
     -- ---- 0. Se puede hacer SET ROLE authenticated? ------------------------
     -- Se averigua una sola vez, aqui arriba, porque de esto dependen las
@@ -105,8 +105,9 @@ begin
     end;
 
     begin
-        insert into public.solicitudes (cliente_id, categoria_id, titulo, descripcion)
-        values (v_tra, v_cat, 'Solicitud de un trabajador', 'No deberia poder');
+        insert into public.solicitudes (cliente_id, categoria_id, titulo, descripcion,
+                                        estado_id, municipio_id)
+        values (v_tra, v_cat, 'Solicitud de un trabajador', 'No deberia poder', v_edo, v_mun);
         insert into resultado_prueba values (4, 'S-03 un trabajador NO puede publicar solicitudes',
             '>>> FALLA', 'lo permitio');
     exception when others then
@@ -186,8 +187,11 @@ begin
     -- Postularse a una solicitud que ya no esta abierta.
     -- Se usa una solicitud aparte, cancelada, para que lo que rechace sea el
     -- trigger y no el UNIQUE de una postulacion repetida.
-    insert into public.solicitudes (cliente_id, categoria_id, titulo, descripcion, estatus)
-    values (v_cli, v_cat, 'Solicitud cancelada', 'Ya no la necesito', 'cancelada')
+    -- Con estado y municipio: desde S4-T16 (H-41) el trigger de ubicacion los exige.
+    insert into public.solicitudes (cliente_id, categoria_id, titulo, descripcion, estatus,
+                                    estado_id, municipio_id)
+    values (v_cli, v_cat, 'Solicitud cancelada', 'Ya no la necesito', 'cancelada',
+            v_edo, v_mun)
     returning id into v_sol2;
 
     --
@@ -437,6 +441,157 @@ begin
         insert into resultado_prueba values (24, 'RLS: ninguna politica entra en recursion (30 lecturas)',
             case when v_txt = '' then 'PASA' else '>>> FALLA' end,
             case when v_txt = '' then 'las 10 tablas responden con los 3 usuarios' else v_txt end);
+    end if;
+
+    -- ---- 8b. Postulaciones y conversaciones cerradas en la base (DEC-50) ---
+    -- H-56, H-57 y H-58. Todas con RLS activo: como postgres el trigger de
+    -- transicion se aparta a proposito (deja pasar a fn_aceptar_postulacion),
+    -- asi que solo con SET ROLE authenticated se ve la regla. Cada rechazo
+    -- exige el mensaje de la capa que debe darlo.
+    insert into public.solicitudes (cliente_id, categoria_id, titulo, descripcion,
+                                    estado_id, municipio_id)
+    values (v_cli, v_cat, 'Cambiar el boiler', 'Ya no calienta', v_edo, v_mun)
+    returning id into v_sol3;
+    insert into public.postulaciones (solicitud_id, trabajador_id, mensaje, precio_propuesto)
+    values (v_sol3, v_tra, 'Lo cambio hoy', 900) returning id into v_pos3;
+    insert into public.postulaciones (solicitud_id, trabajador_id, mensaje, precio_propuesto)
+    values (v_sol3, v_tra2, 'Yo manana', 850) returning id into v_pos4;
+
+    if not v_rol_ok then
+        for i in 26..33 loop
+            insert into resultado_prueba values (i, 'DEC-50: prueba con rol authenticated',
+                '>>> NO SE PUDO PROBAR', 'este usuario no puede hacer SET ROLE authenticated');
+        end loop;
+    else
+        -- 26. H-56: el trabajador no se marca aceptada.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_tra, 'role', 'authenticated')::text, true);
+            update public.postulaciones set estatus = 'aceptada' where id = v_pos3;
+            reset role;
+            insert into resultado_prueba values (26, 'H-56 el trabajador NO se marca aceptada',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (26, 'H-56 el trabajador NO se marca aceptada',
+                case when sqlerrm like '%no permitido%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
+
+        -- 27. H-56: lo enviado no se edita (precio). Lo rechaza el permiso por columna.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_tra, 'role', 'authenticated')::text, true);
+            update public.postulaciones set precio_propuesto = 1 where id = v_pos3;
+            reset role;
+            insert into resultado_prueba values (27, 'H-56 el trabajador NO cambia el precio enviado',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (27, 'H-56 el trabajador NO cambia el precio enviado',
+                case when sqlerrm like '%permission denied%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
+
+        -- 28. H-56: el cliente no acepta con un update suelto (sin asignar la solicitud).
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_cli, 'role', 'authenticated')::text, true);
+            update public.postulaciones set estatus = 'aceptada' where id = v_pos4;
+            reset role;
+            insert into resultado_prueba values (28, 'H-56 el cliente NO acepta sin fn_aceptar_postulacion',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (28, 'H-56 el cliente NO acepta sin fn_aceptar_postulacion',
+                case when sqlerrm like '%no permitido%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
+
+        -- 29. Lo legitimo sigue: el trabajador retira la suya.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_tra, 'role', 'authenticated')::text, true);
+            update public.postulaciones set estatus = 'retirada' where id = v_pos3;
+            reset role;
+            v_txt := '';
+        exception when others then
+            reset role;
+            v_txt := left(sqlerrm, 70);
+        end;
+        select estatus::text into v_txt2 from public.postulaciones where id = v_pos3;
+        insert into resultado_prueba values (29, 'el trabajador SI retira su postulacion enviada',
+            case when v_txt = '' and v_txt2 = 'retirada' then 'PASA' else '>>> FALLA' end,
+            case when v_txt <> '' then v_txt else 'quedo en ' || v_txt2 end);
+
+        -- 30. Lo legitimo sigue: el cliente rechaza una a su solicitud.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_cli, 'role', 'authenticated')::text, true);
+            update public.postulaciones set estatus = 'rechazada' where id = v_pos4;
+            reset role;
+            v_txt := '';
+        exception when others then
+            reset role;
+            v_txt := left(sqlerrm, 70);
+        end;
+        select estatus::text into v_txt2 from public.postulaciones where id = v_pos4;
+        insert into resultado_prueba values (30, 'el cliente SI rechaza una postulacion enviada',
+            case when v_txt = '' and v_txt2 = 'rechazada' then 'PASA' else '>>> FALLA' end,
+            case when v_txt <> '' then v_txt else 'quedo en ' || v_txt2 end);
+
+        -- 31. H-57: no se acepta una retirada.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_cli, 'role', 'authenticated')::text, true);
+            perform public.fn_aceptar_postulacion(v_pos3);
+            reset role;
+            insert into resultado_prueba values (31, 'H-57 NO se acepta una postulacion retirada',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (31, 'H-57 NO se acepta una postulacion retirada',
+                case when sqlerrm like '%enviada%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
+
+        -- 32. H-58: un trabajador no abre hilo con otro trabajador por la funcion.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_tra2, 'role', 'authenticated')::text, true);
+            perform public.fn_abrir_conversacion(v_tra, null);
+            reset role;
+            insert into resultado_prueba values (32, 'H-58 un trabajador NO abre hilo (funcion)',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (32, 'H-58 un trabajador NO abre hilo (funcion)',
+                case when sqlerrm like '%Solo un cliente%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
+
+        -- 33. H-58: ni con un insert directo, que se saltaba la funcion.
+        begin
+            set local role authenticated;
+            perform set_config('request.jwt.claims',
+                json_build_object('sub', v_tra2, 'role', 'authenticated')::text, true);
+            insert into public.conversaciones (cliente_id, trabajador_id) values (v_tra2, v_tra);
+            reset role;
+            insert into resultado_prueba values (33, 'H-58 un trabajador NO abre hilo (insert directo)',
+                '>>> FALLA', 'lo permitio');
+        exception when others then
+            reset role;
+            insert into resultado_prueba values (33, 'H-58 un trabajador NO abre hilo (insert directo)',
+                case when sqlerrm like '%row-level security%' then 'PASA' else '>>> FALLA' end,
+                left(sqlerrm, 70));
+        end;
     end if;
 
     -- ---- 9. Baja de cuenta (S-01) ------------------------------------------

@@ -81,6 +81,7 @@ revoke all on public.ia_consumo, public.ia_cache from anon, authenticated;
 --  exactamente lo que pide CONTRATOS-API.md:
 --    actualizarMiUsuario(nombre, apellidos, telefono) + subirFotoPerfil
 --    marcarLeidos(conversacionId)
+--    retirar / rechazar una postulacion (solo estatus, DEC-50)
 -- ----------------------------------------------------------------------------
 revoke update on public.usuarios from authenticated;
 grant  update (nombre, apellidos, telefono, foto_url)
@@ -89,6 +90,12 @@ grant  update (nombre, apellidos, telefono, foto_url)
 revoke update on public.mensajes from authenticated;
 grant  update (leido_en)
     on public.mensajes to authenticated;
+
+-- H-56 (DEC-50): de una postulacion enviada solo cambia el estatus, y que
+-- transicion cabe lo decide tg_postulaciones_transicion (01_esquema.sql).
+revoke update on public.postulaciones from authenticated;
+grant  update (estatus)
+    on public.postulaciones to authenticated;
 
 -- ----------------------------------------------------------------------------
 --  RLS activo en absolutamente todo
@@ -203,6 +210,20 @@ as $$
     select exists (
         select 1 from public.usuarios u
          where u.id = auth.uid() and u.rol = 'trabajador'
+    );
+$$;
+
+-- Espejo de fn_soy_trabajador (DEC-50, H-58): solo un cliente abre conversacion.
+create or replace function public.fn_soy_cliente()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select exists (
+        select 1 from public.usuarios u
+         where u.id = auth.uid() and u.rol = 'cliente'
     );
 $$;
 
@@ -409,7 +430,7 @@ create policy "conversaciones propias"
 
 create policy "cliente abre conversacion"
     on public.conversaciones for insert to authenticated
-    with check (cliente_id = auth.uid());
+    with check (cliente_id = auth.uid() and public.fn_soy_cliente());
 
 create policy "mensajes de conversaciones propias"
     on public.mensajes for select to authenticated
@@ -524,7 +545,8 @@ revoke execute on function
     public.fn_es_mi_solicitud(uuid),
     public.fn_me_postule_a(uuid),
     public.fn_es_dueno_del_servicio(uuid),
-    public.fn_soy_trabajador()
+    public.fn_soy_trabajador(),
+    public.fn_soy_cliente()
 from public, anon;
 grant execute on function
     public.fn_es_contraparte(uuid),
@@ -532,7 +554,8 @@ grant execute on function
     public.fn_es_mi_solicitud(uuid),
     public.fn_me_postule_a(uuid),
     public.fn_es_dueno_del_servicio(uuid),
-    public.fn_soy_trabajador()
+    public.fn_soy_trabajador(),
+    public.fn_soy_cliente()
 to authenticated, service_role;
 
 -- ============================================================================
