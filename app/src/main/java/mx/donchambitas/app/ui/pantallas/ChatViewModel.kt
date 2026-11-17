@@ -27,7 +27,11 @@ private const val TAMANO_PAGINA_MENSAJES = 30
  *
  * Carga la pagina mas reciente, marca como leidos los recibidos y escucha los mensajes nuevos. Un
  * mensaje propio aparece de inmediato como "enviando" y se confirma al entregarse; si falla,
- * conserva su texto y se puede reintentar (1.4). Hoy el repositorio es el falso: S5-T07 lo hace real.
+ * conserva su texto y se puede reintentar (1.4).
+ *
+ * Lo que llega en tiempo real antes de terminar la carga se guarda aparte y se integra al terminar:
+ * hasta entonces no se sabe quien es la otra persona, y pintarlo antes lo dejaba del lado equivocado
+ * y lo perdia al llegar el historial (S5-T14).
  */
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -42,6 +46,8 @@ class ChatViewModel @Inject constructor(
 
     private var pagina = 1
     private var siguienteLocal = 0
+    private var cargado = false
+    private val llegadosDuranteLaCarga = mutableListOf<Mensaje>()
 
     init {
         cargar()
@@ -61,12 +67,15 @@ class ChatViewModel @Inject constructor(
             val resumen = (conversaciones as Resultado.Exito).dato.firstOrNull { it.id == conversacionId }
             val trozo = (mensajes as Resultado.Exito).dato
             val otraId = resumen?.otraPersona?.id
+            val todos = (trozo + llegadosDuranteLaCarga).distinctBy { it.id }.sortedByDescending { it.creadoEn }
+            llegadosDuranteLaCarga.clear()
+            cargado = true
             _estado.update {
                 it.copy(
                     cargando = false,
                     otraPersona = resumen?.otraPersona,
                     solicitudTitulo = resumen?.solicitudTitulo,
-                    mensajes = trozo.map { m -> m.aPantalla(otraId) },
+                    mensajes = todos.map { m -> m.aPantalla(otraId) },
                     hayMasAntiguos = trozo.size >= TAMANO_PAGINA_MENSAJES
                 )
             }
@@ -79,13 +88,25 @@ class ChatViewModel @Inject constructor(
             repositorioChat.mensajesNuevos(conversacionId)
                 .catch { /* sin tiempo real, lo nuevo aparece al volver a abrir el hilo */ }
                 .collect { nuevo ->
-                    val otraId = _estado.value.otraPersona?.id
-                    _estado.update { actual ->
-                        if (actual.mensajes.any { it.id == nuevo.id }) actual
-                        else actual.copy(mensajes = listOf(nuevo.aPantalla(otraId)) + actual.mensajes)
+                    if (!cargado) {
+                        llegadosDuranteLaCarga += nuevo
+                        return@collect
                     }
-                    // Un mensaje de la otra persona con el hilo abierto se lee en ese momento.
-                    if (nuevo.emisorId == otraId) repositorioChat.marcarLeidos(conversacionId)
+                    val otraId = _estado.value.otraPersona?.id
+                    var esNuevo = false
+                    _estado.update { actual ->
+                        esNuevo = actual.mensajes.none { it.id == nuevo.id }
+                        if (!esNuevo) {
+                            actual
+                        } else {
+                            // En su lugar por fecha: al reconectar llegan tambien los que se perdieron.
+                            val mensajes = (listOf(nuevo.aPantalla(otraId)) + actual.mensajes)
+                                .sortedByDescending { it.creadoEn }
+                            actual.copy(mensajes = mensajes)
+                        }
+                    }
+                    // Un mensaje nuevo de la otra persona con el hilo abierto se lee en ese momento.
+                    if (esNuevo && nuevo.emisorId == otraId) repositorioChat.marcarLeidos(conversacionId)
                 }
         }
     }

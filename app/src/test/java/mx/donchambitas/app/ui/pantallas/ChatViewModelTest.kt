@@ -3,12 +3,17 @@ package mx.donchambitas.app.ui.pantallas
 import androidx.lifecycle.SavedStateHandle
 import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import mx.donchambitas.app.datos.falso.FuenteDatosFalsa
 import mx.donchambitas.app.datos.falso.RepositorioChatFalso
 import mx.donchambitas.app.dominio.modelo.Mensaje
 import mx.donchambitas.app.dominio.modelo.Sesion
+import mx.donchambitas.app.dominio.repositorio.RepositorioChat
+import mx.donchambitas.app.util.Resultado
 import mx.donchambitas.app.ui.navegacion.ARG_CONVERSACION_ID
 import mx.donchambitas.app.util.ReglaCorrutinas
 import mx.donchambitas.app.util.TipoError
@@ -30,8 +35,24 @@ class ChatViewModelTest {
     private val fuente = FuenteDatosFalsa()
     private val repositorioChat = RepositorioChatFalso(fuente).apply { retrasoMs = 0 }
 
-    private fun crearViewModel(conversacionId: String = "conv-1") =
-        ChatViewModel(repositorioChat, SavedStateHandle(mapOf(ARG_CONVERSACION_ID to conversacionId)))
+    private fun crearViewModel(conversacionId: String = "conv-1", repositorio: RepositorioChat = repositorioChat) =
+        ChatViewModel(repositorio, SavedStateHandle(mapOf(ARG_CONVERSACION_ID to conversacionId)))
+
+    /**
+     * El falso con el tiempo real en manos de la prueba: deja entregar un mensaje en el instante
+     * exacto (antes de que termine la carga, o como los recupera RepositorioChatReal al reconectar).
+     */
+    private class ChatConTiempoRealManual(private val base: RepositorioChatFalso) : RepositorioChat by base {
+        val entrantes = MutableSharedFlow<Mensaje>(extraBufferCapacity = 64)
+        var marcados = 0
+
+        override fun mensajesNuevos(conversacionId: String): Flow<Mensaje> = entrantes
+
+        override suspend fun marcarLeidos(conversacionId: String): Resultado<Unit> {
+            marcados++
+            return base.marcarLeidos(conversacionId)
+        }
+    }
 
     @Test
     fun debeCargarElHistorial_conLaOtraPersona_yMarcarLosPropios() = runTest(reglaCorrutinas.testDispatcher) {
@@ -167,5 +188,51 @@ class ChatViewModelTest {
         assertEquals(37, estado.mensajes.map { it.id }.toSet().size)
         assertFalse(estado.hayMasAntiguos)
         assertNull(estado.aviso)
+    }
+
+    @Test
+    fun debeMostrarComoPropio_yConservar_unMensajeQueLlegaAntesDeTerminarLaCarga() =
+        runTest(reglaCorrutinas.testDispatcher) {
+            repositorioChat.retrasoMs = 100
+            val manual = ChatConTiempoRealManual(repositorioChat)
+            val viewModel = crearViewModel(repositorio = manual)
+            runCurrent()
+            assertTrue(viewModel.estado.value.cargando)
+
+            // Mi propio mensaje, confirmado por Realtime mientras el historial sigue cargando.
+            manual.entrantes.emit(
+                Mensaje("msg-temprano", "conv-1", "usr-cli-1", "Llego antes", null, Instant.now())
+            )
+            advanceUntilIdle()
+
+            val estado = viewModel.estado.value
+            val temprano = estado.mensajes.single { it.id == "msg-temprano" }
+            assertTrue(temprano.esMio)
+            assertEquals("msg-temprano", estado.mensajes.first().id)
+            assertEquals(4, estado.mensajes.size)
+        }
+
+    @Test
+    fun debeIntegrarEnOrdenYSinRepetir_loRecuperadoAlReconectar() = runTest(reglaCorrutinas.testDispatcher) {
+        val manual = ChatConTiempoRealManual(repositorioChat)
+        val viewModel = crearViewModel(repositorio = manual)
+        advanceUntilIdle()
+        val marcadosAlAbrir = manual.marcados
+
+        // Al reconectar llega la pagina 1, de la mas antigua a la mas reciente: los tres que ya se
+        // ven y uno de Pedro que se perdio durante el corte.
+        val perdido = Mensaje(
+            "msg-perdido", "conv-1", "usr-trab-1", "Se perdio en el corte", null,
+            fuente.mensajes.first { it.id == "msg-1-3" }.creadoEn.plusSeconds(60)
+        )
+        val pagina = fuente.mensajes.filter { it.conversacionId == "conv-1" }.sortedBy { it.creadoEn } + perdido
+        pagina.forEach { manual.entrantes.emit(it) }
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertEquals(listOf("msg-perdido", "msg-1-3", "msg-1-2", "msg-1-1"), estado.mensajes.map { it.id })
+        assertFalse(estado.mensajes.first().esMio)
+        // Solo el nuevo de la otra persona marca leido; los repetidos no vuelven a ir a la red.
+        assertEquals(marcadosAlAbrir + 1, manual.marcados)
     }
 }
