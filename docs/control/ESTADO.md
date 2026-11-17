@@ -215,7 +215,7 @@ OkHttp. Falta recuperar mensajes al reconectar. `H-58` sigue abierto.
 |---|---|
 | ID | S5-T14 |
 | Título | Robustez del chat en tiempo real: reconexión, canales y motor OkHttp |
-| Quién la tomó | agente, por indicación del líder (`DEC-49`) |
+| Quién la tomó | agente, por indicación del líder (`DEC-49`; `DEC-50` le suma `H-56` a `H-58`) |
 | Rama | `fix/S5-T14-chat-tiempo-real-robusto` |
 | Desde | 2026-11-16 |
 | Estado | ticket redactado; falta implementar |
